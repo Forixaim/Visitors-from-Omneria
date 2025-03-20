@@ -17,6 +17,9 @@ public class LumiereColliders
 	public static final Collider JOYEUSE = registerCollider(reg("joyeuse"), new MultiOBBCollider(15,
 			0.5D, 0.5D, 1.2D, 0.0D, 0D, -1D
 	));
+
+	public static final Collider IMPERATRICE_INFERNAL_IMPALE = registerCollider(reg("imperatrice_infernal_collider"), new OBBCollider(0.25, 0.25, 25, 0, 1, -25));
+
 	public static final Collider IMPERATRICE_INFERNO_SCAN = registerCollider(reg("ias_scan"), new OBBCollider(1, 1, 3, 0, 1, -1.5));
 
 	public static final Collider IMPERATRICE_FLAMING_ATMOSPHERE = registerCollider(reg("imperatrice_flaming_atmosphere"), new OBBCollider(3, 3, 3, 0, 0, 0));

@@ -1,6 +1,5 @@
 package net.forixaim.vfo.world.entity.charlemagne.ai.behaviors;
 
-import net.forixaim.vfo.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordSmashAttacks;
 import net.forixaim.vfo.events.advanced_bosses.DamageDealtEvent;
 import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
 import net.forixaim.vfo.world.entity.charlemagne.CharlemagneMode;
@@ -12,14 +11,11 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.api.animation.AnimationProvider;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class HostileAttackBehavior extends BaseBehavior
@@ -48,11 +44,6 @@ public class HostileAttackBehavior extends BaseBehavior
 
 	public boolean interruptedCircle = false;
 
-	List<AnimationProvider<?>> attackTests = Arrays.asList(
-			() -> LumiereSwordSmashAttacks.IMPERATRICE_SWORD_FIRE_DRIVER,
-			() -> LumiereSwordSmashAttacks.IMPERATRICE_SWORD_SOLAR_FLARE
-	);
-
 
 
 	public HostileAttackBehavior(final CharlemagnePatch patch, final CharlemagneBrain brain, final Charlemagne mob)
@@ -77,7 +68,6 @@ public class HostileAttackBehavior extends BaseBehavior
 
 		if (mob.distanceTo(opponent) <= dist && hyperChase)
 		{
-			powerAttack();
 			hyperChase = false;
 		}
 	}
@@ -196,12 +186,6 @@ public class HostileAttackBehavior extends BaseBehavior
 		encirclementTimer = 0;
 		cooldown = 0;
 	}
-
-	private void powerAttack()
-	{
-		mobPatch.playAnimationSynchronized(attackTests.get(0).get(), 0);
-	}
-
 	/**
 	 * This function is called every tick
 	 * @param opponent the opponent to fight.

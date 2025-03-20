@@ -3,16 +3,11 @@ package net.forixaim.vfo.world.entity.charlemagne.ai.behaviors;
 import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
 import net.forixaim.vfo.world.entity.charlemagne.CharlemagnePatch;
 import net.forixaim.vfo.world.entity.charlemagne.ai.CharlemagneBrain;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.Input;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import reascer.wom.world.entity.ai.goals.RunAroundTargetGoal;
-import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 

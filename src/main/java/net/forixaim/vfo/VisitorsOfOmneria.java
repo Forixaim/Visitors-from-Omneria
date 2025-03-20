@@ -1,6 +1,5 @@
 package net.forixaim.vfo;
 
-import net.forixaim.vfo.animations.CoreRegistry;
 import net.forixaim.vfo.registry.EntityRegistry;
 import net.forixaim.vfo.registry.SoundRegistry;
 import net.forixaim.vfo.skill.DatakeyRegistry;
@@ -37,7 +36,6 @@ public class VisitorsOfOmneria
 		CREATIVE_MODE_TABS.register(modEventBus);
 		EntityRegistry.Register(modEventBus);
 		DatakeyRegistry.DATA_KEYS.register(modEventBus);
-		modEventBus.addListener(CoreRegistry::Register);
 		SoundRegistry.SOUNDS.register(modEventBus);
 		modEventBus.addListener(this::commonSetup);
 		modEventBus.addListener(this::clientSetup);

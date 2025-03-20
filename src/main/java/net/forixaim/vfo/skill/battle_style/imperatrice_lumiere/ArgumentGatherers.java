@@ -23,12 +23,16 @@ public class ArgumentGatherers
 		int backward = ControllEngine.isKeyDown(Minecraft.getInstance().options.keyDown) ? -1 : 0;
 		int left = ControllEngine.isKeyDown(Minecraft.getInstance().options.keyLeft) ? 1 : 0;
 		int right = ControllEngine.isKeyDown(Minecraft.getInstance().options.keyRight) ? -1 : 0;
+		int down = ControllEngine.isKeyDown(Minecraft.getInstance().options.keyShift) ? -1 : 0;
+		int up = ControllEngine.isKeyDown(Minecraft.getInstance().options.keyJump) ? 1 : 0;
 
 		FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
 		buf.writeInt(forward);
 		buf.writeInt(backward);
 		buf.writeInt(left);
 		buf.writeInt(right);
+		buf.writeInt(down);
+		buf.writeInt(up);
 
 		return buf;
 	}
@@ -39,12 +43,17 @@ public class ArgumentGatherers
 		int backward = args.readInt();
 		int left = args.readInt();
 		int right = args.readInt();
+		int down = args.readInt();
+		int up = args.readInt();
 		int vertic = forward + backward;
 		int horizon = left + right;
+		int upDown = up + down;
+
 
 		CPExecuteSkill packet = new CPExecuteSkill(playerPatch.getSkill(skill).getSlotId());
 		packet.getBuffer().writeInt(Integer.compare(vertic, 0));
 		packet.getBuffer().writeInt(Integer.compare(horizon, 0));
+		packet.getBuffer().writeInt(Integer.compare(down, 0));
 
 		return packet;
 	}

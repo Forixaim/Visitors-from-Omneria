@@ -3,8 +3,6 @@ package net.forixaim.vfo.world.entity.charlemagne.ai;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
-import net.forixaim.vfo.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordSmashAttacks;
-import net.forixaim.vfo.animations.npc_interactions.charlemagne.FacialAnimations;
 import net.forixaim.vfo.events.advanced_bosses.DamageDealtEvent;
 import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
 import net.forixaim.vfo.world.entity.charlemagne.CharlemagneMode;
@@ -15,12 +13,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import yesman.epicfight.api.animation.AnimationProvider;
+import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.AttackAnimation;
+import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
-import yesman.epicfight.api.utils.math.Vec3f;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +32,7 @@ public class CharlemagneBrain
 	public CharlemagneMode mode;
 	private LivingEntity nearestMonster;
 	private LivingEntity opponent;
-	private final Map<Emotion, AnimationProvider<?>> emotionState = Maps.newHashMap();
+	private final Map<Emotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> emotionState = Maps.newHashMap();
 	private Emotion state;
 	private final Map<CharlemagneMode, BaseBehavior> handlers = Maps.newHashMap();
 
@@ -60,10 +56,7 @@ public class CharlemagneBrain
 		this.mode = CharlemagneMode.FRIENDLY;
 		this.patch = patch;
 		this.state = null;
-		this.emotionState.put(Emotion.NEUTRAL, () -> FacialAnimations.CHARLEMAGNE_NEUTRAL);
-		this.emotionState.put(Emotion.SERIOUS, () -> FacialAnimations.CHARLEMAGNE_SERIOUS);
 		hostileAttackBehavior = new HostileAttackBehavior(patch, this, target);
-		StaminaDamageMap.put((AttackAnimation) LumiereSwordSmashAttacks.IMPERATRICE_SWORD_FIRE_DRIVER, 7.1f);
 		this.handlers.put(CharlemagneMode.DEFENSE, hostileAttackBehavior);
 	}
 

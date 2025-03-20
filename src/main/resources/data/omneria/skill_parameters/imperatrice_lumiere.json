@@ -1,6 +1,5 @@
 {
-	"xp_requirement": 5,
-	"jump_boost_power": 0.4,
+	"xp_requirement": 0,
 	"attribute_modifiers": [
 		{
 			"attribute": "epicfight:staminar",
@@ -21,14 +20,7 @@
 			"name": "cosmonian_durability",
 			"uuid": "fceabee5-64fc-40dd-a7a2-4470ed8ff00a",
 			"operation": "multiply_base",
-			"amount": 20
-		},
-		{
-			"attribute": "minecraft:generic.movement_speed",
-			"name": "divine_speed",
-			"uuid": "fceabee5-64fc-40dd-a7a2-4470ed8ff00a",
-			"operation": "multiply_base",
-			"amount": 0.3
+			"amount": 1
 		}
 	]
 }

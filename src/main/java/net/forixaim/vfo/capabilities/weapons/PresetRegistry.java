@@ -14,7 +14,8 @@ import java.util.function.Function;
 @Mod.EventBusSubscriber(modid = VisitorsOfOmneria.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class PresetRegistry
 {
-	public static Function<Item, CapabilityItem.Builder> JOYEUSE = (item -> OmneriaExCapWeapons.ORIGIN_JOYEUSE.export());
+	public static Function<Item, CapabilityItem.Builder> JOYEUSE = item ->
+			OmneriaExCapWeapons.ORIGIN_JOYEUSE.export();
 
 
 	@SubscribeEvent
