@@ -1,9 +1,9 @@
-package net.forixaim.vfo.world.entity.charlemagne;
+package net.forixaim.vfo.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.forixaim.vfo.VisitorsOfOmneria;
-import net.forixaim.vfo.world.entity.charlemagne.model.CharlemagneModel;
-import net.forixaim.vfo.world.entity.types.AbstractFriendlyNPCRenderer;
+import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
+import net.forixaim.vfo.client.models.entity.mob.CharlemagneModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;

@@ -3,7 +3,7 @@ package net.forixaim.vfo;
 import net.forixaim.vfo.registry.EntityRegistry;
 import net.forixaim.vfo.registry.SoundRegistry;
 import net.forixaim.vfo.skill.DatakeyRegistry;
-import net.forixaim.vfo.world.entity.charlemagne.CharlemagneRenderer;
+import net.forixaim.vfo.client.renderer.entity.CharlemagneRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;

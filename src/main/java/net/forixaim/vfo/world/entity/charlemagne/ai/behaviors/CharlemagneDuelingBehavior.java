@@ -1,7 +1,7 @@
 package net.forixaim.vfo.world.entity.charlemagne.ai.behaviors;
 
 import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
-import net.forixaim.vfo.world.entity.charlemagne.CharlemagnePatch;
+import net.forixaim.vfo.world.entity.patches.CharlemagnePatch;
 import net.forixaim.vfo.world.entity.charlemagne.ai.CharlemagneBrain;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;

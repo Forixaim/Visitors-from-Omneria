@@ -1,4 +1,4 @@
-package net.forixaim.vfo.world.entity.charlemagne.model;
+package net.forixaim.vfo.client.meshes;
 
 import yesman.epicfight.api.client.model.*;
 import yesman.epicfight.client.mesh.HumanoidMesh;

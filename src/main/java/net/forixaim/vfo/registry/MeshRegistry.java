@@ -1,7 +1,8 @@
 package net.forixaim.vfo.registry;
 
 import net.forixaim.vfo.VisitorsOfOmneria;
-import net.forixaim.vfo.world.entity.charlemagne.model.CharlemagneMesh;
+import net.forixaim.vfo.client.meshes.CharlemagneMesh;
+import net.forixaim.vfo.client.meshes.FlareSlashMesh;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.client.model.Meshes;
@@ -10,5 +11,5 @@ import yesman.epicfight.api.client.model.Meshes;
 public class MeshRegistry
 {
 	public static Meshes.MeshAccessor<CharlemagneMesh> CHARLEMAGNE = Meshes.MeshAccessor.create(VisitorsOfOmneria.MOD_ID, "entity/charlemagne", jsonAssetLoader -> jsonAssetLoader.loadSkinnedMesh(CharlemagneMesh::new));
-
+	public static Meshes.MeshAccessor<FlareSlashMesh> FLARE_SLASH = Meshes.MeshAccessor.create(VisitorsOfOmneria.MOD_ID, "entity/flare_slash", jsonAssetLoader -> jsonAssetLoader.loadSkinnedMesh(FlareSlashMesh::new));
 }

@@ -1,13 +1,11 @@
 package net.forixaim.vfo.world.entity.charlemagne.ai;
 
 import net.forixaim.vfo.util.Tree;
-import net.forixaim.vfo.world.entity.charlemagne.CharlemagnePatch;
+import net.forixaim.vfo.world.entity.patches.CharlemagnePatch;
 import net.minecraft.util.RandomSource;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class CharlemagneAttackString
 {

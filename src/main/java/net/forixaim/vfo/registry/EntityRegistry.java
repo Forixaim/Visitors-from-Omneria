@@ -2,6 +2,7 @@ package net.forixaim.vfo.registry;
 
 import net.forixaim.vfo.VisitorsOfOmneria;
 import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
+import net.forixaim.vfo.world.entity.projectiles.FlareSlashProjectile;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -15,6 +16,9 @@ public class EntityRegistry
 
 	public static final RegistryObject<EntityType<Charlemagne>> CHARLEMAGNE = ENTITIES.register("charlemagne",
 			() -> EntityType.Builder.of(Charlemagne::new, MobCategory.MISC).sized(0.7f, 2.0f).clientTrackingRange(12).build("charlemagne"));
+	public static final RegistryObject<EntityType<FlareSlashProjectile>> FLARE_SLASH = ENTITIES.register("flare_slash",
+			() -> EntityType.Builder.of(FlareSlashProjectile::new, MobCategory.MISC).sized(0.1f, 0.1f).clientTrackingRange(12).build("flare_slash"));
+
 
 	public static void Register(IEventBus bus)
 	{

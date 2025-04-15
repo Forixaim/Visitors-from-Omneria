@@ -1,10 +1,10 @@
-package net.forixaim.vfo.world.entity.charlemagne;
+package net.forixaim.vfo.world.entity.patches;
 
 import com.google.common.collect.Lists;
 import net.forixaim.vfo.events.advanced_bosses.DamageDealtEvent;
+import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
 import net.forixaim.vfo.world.entity.charlemagne.ai.CharlemagneAttackString;
 import net.forixaim.vfo.world.entity.charlemagne.ai.CharlemagneBrain;
-import net.forixaim.vfo.world.entity.patches.FriendlyHumanoidNPCPatch;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import yesman.epicfight.api.animation.Animator;

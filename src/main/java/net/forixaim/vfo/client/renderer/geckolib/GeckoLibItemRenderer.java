@@ -1,4 +1,4 @@
-package net.forixaim.vfo.client.renderer;
+package net.forixaim.vfo.client.renderer.geckolib;
 
 import net.forixaim.vfo.item.weapons.legendary.GeckoLibLegendaryWeapon;
 import software.bernie.geckolib.renderer.GeoItemRenderer;

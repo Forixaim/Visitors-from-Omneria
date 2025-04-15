@@ -3,6 +3,8 @@ package net.forixaim.vfo.world.entity.charlemagne;
 import com.google.common.collect.Lists;
 import com.mojang.logging.LogUtils;
 import mekanism.common.capabilities.Capabilities;
+import net.forixaim.vfo.world.entity.charlemagne.ai.CharlemagneMode;
+import net.forixaim.vfo.world.entity.patches.CharlemagnePatch;
 import net.forixaim.vfo.world.entity.special_tags.IRadiationImmune;
 import net.forixaim.vfo.world.entity.types.AbstractFriendlyNPC;
 import net.minecraft.world.InteractionHand;

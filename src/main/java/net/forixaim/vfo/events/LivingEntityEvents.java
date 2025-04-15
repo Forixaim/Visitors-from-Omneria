@@ -1,36 +1,23 @@
 package net.forixaim.vfo.events;
 
-import net.forixaim.battle_arts.initialization.registry.SoundRegistry;
 import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.vfo.VisitorsOfOmneria;
 import net.forixaim.vfo.events.advanced_bosses.DamageDealtEvent;
-import net.forixaim.vfo.registry.EntityRegistry;
 import net.forixaim.vfo.skill.battle_style.properties.FlyingEnabled;
-import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
-import net.forixaim.vfo.world.entity.charlemagne.CharlemagnePatch;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageTypes;
+import net.forixaim.vfo.world.entity.patches.CharlemagnePatch;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.projectile.ProjectilePatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageType;
-import yesman.epicfight.world.damagesource.ExtraDamageInstance;
-
-import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = VisitorsOfOmneria.MOD_ID)
 public class LivingEntityEvents

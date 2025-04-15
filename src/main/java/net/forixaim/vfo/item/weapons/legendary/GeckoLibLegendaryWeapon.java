@@ -1,6 +1,6 @@
 package net.forixaim.vfo.item.weapons.legendary;
 
-import net.forixaim.vfo.client.renderer.GeckoLibItemRenderer;
+import net.forixaim.vfo.client.renderer.geckolib.GeckoLibItemRenderer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;

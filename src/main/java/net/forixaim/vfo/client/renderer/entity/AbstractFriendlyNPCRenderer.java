@@ -1,5 +1,7 @@
-package net.forixaim.vfo.world.entity.types;
+package net.forixaim.vfo.client.renderer.entity;
 
+import net.forixaim.vfo.client.models.entity.mob.AbstractFriendlyNPCModel;
+import net.forixaim.vfo.world.entity.types.AbstractFriendlyNPC;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;

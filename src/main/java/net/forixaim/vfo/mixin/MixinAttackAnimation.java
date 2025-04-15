@@ -1,6 +1,6 @@
 package net.forixaim.vfo.mixin;
 
-import net.forixaim.vfo.world.entity.charlemagne.CharlemagnePatch;
+import net.forixaim.vfo.world.entity.patches.CharlemagnePatch;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

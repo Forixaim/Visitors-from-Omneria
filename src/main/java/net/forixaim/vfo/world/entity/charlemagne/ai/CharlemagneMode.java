@@ -1,4 +1,4 @@
-package net.forixaim.vfo.world.entity.charlemagne;
+package net.forixaim.vfo.world.entity.charlemagne.ai;
 
 public enum CharlemagneMode
 {

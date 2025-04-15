@@ -1,8 +1,7 @@
-package net.forixaim.vfo.client.renderer;
+package net.forixaim.vfo.client.renderer.geckolib;
 
 import net.forixaim.vfo.VisitorsOfOmneria;
 import net.forixaim.vfo.item.weapons.legendary.GeckoLibLegendaryWeapon;
-import net.forixaim.vfo.item.weapons.legendary.LegendaryWeapon;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 import software.bernie.geckolib.model.GeoModel;

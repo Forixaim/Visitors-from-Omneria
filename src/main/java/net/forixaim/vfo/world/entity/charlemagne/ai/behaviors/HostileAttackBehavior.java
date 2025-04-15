@@ -2,8 +2,8 @@ package net.forixaim.vfo.world.entity.charlemagne.ai.behaviors;
 
 import net.forixaim.vfo.events.advanced_bosses.DamageDealtEvent;
 import net.forixaim.vfo.world.entity.charlemagne.Charlemagne;
-import net.forixaim.vfo.world.entity.charlemagne.CharlemagneMode;
-import net.forixaim.vfo.world.entity.charlemagne.CharlemagnePatch;
+import net.forixaim.vfo.world.entity.charlemagne.ai.CharlemagneMode;
+import net.forixaim.vfo.world.entity.patches.CharlemagnePatch;
 import net.forixaim.vfo.world.entity.charlemagne.ai.CharlemagneBrain;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;

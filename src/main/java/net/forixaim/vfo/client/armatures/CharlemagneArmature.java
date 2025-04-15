@@ -1,4 +1,4 @@
-package net.forixaim.vfo.world.entity.charlemagne.model;
+package net.forixaim.vfo.client.armatures;
 
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.model.armature.HumanoidArmature;

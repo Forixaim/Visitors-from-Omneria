@@ -1,10 +1,9 @@
 package net.forixaim.vfo.world.entity.charlemagne.ai;
 
 import com.google.common.collect.Lists;
-import net.forixaim.vfo.world.entity.charlemagne.CharlemagnePatch;
+import net.forixaim.vfo.world.entity.patches.CharlemagnePatch;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.AttackAnimation;
-import yesman.epicfight.api.animation.types.StaticAnimation;
 
 import java.util.List;
 
