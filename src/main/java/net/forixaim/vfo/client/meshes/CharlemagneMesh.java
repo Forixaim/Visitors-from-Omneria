@@ -8,7 +8,8 @@ import java.util.Map;
 
 public class CharlemagneMesh extends HumanoidMesh
 {
-	public CharlemagneMesh(Map<String, Number[]> arrayMap, Map<MeshPartDefinition, List<SkinnedMeshVertexBuilder>> parts, SkinnedMesh parent, Mesh.RenderProperties properties)
+
+	public CharlemagneMesh(Map<String, Number[]> arrayMap, Map<MeshPartDefinition, List<VertexBuilder>> parts, SkinnedMesh parent, RenderProperties properties)
 	{
 		super(arrayMap, parts, parent, properties);
 	}

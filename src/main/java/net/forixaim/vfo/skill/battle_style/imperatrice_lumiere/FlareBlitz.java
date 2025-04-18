@@ -186,7 +186,7 @@ public class FlareBlitz extends BasicAttack
 			{
 				float startupReduction = container.getDataManager().getDataValue(DatakeyRegistry.HIT.get()) ? startupReduction(attackMotion) : 0.0f;
 				if (prevAnim == LumiereSwordAnims.IMPERATRICE_SWORD_RIGHT_ATTACK.id())
-					startupReduction -= 0.1f;
+					startupReduction -= 0f;
 				else if (prevAnim == LumiereSwordAnims.IMPERATRICE_SWORD_BACK_ATTACK_ALT.id())
 					startupReduction -= 0f;
 				if (container.getExecutor().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.JUMPING.get()) && container.getExecutor().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(DatakeyRegistry.JUMPING.get()))
@@ -211,19 +211,19 @@ public class FlareBlitz extends BasicAttack
 	{
 		if (anim.id() == LumiereSwordAnims.IMPERATRICE_SWORD_LEFT_ATTACK.id())
 		{
-			return -0.2f;
+			return -0f;
 		}
 		if (anim.id() == LumiereSwordAnims.IMPERATRICE_SWORD_NEUTRAL_ATTACK.id())
 		{
-			return -0.1f;
+			return -0f;
 		}
 		if (anim.id() == LumiereSwordAnims.IMPERATRICE_SWORD_RIGHT_ATTACK.id())
 		{
-			return -0.1f;
+			return -0f;
 		}
 		if (anim.id() == LumiereSwordAnims.IMPERATRICE_SWORD_BACK_ATTACK.id())
 		{
-			return -0.1f;
+			return -0f;
 		}
 		return 0.0f;
 	}
