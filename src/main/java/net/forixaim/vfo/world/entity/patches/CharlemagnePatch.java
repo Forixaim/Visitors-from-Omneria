@@ -12,6 +12,7 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.world.capabilities.entitypatch.Faction;
+import yesman.epicfight.world.capabilities.entitypatch.Factions;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +27,7 @@ public class CharlemagnePatch extends FriendlyHumanoidNPCPatch<Charlemagne>
 
 	public CharlemagnePatch()
 	{
-		super(Faction.NEUTRAL);
+		super(Factions.NEUTRAL);
 	}
 
 	@Override

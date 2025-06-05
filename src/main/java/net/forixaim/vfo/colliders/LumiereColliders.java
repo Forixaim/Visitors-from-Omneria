@@ -12,7 +12,7 @@ public class LumiereColliders
 {
 	private static ResourceLocation reg(String name)
 	{
-		return new ResourceLocation(VisitorsOfOmneria.MOD_ID, name);
+		return ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, name);
 	}
 	public static final Collider JOYEUSE = registerCollider(reg("joyeuse"), new MultiOBBCollider(15,
 			0.5D, 0.5D, 1.2D, 0.0D, 0D, -1D

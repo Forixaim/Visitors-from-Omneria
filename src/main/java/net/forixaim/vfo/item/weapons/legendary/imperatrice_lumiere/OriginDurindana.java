@@ -15,16 +15,16 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class OriginJoyeuse extends LegendaryWeapon
+public class OriginDurindana extends LegendaryWeapon
 {
-	public OriginJoyeuse()
+	public OriginDurindana()
 	{
-		super(VisitorsOfOmneriaTiers.ORIGIN_JOYEUSE, 5, -3f, new Properties().rarity(OmneriaRarities.IMPERATRICE_LUMIERE));
+		super(VisitorsOfOmneriaTiers.ORIGIN_JOYEUSE, -1, -2.8f, new Properties().rarity(OmneriaRarities.IMPERATRICE_LUMIERE));
 	}
 
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, @NotNull TooltipFlag flagIn) {
 		tooltip.add(Component.literal(""));
-		tooltip.add(Component.translatable("item." + VisitorsOfOmneria.MOD_ID + ".origin_joyeuse.tooltip").withStyle(ChatFormatting.DARK_RED));
+		tooltip.add(Component.translatable("item." + VisitorsOfOmneria.MOD_ID + ".origin_durindana.tooltip").withStyle(ChatFormatting.DARK_RED));
 	}
 }

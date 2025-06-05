@@ -40,7 +40,7 @@ public class SoundRegistry
 
 
 	private static RegistryObject<SoundEvent> registerSound(String name) {
-		ResourceLocation res = new ResourceLocation(VisitorsOfOmneria.MOD_ID, name);
+		ResourceLocation res = ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, name);
 		return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(res));
 	}
 }

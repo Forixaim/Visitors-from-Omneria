@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.client.forgeevent.PatchedRenderersEvent;
 import yesman.epicfight.api.forgeevent.EntityPatchRegistryEvent;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 
 
 public class ModBusEvents
@@ -29,6 +30,7 @@ public class ModBusEvents
 		{
 			event.put(EntityRegistry.CHARLEMAGNE.get(), Charlemagne.createAttributes().build());
 		}
+
 	}
 
 	@Mod.EventBusSubscriber(modid = VisitorsOfOmneria.MOD_ID, value = {Dist.CLIENT}, bus = Mod.EventBusSubscriber.Bus.MOD)

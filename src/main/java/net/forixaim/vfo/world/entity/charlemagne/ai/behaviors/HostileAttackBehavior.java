@@ -95,28 +95,12 @@ public class HostileAttackBehavior extends BaseBehavior
 	//Movement Patterns
 	private void closeIn(LivingEntity opponent, float distance, float fastChaseThreshold)
 	{
+		mob.setDeltaMovement(distanceTo(opponent).normalize().scale(1));
+	}
 
-		if (mob.distanceTo(opponent) > distance && (!mob.getNavigation().isInProgress() || (opponent instanceof PathfinderMob pathfinderMob && pathfinderMob.getNavigation().isInProgress())))
-		{
-			if (mob.distanceTo(opponent) > fastChaseThreshold)
-			{
-				mob.getNavigation().moveTo(opponent.position().x(), opponent.position().y(), opponent.position().z(), 2f);
-				hyperChase = true;
-			}
-			else if (mob.distanceTo(opponent) >= distance && mob.distanceTo(opponent) <= fastChaseThreshold)
-			{
-				mob.getNavigation().moveTo(opponent.position().x(), opponent.position().y(), opponent.position().z(), 1);
-			}
-		}
-		else
-		{
-			if (mob.distanceTo(opponent) <= distance)
-			{
-				mobPatch.rotateTo(opponent, 360f, true);
-				mob.getNavigation().stop();
-			}
-
-		}
+	private Vec3 distanceTo(LivingEntity opponent)
+	{
+		return opponent.position().subtract(mob.position());
 	}
 
 	private void encircle(Vec3 pos, LivingEntity entity)

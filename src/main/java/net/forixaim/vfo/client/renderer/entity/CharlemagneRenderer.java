@@ -16,7 +16,7 @@ public class CharlemagneRenderer extends AbstractFriendlyNPCRenderer<Charlemagne
 
 	public CharlemagneRenderer(EntityRendererProvider.Context context)
 	{
-		this(context, ModelLayers.PLAYER_SLIM, ModelLayers.PLAYER_SLIM_INNER_ARMOR, ModelLayers.PLAYER_SLIM_OUTER_ARMOR, new ResourceLocation(VisitorsOfOmneria.MOD_ID, "textures/entity/charlemagne.png"));
+		this(context, ModelLayers.PLAYER_SLIM, ModelLayers.PLAYER_SLIM_INNER_ARMOR, ModelLayers.PLAYER_SLIM_OUTER_ARMOR, ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "textures/entity/charlemagne.png"));
 	}
 
 	public CharlemagneRenderer(EntityRendererProvider.Context pContext, ModelLayerLocation pZombieLayer, ModelLayerLocation pInnerArmor, ModelLayerLocation pOuterArmor, ResourceLocation location) {
@@ -26,7 +26,7 @@ public class CharlemagneRenderer extends AbstractFriendlyNPCRenderer<Charlemagne
 	@Override
 	public @NotNull ResourceLocation getTextureLocation(@NotNull Charlemagne charlemagne)
 	{
-		return new ResourceLocation(VisitorsOfOmneria.MOD_ID, "textures/entity/charlemagne.png");
+		return ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "textures/entity/charlemagne.png");
 	}
 
 	@Override

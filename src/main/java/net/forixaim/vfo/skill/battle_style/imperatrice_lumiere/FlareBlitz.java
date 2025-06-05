@@ -1,5 +1,6 @@
 package net.forixaim.vfo.skill.battle_style.imperatrice_lumiere;
 
+import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillCategories;
 import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.vfo.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.vfo.capabilities.styles.LumiereStyles;
@@ -7,6 +8,8 @@ import net.forixaim.vfo.skill.DatakeyRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraftforge.api.distmarker.Dist;
@@ -48,10 +51,11 @@ public class FlareBlitz extends BasicAttack
 		super.onInitiate(container);
 		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, event ->
 		{
-			if (event.getSkillContainer().getSkill().getCategory() == SkillCategories.BASIC_ATTACK && container.getDataManager().getDataValue(DatakeyRegistry.HIT.get()) && container.getExecutor().getStamina() >= 2f && !event.getPlayerPatch().getEntityState().attacking())
+			if ((event.getSkillContainer().getSkill().getCategory() == SkillCategories.BASIC_ATTACK || event.getSkillContainer().getSkill().getCategory() == BattleArtsSkillCategories.COMBAT_ART) && container.getDataManager().getDataValue(DatakeyRegistry.HIT.get()) && container.getExecutor().getStamina() >= 2f && !event.getPlayerPatch().getEntityState().attacking())
 			{
 				container.getExecutor().consumeForSkill(this, Resource.STAMINA, 2f);
 				event.setStateExecutable(true);
+
 			}
 		});
 
@@ -59,7 +63,6 @@ public class FlareBlitz extends BasicAttack
 		{
 			container.getDataManager().setDataSync(DatakeyRegistry.PREV_ANIM.get(), -1, container.getServerExecutor().getOriginal());
 			container.getDataManager().setDataSync(DatakeyRegistry.HIT.get(), false, container.getServerExecutor().getOriginal());
-
 		});
 
 		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEALT_DAMAGE_EVENT_ATTACK, EVENT_UUID, event ->
@@ -70,6 +73,8 @@ public class FlareBlitz extends BasicAttack
 				container.getDataManager().setDataSync(DatakeyRegistry.HIT.get(), true, container.getServerExecutor().getOriginal());
 			}
 		});
+
+
 	}
 
 	@Override

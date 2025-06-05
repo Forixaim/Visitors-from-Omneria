@@ -17,6 +17,6 @@ public class FlareSlashRenderer extends EntityRenderer<FlareSlashProjectile>
     @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull FlareSlashProjectile flareSlashProjectile)
     {
-        return new ResourceLocation(VisitorsOfOmneria.MOD_ID, "textures/entity/flare_slash.png");
+        return ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "textures/entity/flare_slash.png");
     }
 }

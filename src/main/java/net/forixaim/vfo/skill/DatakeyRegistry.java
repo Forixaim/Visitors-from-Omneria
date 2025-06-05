@@ -3,7 +3,7 @@ package net.forixaim.vfo.skill;
 import net.forixaim.vfo.VisitorsOfOmneria;
 import net.forixaim.vfo.skill.battle_style.imperatrice_lumiere.FlareBlitz;
 import net.forixaim.vfo.skill.battle_style.imperatrice_lumiere.ImperatriceLumiere;
-import net.forixaim.vfo.skill.battle_style.imperatrice_lumiere.LumiereMovements;
+import net.forixaim.vfo.skill.battle_style.imperatrice_lumiere.active.FireArts;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -13,7 +13,7 @@ import yesman.epicfight.skill.SkillDataKey;
 
 public class DatakeyRegistry
 {
-	public static final DeferredRegister<SkillDataKey<?>> DATA_KEYS = DeferredRegister.create(new ResourceLocation(EpicFightMod.MODID, "skill_data_keys"), VisitorsOfOmneria.MOD_ID);
+	public static final DeferredRegister<SkillDataKey<?>> DATA_KEYS = DeferredRegister.create(ResourceLocation.fromNamespaceAndPath(EpicFightMod.MODID, "skill_data_keys"), VisitorsOfOmneria.MOD_ID);
 
 	public static final RegistryObject<SkillDataKey<Boolean>> HIT = DATA_KEYS.register("hit", () ->
 			SkillDataKey.createSkillDataKey(
@@ -53,12 +53,12 @@ public class DatakeyRegistry
 			)
 	);
 
-	public static final RegistryObject<SkillDataKey<Boolean>> GUARDING = DATA_KEYS.register(
-			"guarding", () -> SkillDataKey.createSkillDataKey(
+	public static final RegistryObject<SkillDataKey<Boolean>> FLARESPIN = DATA_KEYS.register(
+			"flarespin", () -> SkillDataKey.createSkillDataKey(
 					PacketBufferCodec.BOOLEAN,
-					false,
 					true,
-					ImperatriceLumiere.class
+					true,
+					FireArts.class
 			)
 	);
 
@@ -66,6 +66,15 @@ public class DatakeyRegistry
 			"jumping", () -> SkillDataKey.createSkillDataKey(
 					PacketBufferCodec.BOOLEAN,
 					false,
+					true,
+					ImperatriceLumiere.class
+			)
+	);
+
+	public static final RegistryObject<SkillDataKey<Integer>> TRUE_COMBO_COUNT = DATA_KEYS.register(
+			"true_combo_count", () -> SkillDataKey.createSkillDataKey(
+					PacketBufferCodec.INTEGER,
+					0,
 					true,
 					ImperatriceLumiere.class
 			)

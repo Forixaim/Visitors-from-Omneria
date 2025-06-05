@@ -23,7 +23,7 @@ public class CreativeTabRegistry
 			.title(Component.translatable("itemGroup.omneria.visitors_of_omneria").withStyle(ChatFormatting.DARK_PURPLE))
 			.icon(() -> new ItemStack(ItemRegistry.ORIGIN_JOYEUSE.get()))
 			.withTabsBefore(EpicFightCreativeTabs.ITEMS.getId()).hideTitle()
-			.withBackgroundLocation(new ResourceLocation(VisitorsOfOmneria.MOD_ID, "textures/gui/visitors_of_omneria.png"))
+			.withBackgroundLocation(ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "textures/gui/visitors_of_omneria.png"))
 			.displayItems((params, output) -> ItemRegistry.ITEMS.getEntries().forEach(item -> {
 				if (item == ItemRegistry.ORIGIN_JOYEUSE)
 					output.accept(item.get());

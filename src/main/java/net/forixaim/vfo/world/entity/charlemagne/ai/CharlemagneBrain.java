@@ -121,7 +121,6 @@ public class CharlemagneBrain
 			{
 				this.mode = CharlemagneMode.DEFENSE;
 			}
-			printDebugList();
 		}
 		if (seconds >= 60)
 		{

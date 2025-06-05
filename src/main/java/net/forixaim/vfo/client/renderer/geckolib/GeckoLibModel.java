@@ -12,17 +12,17 @@ public class GeckoLibModel extends GeoModel<GeckoLibLegendaryWeapon>
 {
     @Override
     public ResourceLocation getModelResource(GeckoLibLegendaryWeapon animatable) {
-        return new ResourceLocation(VisitorsOfOmneria.MOD_ID, "models/item/geo/" + getWeaponName(animatable) + ".geo.json");
+        return ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "models/item/geo/" + getWeaponName(animatable) + ".geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(GeckoLibLegendaryWeapon animatable) {
-        return new ResourceLocation(VisitorsOfOmneria.MOD_ID, "textures/item/" + getWeaponName(animatable) + ".png");
+        return ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "textures/item/" + getWeaponName(animatable) + ".png");
     }
 
     @Override
     public ResourceLocation getAnimationResource(GeckoLibLegendaryWeapon animatable) {
-        return new ResourceLocation(VisitorsOfOmneria.MOD_ID, "geo/animations" + getWeaponName(animatable) + ".animation.json");
+        return ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "geo/animations" + getWeaponName(animatable) + ".animation.json");
     }
 
     private String getWeaponName(GeckoLibLegendaryWeapon weapon) {

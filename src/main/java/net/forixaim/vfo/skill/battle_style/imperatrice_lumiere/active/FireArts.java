@@ -1,13 +1,18 @@
 package net.forixaim.vfo.skill.battle_style.imperatrice_lumiere.active;
 
+import com.alrex.parcool.api.unstable.action.ParCoolActionEvent;
 import net.forixaim.bs_api.battle_arts_skills.active.combat_arts.CombatArt;
 import net.forixaim.vfo.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
+import net.forixaim.vfo.skill.DatakeyRegistry;
 import net.forixaim.vfo.skill.battle_style.imperatrice_lumiere.ArgumentGatherers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fml.ModList;
 import yesman.epicfight.client.events.engine.ControllEngine;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
+import yesman.epicparcool.EpicParCool;
+import yesman.epicparcool.ParcoolLivingMotions;
 
 import java.util.UUID;
 
@@ -46,14 +51,30 @@ public class FireArts extends CombatArt
         int sw = args.readInt();
         int ud = args.readInt();
 
-        if (fw == -1)
+        if (ud == -1 || (ModList.get().isLoaded(EpicParCool.MODID) && container.getServerExecutor().getCurrentLivingMotion().isSame(ParcoolLivingMotions.FAST_RUN)))
         {
             container.getServerExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_BLAZING_SUNRISE, 0);
 
         }
         else
         {
-            container.getServerExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_FLARIAN_IMPALER, 0);
+            if (!container.getExecutor().getOriginal().onGround() && container.getDataManager().getDataValue(DatakeyRegistry.FLARESPIN.get()))
+            {
+                container.getDataManager().setDataSync(DatakeyRegistry.FLARESPIN.get(), false, container.getServerExecutor().getOriginal());
+                container.getServerExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_FLARESPIN, 0);
+            }
+            else
+                container.getServerExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_FLARIAN_IMPALER, 0);
         }
+    }
+
+    @Override
+    public void updateContainer(SkillContainer container)
+    {
+        if (container.getExecutor().getOriginal().onGround() && !container.getExecutor().isLogicalClient())
+        {
+            container.getDataManager().setDataSync(DatakeyRegistry.FLARESPIN.get(), true, container.getServerExecutor().getOriginal());
+        }
+        super.updateContainer(container);
     }
 }

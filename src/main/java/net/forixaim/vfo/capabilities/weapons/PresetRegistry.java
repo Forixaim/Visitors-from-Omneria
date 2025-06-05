@@ -21,6 +21,6 @@ public class PresetRegistry
 	@SubscribeEvent
 	public static void Register(WeaponCapabilityPresetRegistryEvent Event)
 	{
-		Event.getTypeEntry().put(new ResourceLocation(VisitorsOfOmneria.MOD_ID, "joyeuse"), JOYEUSE);
+		Event.getTypeEntry().put(ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "joyeuse"), JOYEUSE);
 	}
 }

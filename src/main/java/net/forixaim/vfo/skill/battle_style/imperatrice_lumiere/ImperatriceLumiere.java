@@ -3,6 +3,7 @@ package net.forixaim.vfo.skill.battle_style.imperatrice_lumiere;
 
 import com.brandon3055.draconicevolution.DraconicEvolution;
 import com.brandon3055.draconicevolution.items.equipment.ModularChestpiece;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mekanism.common.Mekanism;
 import mekanism.common.item.gear.ItemMekaSuitArmor;
 import moze_intel.projecte.api.ProjectEAPI;
@@ -18,8 +19,10 @@ import net.forixaim.vfo.registry.ItemRegistry;
 import net.forixaim.vfo.registry.SoundRegistry;
 import net.forixaim.vfo.skill.DatakeyRegistry;
 import net.forixaim.vfo.skill.OmneriaSkills;
+import net.forixaim.vfo.skill.battle_style.OmneriaBattleStyle;
 import net.forixaim.vfo.skill.battle_style.properties.FlyingEnabled;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
@@ -35,6 +38,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
 import yesman.epicfight.api.animation.LivingMotions;
+import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPChangeSkill;
 import yesman.epicfight.skill.ChargeableSkill;
@@ -50,7 +54,7 @@ import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.UUID;
 
-public class ImperatriceLumiere extends BattleStyle
+public class ImperatriceLumiere extends OmneriaBattleStyle
 {
 	private static final UUID EVENT_UUID = UUID.fromString("fceabee5-64fc-40dd-a7a2-4470ed8ff00a");
 
@@ -125,8 +129,36 @@ public class ImperatriceLumiere extends BattleStyle
 			{
 				event.getPlayerPatch().getOriginal().level().explode(event.getTarget(), event.getTarget().getX(), event.getTarget().getY(), event.getTarget().getZ(), 1.0f, Level.ExplosionInteraction.NONE);
 			}
+
+			if (event.getDamageSource().getAnimation() == LumiereSwordAnims.IMPERATRICE_SWORD_FLARESPIN)
+			{
+				event.getPlayerPatch().getOriginal().setDeltaMovement(0, 2, 0);
+			}
 		});
 		super.onInitiate(container);
+	}
+
+	@Override
+	public boolean shouldDraw(SkillContainer container)
+	{
+		return true;
+	}
+
+	@Override
+	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y)
+	{
+		PoseStack poseStack = guiGraphics.pose();
+		poseStack.pushPose();
+		poseStack.translate(0, (float)gui.getSlidingProgression(), 0);
+		guiGraphics.blit(getSkillTexture(), (int)x, (int)y, 24, 24, 0, 0, 1, 1, 1, 1);
+		if (!container.getDataManager().hasData(DatakeyRegistry.TRUE_COMBO_COUNT.get()))
+		{
+			Integer Heat = container.getDataManager().getDataValue(DatakeyRegistry.TRUE_COMBO_COUNT.get());
+			String Heat_Level = String.format("%s", Heat);
+			guiGraphics.drawString(gui.getFont(), Heat_Level, x + 4, y + 16, 16777215, true);
+		}
+		guiGraphics.drawString(gui.getFont(), Integer.toString(container.getStack()), x + 8, y+8, 16777215, true);
+		poseStack.popPose();
 	}
 
 	@Override
@@ -198,6 +230,8 @@ public class ImperatriceLumiere extends BattleStyle
 			{
 				container.getDataManager().setDataSync(DatakeyRegistry.LEFT_GROUND.get(), false, container.getServerExecutor().getOriginal());
 			}
+
+
 		}
 
 		super.updateContainer(container);
