@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.forixaim.vfo.mixin",
+  "package": "net.forixaim.omneria.mixin",
   "compatibilityLevel": "JAVA_8",
   "refmap": "vfo.refmap.json",
   "mixins": [
