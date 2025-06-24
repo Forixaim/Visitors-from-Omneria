@@ -10,6 +10,7 @@ import moze_intel.projecte.api.ProjectEAPI;
 import moze_intel.projecte.gameObjs.items.armor.DMArmor;
 import moze_intel.projecte.gameObjs.items.armor.GemArmorBase;
 import moze_intel.projecte.gameObjs.items.armor.RMArmor;
+import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.bs_api.battle_arts_skills.battle_style.BattleStyle;
 import net.forixaim.omneria.Config;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
@@ -57,7 +58,7 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 	public void onInitiate(SkillContainer container)
 	{
 		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID, event -> {
-            if (Minecraft.getInstance().options.keyJump.isDown() && event.getPlayerPatch().isBattleMode() && event.getPlayerPatch().getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(event.getPlayerPatch()) == LumiereStyles.IMPERATRICE_SWORD)
+            if (Minecraft.getInstance().options.keyJump.isDown() && event.getPlayerPatch().isEpicFightMode() && event.getPlayerPatch().getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(event.getPlayerPatch()) == LumiereStyles.IMPERATRICE_SWORD)
 			{
 				if (event.getPlayerPatch().getOriginal().onGround() && !container.getExecutor().getOriginal().getAbilities().flying && !container.getDataManager().getDataValue(DatakeyRegistry.JUMPING.get()))
 				{
@@ -72,7 +73,7 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 		});
 
 		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SERVER_ITEM_STOP_EVENT, EVENT_UUID, event -> {
-			if (container.getExecutor().isBattleMode() && container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getUseAnimation(event.getPlayerPatch()) == UseAnim.BLOCK && event.getPlayerPatch().getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(event.getPlayerPatch()) == LumiereStyles.IMPERATRICE_SWORD)
+			if (container.getExecutor().isEpicFightMode() && container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getUseAnimation(event.getPlayerPatch()) == UseAnim.BLOCK && event.getPlayerPatch().getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(event.getPlayerPatch()) == LumiereStyles.IMPERATRICE_SWORD)
 			{
 				container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_GUARD_OUT, 0);
 			}
@@ -169,6 +170,11 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 		{
 			container.getServerExecutor().getSkillCapability().skillContainers[SkillSlots.BASIC_ATTACK.universalOrdinal()].setSkill(OmneriaSkills.FLARE_BLITZ);
 			EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(SkillSlots.BASIC_ATTACK, OmneriaSkills.FLARE_BLITZ.toString(), SPChangeSkill.State.ENABLE), container.getServerExecutor().getOriginal());
+		}
+		if (!container.getServerExecutor().getSkill(BattleArtsSkillSlots.COMBAT_ART).hasSkill(OmneriaSkills.FIRE_ARTS))
+		{
+			container.getServerExecutor().getSkill(BattleArtsSkillSlots.COMBAT_ART).setSkill(OmneriaSkills.FIRE_ARTS);
+			EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(BattleArtsSkillSlots.COMBAT_ART, OmneriaSkills.FIRE_ARTS.toString(), SPChangeSkill.State.ENABLE), container.getServerExecutor().getOriginal());
 		}
 	}
 

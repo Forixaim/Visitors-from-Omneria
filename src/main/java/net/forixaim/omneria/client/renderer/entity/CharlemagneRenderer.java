@@ -19,8 +19,8 @@ public class CharlemagneRenderer extends AbstractFriendlyNPCRenderer<Charlemagne
 		this(context, ModelLayers.PLAYER_SLIM, ModelLayers.PLAYER_SLIM_INNER_ARMOR, ModelLayers.PLAYER_SLIM_OUTER_ARMOR, ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "textures/entity/charlemagne.png"));
 	}
 
-	public CharlemagneRenderer(EntityRendererProvider.Context pContext, ModelLayerLocation pZombieLayer, ModelLayerLocation pInnerArmor, ModelLayerLocation pOuterArmor, ResourceLocation location) {
-		super(pContext, new CharlemagneModel(pContext.bakeLayer(pZombieLayer)), new CharlemagneModel(pContext.bakeLayer(pInnerArmor)), new CharlemagneModel(pContext.bakeLayer(pOuterArmor)), location);
+	public CharlemagneRenderer(EntityRendererProvider.Context pContext, ModelLayerLocation layerLoc, ModelLayerLocation pInnerArmor, ModelLayerLocation pOuterArmor, ResourceLocation location) {
+		super(pContext, new CharlemagneModel(pContext.bakeLayer(layerLoc)), new CharlemagneModel(pContext.bakeLayer(pInnerArmor)), new CharlemagneModel(pContext.bakeLayer(pOuterArmor)), location);
 	}
 
 	@Override

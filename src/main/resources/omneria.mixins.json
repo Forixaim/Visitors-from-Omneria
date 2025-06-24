@@ -8,6 +8,7 @@
     "MixinAttackAnimation"
   ],
   "client": [
+    "MixinRenderItemBase"
   ],
   "injectors": {
     "defaultRequire": 1

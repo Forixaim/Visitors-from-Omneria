@@ -11,8 +11,8 @@ import yesman.epicfight.client.events.engine.ControllEngine;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
-import yesman.epicparcool.EpicParCool;
-import yesman.epicparcool.ParcoolLivingMotions;
+import com.yesman.epicparcool.EpicParCool;
+import com.yesman.epicparcool.ParcoolLivingMotions;
 
 import java.util.UUID;
 

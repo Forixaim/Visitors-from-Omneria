@@ -2,7 +2,9 @@ package net.forixaim.omneria.world.entity.charlemagne;
 
 import com.google.common.collect.Lists;
 import com.mojang.logging.LogUtils;
+import mekanism.common.Mekanism;
 import mekanism.common.capabilities.Capabilities;
+import net.forixaim.omneria.registry.ItemRegistry;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneMode;
 import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
 import net.forixaim.omneria.world.entity.special_tags.IRadiationImmune;
@@ -21,26 +23,27 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.npc.InventoryCarrier;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class Charlemagne extends AbstractFriendlyNPC implements InventoryCarrier, IRadiationImmune
+public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 {
 	public CharlemagnePatch patch;
 	private final SimpleContainer charlemagneInventory = new SimpleContainer(8);
 	//For debugging purposes, the entity will be set to a stationary armor stand.
-	public final TargetingConditions DefCond = TargetingConditions.forCombat().range(this.getAttributeValue(Attributes.FOLLOW_RANGE)).selector((pred) -> pred instanceof ArmorStand);
-	private static final List<MobEffect> AffectedOnlyBy = Lists.newArrayList(
+	public final TargetingConditions defConditions = TargetingConditions.forCombat().range(this.getAttributeValue(Attributes.FOLLOW_RANGE)).selector(pred -> pred instanceof Enemy);
+	private static final List<MobEffect> onlyAffectedEffects = Lists.newArrayList(
 			MobEffects.ABSORPTION,
 			MobEffects.DAMAGE_BOOST,
 			MobEffects.DAMAGE_RESISTANCE,
@@ -52,6 +55,7 @@ public class Charlemagne extends AbstractFriendlyNPC implements InventoryCarrier
 	public Charlemagne(EntityType<? extends AbstractFriendlyNPC> p_21683_, Level p_21684_)
 	{
 		super(p_21683_, p_21684_);
+		this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ItemRegistry.ORIGIN_JOYEUSE.get()));
 		//Mod Checks
 
 	}
@@ -103,7 +107,8 @@ public class Charlemagne extends AbstractFriendlyNPC implements InventoryCarrier
 	{
 		if ((this.patch.brain != null && (this.patch.brain.getMode().is(CharlemagneMode.FRIENDLY) || this.patch.brain.getMode().is(CharlemagneMode.DEFENSE))) && !p_20122_.is(DamageTypes.GENERIC_KILL))
 			return true;
-		this.getCapability(Capabilities.RADIATION_ENTITY).ifPresent(rad -> rad.set(0));
+		if (ModList.get().isLoaded(Mekanism.MODID))
+			this.getCapability(Capabilities.RADIATION_ENTITY).ifPresent(rad -> rad.set(0));
 
 		return super.isInvulnerableTo(p_20122_);
 	}
@@ -112,7 +117,7 @@ public class Charlemagne extends AbstractFriendlyNPC implements InventoryCarrier
 	@Override
 	public boolean addEffect(@NotNull MobEffectInstance pEffectInstance, @Nullable Entity pEntity)
 	{
-		for (MobEffect effect : AffectedOnlyBy)
+		for (MobEffect effect : onlyAffectedEffects)
 		{
 			if (pEffectInstance.getEffect() == effect)
 				return super.addEffect(pEffectInstance, pEntity);
@@ -127,11 +132,5 @@ public class Charlemagne extends AbstractFriendlyNPC implements InventoryCarrier
 		if (p_21472_.getItemInHand(InteractionHand.MAIN_HAND).is(Items.DEBUG_STICK) && !this.level().isClientSide)
 			this.patch.brain.debugFire();
 		return InteractionResult.SUCCESS;
-	}
-
-	@Override
-	public @NotNull SimpleContainer getInventory()
-	{
-		return charlemagneInventory;
 	}
 }

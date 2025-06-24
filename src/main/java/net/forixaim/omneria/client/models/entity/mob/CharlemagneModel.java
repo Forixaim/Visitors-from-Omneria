@@ -4,12 +4,14 @@ package net.forixaim.omneria.client.models.entity.mob;// Made with Blockbench 4.
 
 
 import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 
-public class CharlemagneModel extends AbstractFriendlyNPCModel<Charlemagne>
+public class CharlemagneModel extends HumanoidModel<Charlemagne>
 {
-	public CharlemagneModel(ModelPart pRoot)
-	{
+
+	public CharlemagneModel(ModelPart pRoot) {
 		super(pRoot);
 	}
 }

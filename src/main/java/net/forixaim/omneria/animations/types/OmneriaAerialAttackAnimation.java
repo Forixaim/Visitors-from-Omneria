@@ -19,7 +19,10 @@ import net.minecraftforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.Keyframe;
+import yesman.epicfight.api.animation.TransformSheet;
 import yesman.epicfight.api.animation.property.AnimationProperty;
+import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.AirSlashAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.asset.AssetAccessor;
@@ -27,6 +30,8 @@ import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.HitEntityList;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
@@ -34,30 +39,144 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.StunType;
+import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class OmneriaAerialAttackAnimation extends AirSlashAnimation
 {
     public OmneriaAerialAttackAnimation(float transitionTime, float antic, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AirSlashAnimation> accessor, AssetAccessor<? extends Armature> armature)
     {
         super(transitionTime, antic, contact, recovery, collider, colliderJoint, accessor, armature);
+        this.newTimePair(0.0F, Float.MAX_VALUE);
+        this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
+            LivingEntity attackTarget = entitypatch.getTarget();
+            if (!(Boolean)self.getProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(false) && attackTarget != null) {
+                TransformSheet transform = self.getTransfroms().get("Root").copyAll();
+                Keyframe[] keyframes = transform.getKeyframes();
+                int startFrame = 0;
+                int endFrame = transform.getKeyframes().length - 1;
+                Vec3f keyLast = keyframes[endFrame].transform().translation();
+                Vec3 pos = entitypatch.getOriginal().getEyePosition();
+                Vec3 targetpos = attackTarget.position().add(attackTarget.getDeltaMovement().scale(8.0));
+                float horizontalDistance = Math.max((float)targetpos.subtract(pos).horizontalDistance() * 1.3F - (attackTarget.getBbWidth() + entitypatch.getOriginal().getBbWidth()), 0.0F);
+                Vec3f worldPosition = new Vec3f(keyLast.x, 0.0F, -horizontalDistance);
+                float scale = Math.min(worldPosition.length() / keyLast.length(), 2.0F);
+
+                for(int i = startFrame; i <= endFrame; ++i) {
+                    Vec3f translation = keyframes[i].transform().translation();
+                    translation.z *= scale;
+                }
+
+                transformSheet.readFrom(transform);
+            } else {
+                transformSheet.readFrom(self.getTransfroms().get("Root"));
+            }
+
+        });
     }
 
     public OmneriaAerialAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, boolean directional, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AirSlashAnimation> accessor, AssetAccessor<? extends Armature> armature)
     {
         super(transitionTime, antic, preDelay, contact, recovery, directional, collider, colliderJoint, accessor, armature);
+        this.newTimePair(0.0F, Float.MAX_VALUE);
+        this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
+            LivingEntity attackTarget = entitypatch.getTarget();
+            if (!(Boolean)self.getProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(false) && attackTarget != null) {
+                TransformSheet transform = self.getTransfroms().get("Root").copyAll();
+                Keyframe[] keyframes = transform.getKeyframes();
+                int startFrame = 0;
+                int endFrame = transform.getKeyframes().length - 1;
+                Vec3f keyLast = keyframes[endFrame].transform().translation();
+                Vec3 pos = entitypatch.getOriginal().getEyePosition();
+                Vec3 targetpos = attackTarget.position().add(attackTarget.getDeltaMovement().scale(8.0));
+                float horizontalDistance = Math.max((float)targetpos.subtract(pos).horizontalDistance() * 1.3F - (attackTarget.getBbWidth() + entitypatch.getOriginal().getBbWidth()), 0.0F);
+                Vec3f worldPosition = new Vec3f(keyLast.x, 0.0F, -horizontalDistance);
+                float scale = Math.min(worldPosition.length() / keyLast.length(), 2.0F);
+
+                for(int i = startFrame; i <= endFrame; ++i) {
+                    Vec3f translation = keyframes[i].transform().translation();
+                    translation.z *= scale;
+                }
+
+                transformSheet.readFrom(transform);
+            } else {
+                transformSheet.readFrom(self.getTransfroms().get("Root"));
+            }
+
+        });
     }
 
     public OmneriaAerialAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends AirSlashAnimation> accessor, AssetAccessor<? extends Armature> armature, Phase... phases)
     {
         super(transitionTime, accessor, armature, phases);
+        this.newTimePair(0.0F, Float.MAX_VALUE);
+        this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
+            LivingEntity attackTarget = entitypatch.getTarget();
+            if (!(Boolean)self.getProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(false) && attackTarget != null) {
+                TransformSheet transform = self.getTransfroms().get("Root").copyAll();
+                Keyframe[] keyframes = transform.getKeyframes();
+                int startFrame = 0;
+                int endFrame = transform.getKeyframes().length - 1;
+                Vec3f keyLast = keyframes[endFrame].transform().translation();
+                Vec3 pos = entitypatch.getOriginal().getEyePosition();
+                Vec3 targetpos = attackTarget.position().add(attackTarget.getDeltaMovement().scale(8.0));
+                float horizontalDistance = Math.max((float)targetpos.subtract(pos).horizontalDistance() * 1.3F - (attackTarget.getBbWidth() + entitypatch.getOriginal().getBbWidth()), 0.0F);
+                Vec3f worldPosition = new Vec3f(keyLast.x, 0.0F, -horizontalDistance);
+                float scale = Math.min(worldPosition.length() / keyLast.length(), 2.0F);
+
+                for(int i = startFrame; i <= endFrame; ++i) {
+                    Vec3f translation = keyframes[i].transform().translation();
+                    translation.z *= scale;
+                }
+
+                transformSheet.readFrom(transform);
+            } else {
+                transformSheet.readFrom(self.getTransfroms().get("Root"));
+            }
+
+        });
     }
 
     public OmneriaAerialAttackAnimation(float transitionTime, String path, AssetAccessor<? extends Armature> armature, Phase... phases)
     {
         super(transitionTime, path, armature, phases);
+        this.newTimePair(0.0F, Float.MAX_VALUE);
+        this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
+        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
+            LivingEntity attackTarget = entitypatch.getTarget();
+            if (!(Boolean)self.getProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(false) && attackTarget != null) {
+                TransformSheet transform = self.getTransfroms().get("Root").copyAll();
+                Keyframe[] keyframes = transform.getKeyframes();
+                int startFrame = 0;
+                int endFrame = transform.getKeyframes().length - 1;
+                Vec3f keyLast = keyframes[endFrame].transform().translation();
+                Vec3 pos = entitypatch.getOriginal().getEyePosition();
+                Vec3 targetpos = attackTarget.position().add(attackTarget.getDeltaMovement().scale(8.0));
+                float horizontalDistance = Math.max((float)targetpos.subtract(pos).horizontalDistance() * 1.3F - (attackTarget.getBbWidth() + entitypatch.getOriginal().getBbWidth()), 0.0F);
+                Vec3f worldPosition = new Vec3f(keyLast.x, 0.0F, -horizontalDistance);
+                float scale = Math.min(worldPosition.length() / keyLast.length(), 2.0F);
+
+                for(int i = startFrame; i <= endFrame; ++i) {
+                    Vec3f translation = keyframes[i].transform().translation();
+                    translation.z *= scale;
+                }
+
+                transformSheet.readFrom(transform);
+            } else {
+                transformSheet.readFrom(self.getTransfroms().get("Root"));
+            }
+
+        });
     }
 
     @Override
@@ -95,48 +214,73 @@ public class OmneriaAerialAttackAnimation extends AirSlashAnimation
     }
 
     protected void hurtCollidingEntities(LivingEntityPatch<?> entitypatch, float prevElapsedTime, float elapsedTime, EntityState prevState, EntityState state, Phase phase) {
-        LivingEntity entity = entitypatch.getOriginal();
+        LivingEntity attacker = entitypatch.getOriginal();
         float prevPoseTime = prevState.attacking() ? prevElapsedTime : phase.preDelay;
         float poseTime = state.attacking() ? elapsedTime : phase.contact;
         List<Entity> list = this.getPhaseByTime(elapsedTime).getCollidingEntities(entitypatch, this, prevPoseTime, poseTime, this.getPlaySpeed(entitypatch, this));
         if (!list.isEmpty()) {
             HitEntityList hitEntities = new HitEntityList(entitypatch, list, phase.getProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY).orElse(HitEntityList.Priority.DISTANCE));
             int maxStrikes = this.getMaxStrikes(entitypatch, phase);
-
-            while(entitypatch.getCurrenltyHurtEntities().size() < maxStrikes && hitEntities.next()) {
+            while (entitypatch.getCurrenltyHurtEntities().size() < maxStrikes && hitEntities.next())
+            {
                 Entity target = hitEntities.getEntity();
                 LivingEntity trueEntity = this.getTrueEntity(target);
-                if (trueEntity != null && trueEntity.isAlive() && !entitypatch.getCurrenltyAttackedEntities().contains(trueEntity) && !entitypatch.isTargetInvulnerable(target) && (target instanceof LivingEntity || target instanceof PartEntity) && entity.hasLineOfSight(target)) {
-                    HurtableEntityPatch<?> hitHurtableEntityPatch = EpicFightCapabilities.getEntityPatch(trueEntity, HurtableEntityPatch.class);
-                    EpicFightDamageSource damageSource = this.getEpicFightDamageSource(entitypatch, target, phase);
+                HurtableEntityPatch<?> hitHurtableEntityPatch = EpicFightCapabilities.getEntityPatch(target, HurtableEntityPatch.class);
+                if (trueEntity != null && trueEntity.isAlive() && !entitypatch.getCurrenltyAttackedEntities().contains(trueEntity) && !entitypatch.isTargetInvulnerable(target) && (target instanceof LivingEntity || target instanceof PartEntity) && attacker.hasLineOfSight(target)) {
+                    EpicFightDamageSource source = this.getEpicFightDamageSource(entitypatch, target, phase);
                     int prevInvulTime = target.invulnerableTime;
                     target.invulnerableTime = 0;
-                    if (entitypatch instanceof PlayerPatch<?> playerPatch)
-                    {
-                        if (playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.TRUE_COMBO_COUNT.get()) && EpicFightCapabilities.getEntityPatch(target, EntityPatch.class) instanceof LivingEntityPatch<?> livingEntityPatch && livingEntityPatch.isStunned())
-                        {
-                            int combo = playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(DatakeyRegistry.TRUE_COMBO_COUNT.get());
-                            damageSource.setImpact((float) (damageSource.getImpact() - (double) combo * Config.hitstunDecayMultiplier));
-                            if (damageSource.getImpact() < 0)
-                            {
-                                damageSource.setImpact(0);
-                            }
-                            combo++;
-                            if (!playerPatch.isLogicalClient())
-                            {
-                                playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.TRUE_COMBO_COUNT.get(), combo, (ServerPlayer) playerPatch.getOriginal());
-                            }
-                        }
-                    }
-                    AttackResult attackResult = entitypatch.attack(damageSource, target, phase.hand);
+
+                    AttackResult attackResult = entitypatch.attack(source, target, phase.hand);
                     target.invulnerableTime = prevInvulTime;
+
                     if (attackResult.resultType.dealtDamage()) {
                         target.level().playSound(null, target.getX(), target.getY(), target.getZ(), this.getHitSound(entitypatch, phase), target.getSoundSource(), 1.0F, 1.0F);
-                        this.spawnHitParticle((ServerLevel)target.level(), entitypatch, target, phase);
-                        if (phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).isPresent() && phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).get() == StunType.FALL) {
-                            uppercutEnemy(entitypatch, damageSource, trueEntity, hitHurtableEntityPatch, entity, target);
-                        }
+                        this.spawnHitParticle((ServerLevel) target.level(), entitypatch, target, phase);
+                        if (hitHurtableEntityPatch != null && phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).isPresent() && !hitHurtableEntityPatch.getOriginal().hasEffect(EpicFightMobEffects.STUN_IMMUNITY.get())) {
+                            float stunTime;
+                            if (phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).get() == StunType.FALL) {
+                                stunTime = (float) ((double) (source.getImpact() * 0.4F) * (1.0 - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
+                                if (hitHurtableEntityPatch.getOriginal().isAlive()) {
+                                    hitHurtableEntityPatch.applyStun(StunType.SHORT, stunTime);
+                                    AtomicReference<Double> power = new AtomicReference<>((double) source.getImpact() * 0.3F);
 
+                                    phase.getProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER).ifPresent(power::set);
+
+                                    Vec3f directionVector = new Vec3f(0f, 0f, 1f);
+                                    OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float)Math.toRadians(entitypatch.getOriginal().yBodyRotO), new Vec3f(0.0F, 1.0F, 0.0F));
+                                    OpenMatrix4f.transform3v(rotation, directionVector, directionVector);
+                                    Vec3 lateralDirection = directionVector.toDoubleVector().normalize().scale(-1);
+                                    Vec3 finalVector = null;
+                                    if (phase.getProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE).isPresent()) {
+                                        double angleDeg = phase.getProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE).get();
+                                        double angleRad = Math.toRadians(angleDeg);
+                                        finalVector = new Vec3(lateralDirection.x() * Math.cos(angleRad), -Math.sin(angleRad), lateralDirection.z() * Math.cos(angleRad)).normalize();
+                                    }
+
+                                    if (finalVector == null) {
+                                        finalVector = lateralDirection;
+                                    }
+
+                                    if (!(trueEntity instanceof Player)) {
+                                        power.updateAndGet(v -> v * (1.0 - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
+                                    }
+
+                                    if (power.get() > 0.0) {
+                                        target.hasImpulse = true;
+                                        Vec3 attackerDeltaMovement = attacker.getDeltaMovement();
+                                        Vec3 launchVector = (new Vec3(finalVector.x(), finalVector.y(), finalVector.z())).normalize().scale(power.get());
+                                        if (!(trueEntity instanceof Player) || !(entitypatch instanceof PlayerPatch)) {
+                                            target.setDeltaMovement(attackerDeltaMovement.x / 2.0 - launchVector.x, attackerDeltaMovement.y / 2.0 - launchVector.y, attackerDeltaMovement.z / 2.0 - launchVector.z);
+                                        }
+                                    }
+
+                                    if (trueEntity instanceof Player && entitypatch instanceof PlayerPatch) {
+                                        trueEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 5, (int) (power.get() * 4.0 * 6.0), true, false, false));
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     entitypatch.getCurrenltyAttackedEntities().add(trueEntity);
@@ -145,42 +289,7 @@ public class OmneriaAerialAttackAnimation extends AirSlashAnimation
                     }
                 }
             }
-        }
 
-    }
-
-    private static void uppercutEnemy(LivingEntityPatch<?> entitypatch, EpicFightDamageSource damageSource, LivingEntity trueEntity, HurtableEntityPatch<?> hitHurtableEntityPatch, LivingEntity entity, Entity target)
-    {
-        float stunTime = (float)((double)(damageSource.getImpact() * 0.4F) * ((double)1.0F - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
-        if ((hitHurtableEntityPatch.getOriginal()).isAlive()) {
-            hitHurtableEntityPatch.applyStun(damageSource.getStunType() == StunType.KNOCKDOWN ? StunType.KNOCKDOWN : StunType.SHORT, stunTime);
-            double power = damageSource.getImpact() * 0.25F;
-            double d1 = entity.getX() - target.getX();
-            double d2 = entity.getY() - (double)8.0F - target.getY();
-
-            double d0;
-            for(d0 = entity.getZ() - entity.getZ(); d1 * d1 + d0 * d0 < 1.0E-4; d0 = (Math.random() - Math.random()) * 0.01) {
-                d1 = (Math.random() - Math.random()) * 0.01;
-            }
-
-            if (!(trueEntity instanceof Player)) {
-                power *= (double)1.0F - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
-            }
-
-            if (power > (double)0.0F) {
-                target.hasImpulse = true;
-                Vec3 vec3 = entity.getDeltaMovement();
-                Vec3 vec31 = (new Vec3(d1, d2, d0)).normalize().scale(power);
-                if (!(trueEntity instanceof Player) || !(entitypatch instanceof PlayerPatch)) {
-                    target.setDeltaMovement(vec3.x / (double)2.0F - vec31.x, vec3.y / (double)2.0F - vec31.y, vec3.z / (double)2.0F - vec31.z);
-                }
-            }
-
-            if (trueEntity instanceof Player && entitypatch instanceof PlayerPatch) {
-                trueEntity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 5, (int)(power * (double)4.0F * (double)6.0F), true, false, false));
-            }
-
-            trueEntity.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, (int)(power * (double)4.0F * (double)6.0F), 20, true, false, false));
         }
     }
 }

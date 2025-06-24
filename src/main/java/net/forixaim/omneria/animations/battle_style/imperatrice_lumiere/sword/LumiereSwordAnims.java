@@ -2,10 +2,7 @@ package net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword;
 
 import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.VisitorsOfOmneria;
-import net.forixaim.omneria.animations.types.GuardTransitionAnimation;
-import net.forixaim.omneria.animations.types.JumpAnimation;
-import net.forixaim.omneria.animations.types.OmneriaAerialAttackAnimation;
-import net.forixaim.omneria.animations.types.OmneriaAttackAnimation;
+import net.forixaim.omneria.animations.types.*;
 import net.forixaim.omneria.colliders.LumiereColliders;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
@@ -163,6 +160,8 @@ public class LumiereSwordAnims
 				"battle_style/legendary/imperatrice_lumiere/sword/flarian_impaler",
 				access ->
 						new OmneriaAttackAnimation(0.2f, 0.0f, 1.1f, 1.3f, 2f, LumiereColliders.IMPERATRICE_INFERNAL_IMPALE, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED)
+								.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 30.0)
+								.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 2.0)
 								.addEvents(AnimationEvent.InTimeEvent.create(1.2f, (livingEntityPatch, assetAccessor, animationParameters) ->
 								{
 								}, AnimationEvent.Side.BOTH))
@@ -171,6 +170,8 @@ public class LumiereSwordAnims
 		IMPERATRICE_SWORD_BLAZING_SUNRISE = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/blazing_sunrise", access ->
 				new OmneriaAttackAnimation(0.4f, 0.1f, 0.5f, 0.9f, 2f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.MAX_STRIKES_MODIFIER, ValueModifier.adder(10))
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 90.0)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.0)
 						.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.RAW_COORD_WITH_X_ROT)
 						.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, null)
 						.addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
@@ -214,10 +215,9 @@ public class LumiereSwordAnims
 
 		IMPERATRICE_SWORD_SUNRISE = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/airslash", access ->
 				new OmneriaAerialAttackAnimation(0.4f, 0.0f, 0.4f, 0.6f, 1.5f, false, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
-
-						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_FINISHER.get())
-						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL)
-						.addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, false)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 90.0)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.3)
+						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_FINISHER.get()).addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, false)
 						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, speed, prevElapsedTime, elapsedTime) ->
 						{
 							if (elapsedTime > 0.6f)
@@ -428,7 +428,8 @@ public class LumiereSwordAnims
 		IMPERATRICE_SWORD_SOLAR_FLARE = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/solar_flare", access ->
 				new OmneriaAttackAnimation(0.2f, 0, 0.2f, 0.3f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_FINISHER.get())
-						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.LONG)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 70.0)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.0)
 						.addState(EntityState.CAN_SKILL_EXECUTION, false)
 						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 1f));
 

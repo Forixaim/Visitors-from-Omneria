@@ -11,6 +11,7 @@ public class OmneriaExCapWeapons
             builder -> builder.category(OmneriaCategories.ORIGIN_JOYEUSE)
                     .collider(LumiereColliders.JOYEUSE)
                     .hitSound(EpicFightSounds.BLADE_HIT.get())
-                    .swingSound(EpicFightSounds.WHOOSH.get()));
+                    .swingSound(EpicFightSounds.WHOOSH.get())
+    , 1, 1, 1);
 
 }

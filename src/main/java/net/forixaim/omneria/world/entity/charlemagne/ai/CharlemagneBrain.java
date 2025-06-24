@@ -10,6 +10,7 @@ import net.forixaim.omneria.world.entity.charlemagne.ai.behaviors.BaseBehavior;
 import net.forixaim.omneria.world.entity.charlemagne.ai.behaviors.HostileAttackBehavior;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.AABB;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -38,6 +39,9 @@ public class CharlemagneBrain
 	//Behaviors
 	public HostileAttackBehavior hostileAttackBehavior;
 
+	//Universal Flags
+	private boolean blocking = false;
+
 	private final List<CharlemagneAttackString> charlemagneAttackStrings = Lists.newArrayList(
 	);
 
@@ -46,8 +50,15 @@ public class CharlemagneBrain
 	private int tick = 0;
 	private int seconds = 0;
 
-	//Defense flags
-	private boolean backingOff = false;
+    public void toggleBlock()
+	{
+		this.blocking = !this.blocking;
+	}
+
+	public boolean isBlocking()
+	{
+		return  this.blocking;
+	}
 
 	public CharlemagneBrain(final Charlemagne target, final CharlemagnePatch patch)
 	{
@@ -61,8 +72,13 @@ public class CharlemagneBrain
 
 	public AttackResult handleWhenAttacked(DamageSource damageSource, float amount)
 	{
-		if (mode.is(CharlemagneMode.DEFENSE))
+		if (mode.is(CharlemagneMode.DEFENSE)) {
+			if (blocking)
+			{
+				return AttackResult.blocked(amount);
+			}
 			return AttackResult.missed(amount);
+		}
 
 		return AttackResult.of(patch.getEntityState().attackResult(damageSource), amount);
 	}
@@ -75,7 +91,8 @@ public class CharlemagneBrain
 	public void onReceiveAttackConnection(DamageDealtEvent event)
 	{
 		//Handle
-		handlers.get(mode).handleAttackConnection(event);
+		if (mode.is(CharlemagneMode.DEFENSE))
+			hostileAttackBehavior.handleAttackConnection(event);
 	}
 
 	public void onAttackAnimationEnd()
@@ -90,7 +107,7 @@ public class CharlemagneBrain
 	}
 
 	protected AABB getTargetSearchArea() {
-		return this.target.getBoundingBox().inflate(80.0, 4.0, 80.0);
+		return this.target.getBoundingBox().inflate(80.0, 40.0, 80.0);
 	}
 
 	public Emotion getState()
@@ -115,12 +132,12 @@ public class CharlemagneBrain
 		{
 			tick = 0;
 			seconds++;
-			//Check for any enemy mobs nearby unless in defense mode;
-			nearestMonster = this.target.level().getNearestEntity(this.target.level().getEntitiesOfClass(ArmorStand.class, this.getTargetSearchArea()), target.DefCond, this.target, this.target.getX(), this.target.getY(), this.target.getZ());
-			if (nearestMonster != null && !mode.is(CharlemagneMode.DUELING))
-			{
-				this.mode = CharlemagneMode.DEFENSE;
-			}
+			printDebugList();
+		}
+		nearestMonster = this.target.level().getNearestEntity(this.target.level().getEntitiesOfClass(Mob.class, this.getTargetSearchArea()), target.defConditions, this.target, this.target.getX(), this.target.getY(), this.target.getZ());
+		if (nearestMonster != null && !mode.is(CharlemagneMode.DUELING))
+		{
+			this.mode = CharlemagneMode.DEFENSE;
 		}
 		if (seconds >= 60)
 		{
@@ -141,7 +158,8 @@ public class CharlemagneBrain
 			LogUtils.getLogger().debug("a second has passed;");
 			LogUtils.getLogger().debug("Nearest monster: {}", nearestMonster);
 			LogUtils.getLogger().debug("Current Mode: {}", mode);
-			LogUtils.getLogger().debug("Backing off: {}", backingOff);
+            //Defense flags
+			// LogUtils.getLogger().debug("Backing off: {}", backingOff);
 			LogUtils.getLogger().debug("WalkSpeed: {}", target.walkAnimation.speed());
 			LogUtils.getLogger().debug("Living Motion: {}", patch.currentLivingMotion);
 			LogUtils.getLogger().debug("Emotional State: {}", state);

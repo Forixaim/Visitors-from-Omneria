@@ -1,6 +1,7 @@
 package net.forixaim.omneria;
 
 import dev.shadowsoffire.placebo.Placebo;
+import net.forixaim.omneria.registry.ArmatureRegistry;
 import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.main.EpicFightExtensions;
 
 import static dev.shadowsoffire.placebo.PlaceboClient.ticks;
@@ -50,11 +52,15 @@ public class VisitorsOfOmneria
 		context.registerExtensionPoint(EpicFightExtensions.class, () -> new EpicFightExtensions(VISITORS_OF_OMNERIA.get()));
 	}
 
+	private static void registerEntityTypes()
+	{
+		Armatures.registerEntityTypeArmature(EntityRegistry.CHARLEMAGNE.get(), ArmatureRegistry.CHARLEMAGNE);
+	}
+
+
 	private void commonSetup(final FMLCommonSetupEvent event)
 	{
-		if (ModList.get().isLoaded(Placebo.MODID))
-		{
-		}
+		event.enqueueWork(VisitorsOfOmneria::registerEntityTypes);
 	}
 
 	private void clientSetup(final FMLClientSetupEvent event)

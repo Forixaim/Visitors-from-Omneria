@@ -41,6 +41,11 @@ public class ImperatriceWP extends ExCapWeaponPassive
             container.getServerExecutor().getSkillCapability().skillContainers[SkillSlots.BASIC_ATTACK.universalOrdinal()].setSkill(OmneriaSkills.FLARE_BLITZ);
             EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(SkillSlots.BASIC_ATTACK, OmneriaSkills.FLARE_BLITZ.toString(), SPChangeSkill.State.ENABLE), container.getServerExecutor().getOriginal());
         }
+        if (!container.getServerExecutor().getSkill(BattleArtsSkillSlots.COMBAT_ART).hasSkill(OmneriaSkills.FIRE_ARTS))
+        {
+            container.getServerExecutor().getSkill(BattleArtsSkillSlots.COMBAT_ART).setSkill(OmneriaSkills.FIRE_ARTS);
+            EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(BattleArtsSkillSlots.COMBAT_ART, OmneriaSkills.FIRE_ARTS.toString(), SPChangeSkill.State.ENABLE), container.getServerExecutor().getOriginal());
+        }
     }
 
     private void resetSkills(SkillContainer container)
@@ -49,6 +54,11 @@ public class ImperatriceWP extends ExCapWeaponPassive
         {
             container.getServerExecutor().getSkillCapability().skillContainers[SkillSlots.BASIC_ATTACK.universalOrdinal()].setSkill(EpicFightSkills.BASIC_ATTACK);
             EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(SkillSlots.BASIC_ATTACK, EpicFightSkills.BASIC_ATTACK.toString(), SPChangeSkill.State.ENABLE), container.getServerExecutor().getOriginal());
+        }
+        if (!container.getServerExecutor().getSkill(BattleArtsSkillSlots.COMBAT_ART).isEmpty())
+        {
+            container.getServerExecutor().getSkill(BattleArtsSkillSlots.COMBAT_ART).setSkill(null);
+            EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(BattleArtsSkillSlots.COMBAT_ART, "empty", SPChangeSkill.State.DISABLE), container.getServerExecutor().getOriginal());
         }
     }
 }

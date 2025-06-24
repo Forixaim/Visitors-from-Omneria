@@ -1,12 +1,16 @@
 package net.forixaim.omneria.world.entity.patches;
 
 import com.google.common.collect.Lists;
+import com.yesman.epicparcool.EpicParCool;
+import com.yesman.epicparcool.ParcoolLivingMotions;
+import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereUnarmedAnims;
 import net.forixaim.omneria.events.advanced_bosses.DamageDealtEvent;
 import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneAttackString;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneBrain;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.fml.ModList;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.utils.AttackResult;
@@ -50,6 +54,7 @@ public class CharlemagnePatch extends FriendlyHumanoidNPCPatch<Charlemagne>
 	@Override
 	public void onConstructed(Charlemagne entityIn)
 	{
+
 		entityIn.patch = this;
 		super.onConstructed(entityIn);
 		brain = new CharlemagneBrain(entityIn, this);
@@ -61,6 +66,7 @@ public class CharlemagnePatch extends FriendlyHumanoidNPCPatch<Charlemagne>
 		animator.addLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
 		animator.addLivingAnimation(LivingMotions.WALK, Animations.BIPED_WALK);
 		animator.addLivingAnimation(LivingMotions.RUN, Animations.BIPED_RUN);
+		animator.addLivingAnimation(LivingMotions.DEATH, Animations.BIPED_DEATH);
 	}
 
 	@Override
@@ -82,6 +88,8 @@ public class CharlemagnePatch extends FriendlyHumanoidNPCPatch<Charlemagne>
 		{
 			if (this.getOriginal().walkAnimation.speed() > 0.01f)
 			{
+				if (ModList.get().isLoaded(EpicParCool.MODID) && this.getOriginal().walkAnimation.speed() > 1.2f)
+					this.currentLivingMotion = ParcoolLivingMotions.FAST_RUN;
 				if (this.getOriginal().walkAnimation.speed() > 0.8f)
 					this.currentLivingMotion = LivingMotions.RUN;
 				else
@@ -92,10 +100,15 @@ public class CharlemagnePatch extends FriendlyHumanoidNPCPatch<Charlemagne>
 				this.currentLivingMotion = LivingMotions.IDLE;
 			}
 		}
+		else if (this.brain.isBlocking())
+		{
+			this.currentLivingMotion = LivingMotions.BLOCK;
+		}
 		else
 		{
 			this.currentLivingMotion = LivingMotions.FALL;
 		}
+
 
 		this.currentCompositeMotion = this.currentLivingMotion;
 	}

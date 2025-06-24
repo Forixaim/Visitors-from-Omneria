@@ -12,8 +12,8 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.skill.guard.GuardSkill;
-import yesman.epicparcool.EpicParCool;
-import yesman.epicparcool.ParcoolLivingMotions;
+import com.yesman.epicparcool.EpicParCool;
+import com.yesman.epicparcool.ParcoolLivingMotions;
 
 @SuppressWarnings("unchecked")
 @Mod.EventBusSubscriber(modid = VisitorsOfOmneria.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)

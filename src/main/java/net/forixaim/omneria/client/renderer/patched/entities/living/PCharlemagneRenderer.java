@@ -9,9 +9,10 @@ import net.forixaim.omneria.client.models.entity.mob.CharlemagneModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.EntityType;
 import yesman.epicfight.api.client.model.Meshes;
+import yesman.epicfight.client.mesh.HumanoidMesh;
 import yesman.epicfight.client.renderer.patched.entity.PHumanoidRenderer;
 
-public class PCharlemagneRenderer extends PHumanoidRenderer<Charlemagne, CharlemagnePatch, CharlemagneModel, CharlemagneRenderer, CharlemagneMesh>
+public class PCharlemagneRenderer extends PHumanoidRenderer<Charlemagne, CharlemagnePatch, CharlemagneModel, CharlemagneRenderer, HumanoidMesh>
 {
 	public PCharlemagneRenderer(EntityRendererProvider.Context context, EntityType<?> entityType)
 	{
@@ -19,7 +20,7 @@ public class PCharlemagneRenderer extends PHumanoidRenderer<Charlemagne, Charlem
 	}
 
 	@Override
-	public Meshes.MeshAccessor<CharlemagneMesh> getDefaultMesh()
+	public Meshes.MeshAccessor<HumanoidMesh> getDefaultMesh()
 	{
 		return MeshRegistry.CHARLEMAGNE;
 	}

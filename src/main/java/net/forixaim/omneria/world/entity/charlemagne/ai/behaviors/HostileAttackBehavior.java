@@ -1,5 +1,8 @@
 package net.forixaim.omneria.world.entity.charlemagne.ai.behaviors;
 
+import com.google.common.collect.Lists;
+import com.mojang.logging.LogUtils;
+import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.events.advanced_bosses.DamageDealtEvent;
 import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneMode;
@@ -10,11 +13,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 
+import java.util.List;
 import java.util.Objects;
 
 public class HostileAttackBehavior extends BaseBehavior
@@ -30,8 +36,19 @@ public class HostileAttackBehavior extends BaseBehavior
 	private boolean bEncirclement = false;
 	private boolean encirclementDirectionLR = true;
 	private boolean shouldCloseIn = false;
-	private boolean hyperChase = false;
-	private float dist = 4;
+	private boolean tooClose = false;
+	private boolean above = false;
+	private float dist = 3;
+	private boolean comboing = false;
+	private int ticksSinceLastHit = 0;
+	private int combo = 0;
+
+	List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> BASE_MOB_COMBO = Lists.newArrayList(
+			LumiereSwordAnims.IMPERATRICE_SWORD_NEUTRAL_ATTACK,
+			LumiereSwordAnims.IMPERATRICE_SWORD_NEUTRAL_ATTACK_ALT,
+			LumiereSwordAnims.IMPERATRICE_SWORD_SUNRISE,
+			LumiereSwordAnims.IMPERATRICE_SWORD_FLARESPIN
+	);
 	
 	//Important Values
 	private final CharlemagneBrain brain;
@@ -57,28 +74,85 @@ public class HostileAttackBehavior extends BaseBehavior
 		if (opLastPosition == null)
 		{
 			shouldCloseIn = true;
-			return;
+		}
+		if (!mobPatch.getEntityState().attacking())
+		{
+			ticksSinceLastHit++;
+		}
+		if (ticksSinceLastHit >= 30)
+		{
+			comboing = false;
+			combo = 0;
 		}
 		if (shouldCloseIn)
 		{
 			opLastPosition = copyPosition(opponent.position());
 		}
-		shouldCloseIn = distanceToPoint(opponent, opLastPosition) > 5 && mob.getNavigation().isInProgress();
-
-		if (mob.distanceTo(opponent) <= dist && hyperChase)
-		{
-			hyperChase = false;
-		}
+		above = mob.getY() > opponent.getY() - 2;
+		shouldCloseIn = mob.distanceTo(opponent) > dist;
+		tooClose = mob.distanceTo(opponent) < dist - 1;
 	}
 
 	private void handleResponse(LivingEntity opponent)
 	{
-		if (shouldCloseIn)
+		if (comboing && !mobPatch.getEntityState().attacking() && opponent.isAlive())
+		{
+			if (!opponent.isAlive())
+			{
+				comboing = false;
+				combo = 0;
+			}
+			combo++;
+			if (combo >= BASE_MOB_COMBO.size())
+			{
+				comboing = false;
+			}
+			attack(opponent);
+		}
+		else
+		{
+			comboing =  false;
+			combo = 0;
+		}
+		if (shouldCloseIn && mobPatch.getEntityState().canBasicAttack())
 		{
 			closeIn(opponent, dist, dist * 2);
 		}
+		if (tooClose && mobPatch.getEntityState().canBasicAttack())
+		{
+			brain.toggleBlock();
+			backOff(opponent);
+		}
+		else if (brain.isBlocking())
+		{
+			brain.toggleBlock();
+		}
+		if (!shouldCloseIn && !tooClose && mobPatch.getEntityState().canBasicAttack())
+		{
+			combo = 0;
+			attack(opponent);
+		}
+	}
 
+	private double lateralDistance(LivingEntity opponent)
+	{
+		Vec3 lateralOpponent = new Vec3(opponent.getX(), mob.getY(), opponent.getZ());
+		return mob.distanceToSqr(lateralOpponent);
+	}
 
+	private void attack(LivingEntity opponent)
+	{
+		try {
+			AnimationManager.AnimationAccessor<? extends AttackAnimation> attack = BASE_MOB_COMBO.get(combo);
+			if (attack != null)
+			{
+				mobPatch.rotateTo(opponent, 360, true);
+				mobPatch.playAnimationSynchronized(attack, 0);
+			}
+		}
+		catch (final Exception e) {
+			LogUtils.getLogger().warn("bruh");
+		}
 	}
 
 	private Vec3 copyPosition(Vec3 toCopy)
@@ -94,7 +168,8 @@ public class HostileAttackBehavior extends BaseBehavior
 	//Movement Patterns
 	private void closeIn(LivingEntity opponent, float distance, float fastChaseThreshold)
 	{
-		mob.setDeltaMovement(distanceTo(opponent).normalize().scale(1));
+		mobPatch.rotateTo(opponent, 90f, true);
+		mob.setDeltaMovement(distanceTo(opponent).normalize().scale(0.4));
 	}
 
 	private Vec3 distanceTo(LivingEntity opponent)
@@ -128,17 +203,14 @@ public class HostileAttackBehavior extends BaseBehavior
 		encirclementTimer--;
 		if (Math.sqrt(entity.distanceToSqr(pos)) > Math.sqrt(distanceToTarget))
 		{
-			//Rush up and grab
 			onStopEncirclement(true);
 		}
 	}
 
 	private void backOff(LivingEntity entity)
 	{
-		mobPatch.rotateTo(entity, 360, true);
-		Vec3 forwardHorizontal = Vec3.directionFromRotation(new Vec2(0.0F, -mob.getYHeadRot()));
-		Vec3 jumpDir = OpenMatrix4f.transform(OpenMatrix4f.createRotatorDeg(0.0F, Vec3f.Y_AXIS), forwardHorizontal.scale(Objects.requireNonNull(mob.getAttribute(Attributes.MOVEMENT_SPEED)).getValue() * 0.6));
-		mob.setDeltaMovement(jumpDir.x, mob.getDeltaMovement().y, jumpDir.z);
+		mobPatch.rotateTo(entity, 90f, true);
+		mob.setDeltaMovement(distanceTo(entity).normalize().scale(-0.1));
 	}
 
 
@@ -189,7 +261,8 @@ public class HostileAttackBehavior extends BaseBehavior
 	@Override
 	public void handleAttackConnection(DamageDealtEvent event)
 	{
-
+		comboing = true;
+		ticksSinceLastHit = 0;
 	}
 
 	@Override
