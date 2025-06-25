@@ -93,26 +93,27 @@ public class HostileAttackBehavior extends BaseBehavior
 		tooClose = mob.distanceTo(opponent) < dist - 1;
 	}
 
+	private boolean withinEyeHeight(LivingEntity target)
+	{
+		double lowerBound = mob.getY() - 0.1f;
+		double upperBound = mob.getY() + 0.1f;
+		return lowerBound > target.getY() && upperBound < target.getY();
+	}
+
 	private void handleResponse(LivingEntity opponent)
 	{
-		if (comboing && !mobPatch.getEntityState().attacking() && opponent.isAlive())
+		if (comboing && mobPatch.getEntityState().canBasicAttack() && opponent.isAlive() && mob.distanceTo(opponent) <= dist && withinEyeHeight(opponent))
 		{
 			if (!opponent.isAlive())
 			{
 				comboing = false;
 				combo = 0;
 			}
-			combo++;
 			if (combo >= BASE_MOB_COMBO.size())
 			{
 				comboing = false;
 			}
 			attack(opponent);
-		}
-		else
-		{
-			comboing =  false;
-			combo = 0;
 		}
 		if (shouldCloseIn && mobPatch.getEntityState().canBasicAttack())
 		{
@@ -144,6 +145,7 @@ public class HostileAttackBehavior extends BaseBehavior
 	{
 		try {
 			AnimationManager.AnimationAccessor<? extends AttackAnimation> attack = BASE_MOB_COMBO.get(combo);
+			combo++;
 			if (attack != null)
 			{
 				mobPatch.rotateTo(opponent, 360, true);
@@ -169,7 +171,8 @@ public class HostileAttackBehavior extends BaseBehavior
 	private void closeIn(LivingEntity opponent, float distance, float fastChaseThreshold)
 	{
 		mobPatch.rotateTo(opponent, 90f, true);
-		mob.setDeltaMovement(distanceTo(opponent).normalize().scale(0.4));
+		final Vec3 movementVector = new Vec3(distanceTo(opponent).x(), 0, distanceTo(opponent).z());
+		mob.setDeltaMovement(movementVector.normalize().scale(0.4));
 	}
 
 	private Vec3 distanceTo(LivingEntity opponent)
@@ -210,7 +213,9 @@ public class HostileAttackBehavior extends BaseBehavior
 	private void backOff(LivingEntity entity)
 	{
 		mobPatch.rotateTo(entity, 90f, true);
-		mob.setDeltaMovement(distanceTo(entity).normalize().scale(-0.1));
+		final Vec3 movementVector = new Vec3(distanceTo(entity).x(), 0, distanceTo(entity).z());
+
+		mob.setDeltaMovement(movementVector.normalize().scale(-0.15));
 	}
 
 

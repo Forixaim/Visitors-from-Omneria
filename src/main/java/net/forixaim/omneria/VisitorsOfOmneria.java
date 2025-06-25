@@ -17,6 +17,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import yesman.epicfight.gameasset.Armatures;
+import yesman.epicfight.gameasset.MobCombatBehaviors;
 import yesman.epicfight.main.EpicFightExtensions;
 
 import static dev.shadowsoffire.placebo.PlaceboClient.ticks;
@@ -38,7 +39,6 @@ public class VisitorsOfOmneria
 
 	public VisitorsOfOmneria(FMLJavaModLoadingContext context)
 	{
-
 		IEventBus modEventBus = context.getModEventBus();
 		ITEMS.register(modEventBus);
 		CREATIVE_MODE_TABS.register(modEventBus);

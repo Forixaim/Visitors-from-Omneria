@@ -88,11 +88,11 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation fg.deobf("libs:ExCap:20.11.7.18")
+    implementation fg.deobf("libs:ExCap:20.12.7.18")
     implementation fg.deobf("libs:epicfight:20.12.1")
     implementation fg.deobf("libs:epicskills:20.12.1")
     implementation fg.deobf("curse.maven:official-epic-fight-x-parcool-1259252:6621494")
-    implementation fg.deobf("libs:BattleArtsAPI:20.11.7.12")
+    implementation fg.deobf("libs:BattleArtsAPI:20.12.7.10")
     implementation fg.deobf("curse.maven:placebo-283644:6274231")
     runtimeOnly fg.deobf("curse.maven:rpg-hud-235670:4805323")
     compileOnly fg.deobf("curse.maven:mekanism-268560:5395221")
