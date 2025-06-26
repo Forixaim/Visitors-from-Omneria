@@ -53,7 +53,8 @@ public class FireArts extends CombatArt
 
         if (ud == -1 || (ModList.get().isLoaded(EpicParCool.MODID) && container.getServerExecutor().getCurrentLivingMotion().isSame(ParcoolLivingMotions.FAST_RUN)))
         {
-            container.getServerExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_BLAZING_SUNRISE, 0);
+            if (container.getServerExecutor().getTarget() != null)
+                container.getServerExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_FLAREDASH, 0);
 
         }
         else

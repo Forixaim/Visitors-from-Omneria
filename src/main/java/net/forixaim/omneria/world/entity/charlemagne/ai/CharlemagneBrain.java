@@ -95,6 +95,14 @@ public class CharlemagneBrain
 			hostileAttackBehavior.handleAttackConnection(event);
 	}
 
+	public LivingEntity getOpponent() {
+		return opponent;
+	}
+
+	public LivingEntity getMobOpponent() {
+		return nearestMonster;
+	}
+
 	public void onAttackAnimationEnd()
 	{
 		for (CharlemagneAttackString charlemagneAttackString : charlemagneAttackStrings)

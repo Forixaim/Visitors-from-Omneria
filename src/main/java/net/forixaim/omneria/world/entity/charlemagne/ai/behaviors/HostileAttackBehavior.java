@@ -19,6 +19,7 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.MathUtils;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.data.conditions.entity.TargetInEyeHeight;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,16 +40,19 @@ public class HostileAttackBehavior extends BaseBehavior
 	private boolean tooClose = false;
 	private boolean above = false;
 	private float dist = 3;
+	private TargetInEyeHeight predicate = new TargetInEyeHeight();
 	private boolean comboing = false;
 	private int ticksSinceLastHit = 0;
 	private int combo = 0;
+	public boolean hyperDash = false;
 
 	List<AnimationManager.AnimationAccessor<? extends AttackAnimation>> BASE_MOB_COMBO = Lists.newArrayList(
 			LumiereSwordAnims.IMPERATRICE_SWORD_NEUTRAL_ATTACK,
 			LumiereSwordAnims.IMPERATRICE_SWORD_NEUTRAL_ATTACK_ALT,
-			LumiereSwordAnims.IMPERATRICE_SWORD_SUNRISE,
-			LumiereSwordAnims.IMPERATRICE_SWORD_FLARESPIN
+			LumiereSwordAnims.IMPERATRICE_SWORD_BACK_ATTACK,
+			LumiereSwordAnims.IMPERATRICE_SWORD_FRONT_ATTACK
 	);
+
 	
 	//Important Values
 	private final CharlemagneBrain brain;
@@ -88,16 +92,17 @@ public class HostileAttackBehavior extends BaseBehavior
 		{
 			opLastPosition = copyPosition(opponent.position());
 		}
-		above = mob.getY() > opponent.getY() - 2;
+		above = distanceTo(opponent).y() > 2;
 		shouldCloseIn = mob.distanceTo(opponent) > dist;
 		tooClose = mob.distanceTo(opponent) < dist - 1;
 	}
 
+
+
 	private boolean withinEyeHeight(LivingEntity target)
 	{
-		double lowerBound = mob.getY() - 0.1f;
-		double upperBound = mob.getY() + 0.1f;
-		return lowerBound > target.getY() && upperBound < target.getY();
+		double veticalDistance = Math.abs(mob.getY() - target.getY());
+		return veticalDistance < (double)mob.getEyeHeight() - 0.2;
 	}
 
 	private void handleResponse(LivingEntity opponent)
@@ -115,6 +120,12 @@ public class HostileAttackBehavior extends BaseBehavior
 			}
 			attack(opponent);
 		}
+		if (above && lateralDistance(opponent) > 10 && mobPatch.getEntityState().canBasicAttack() && !hyperDash)
+		{
+			hyperDash = true;
+			mobPatch.rotateTo(opponent, 90, true);
+			mobPatch.playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_FLAREDASH_CHARLEMAGNE, 0);
+		}
 		if (shouldCloseIn && mobPatch.getEntityState().canBasicAttack())
 		{
 			closeIn(opponent, dist, dist * 2);
@@ -128,7 +139,7 @@ public class HostileAttackBehavior extends BaseBehavior
 		{
 			brain.toggleBlock();
 		}
-		if (!shouldCloseIn && !tooClose && mobPatch.getEntityState().canBasicAttack())
+		if (!shouldCloseIn && !tooClose && mobPatch.getEntityState().canBasicAttack() && withinEyeHeight(opponent))
 		{
 			combo = 0;
 			attack(opponent);
@@ -171,8 +182,10 @@ public class HostileAttackBehavior extends BaseBehavior
 	private void closeIn(LivingEntity opponent, float distance, float fastChaseThreshold)
 	{
 		mobPatch.rotateTo(opponent, 90f, true);
-		final Vec3 movementVector = new Vec3(distanceTo(opponent).x(), 0, distanceTo(opponent).z());
-		mob.setDeltaMovement(movementVector.normalize().scale(0.4));
+		final Vec3 lateralMovement = new Vec3(distanceTo(opponent).x(), 0, distanceTo(opponent).z()).normalize().scale(0.4);
+		final Vec3 finalMovement = new Vec3(lateralMovement.x(), mob.getDeltaMovement().y(), lateralMovement.z());
+
+		mob.setDeltaMovement(finalMovement);
 	}
 
 	private Vec3 distanceTo(LivingEntity opponent)

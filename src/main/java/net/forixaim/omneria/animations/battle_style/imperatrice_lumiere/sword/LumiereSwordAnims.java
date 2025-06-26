@@ -1,12 +1,24 @@
 package net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword;
 
+import com.mojang.logging.LogUtils;
 import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.animations.types.*;
 import net.forixaim.omneria.colliders.LumiereColliders;
+import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
+import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
+import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -16,7 +28,9 @@ import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.utils.TimePairList;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
@@ -26,6 +40,7 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -67,6 +82,7 @@ public class LumiereSwordAnims
 	public static AnimationManager.AnimationAccessor<JumpAnimation> IMPERATRICE_SWORD_JUMP_FORWARD;
 	public static AnimationManager.AnimationAccessor<JumpAnimation> IMPERATRICE_SWORD_JUMP_BACK;
 	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_FLARIAN_IMPALER;
+	public static AnimationManager.AnimationAccessor<ActionAnimation> IMPERATRICE_SWORD_HOMING_JUMP;
 
 
 	public static AnimationManager.AnimationAccessor<GuardAnimation> IMPERATRICE_SWORD_PARRY_1;
@@ -85,6 +101,10 @@ public class LumiereSwordAnims
 	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_BACK_ATTACK_ALT;
 	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_FRONT_ATTACK;
 	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_FRONT_ATTACK_ALT;
+
+	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_FLAREDASH;
+	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_FLAREDASH_CHARLEMAGNE;
+
 
 	public static AnimationManager.AnimationAccessor<OmneriaAerialAttackAnimation> IMPERATRICE_SWORD_SUNRISE;
 	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_BLAZING_SUNRISE;
@@ -225,6 +245,157 @@ public class LumiereSwordAnims
 							else return 2.0f;
 						})
 						.addState(EntityState.CAN_SKILL_EXECUTION, false));
+
+		IMPERATRICE_SWORD_HOMING_JUMP = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/superdash/homing_jump", access ->
+				new ActionAnimation(0.2f, access, Armatures.BIPED)
+						.addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
+						.addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f, 0.75f))
+						.addState(EntityState.CAN_SKILL_EXECUTION, false)
+						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, speed, prevElapsedTime, elapsedTime) ->
+						{
+							if (elapsedTime >= 0.2F && elapsedTime < 0.25F && (livingEntityPatch.getTarget() != null || livingEntityPatch instanceof CharlemagnePatch charlemagnePatch && charlemagnePatch.brain.getMobOpponent() != null)) {
+								float dpx = (float) livingEntityPatch.getOriginal().getX();
+								float dpy = (float) livingEntityPatch.getOriginal().getY();
+								float dpz = (float) livingEntityPatch.getOriginal().getZ();
+
+								for(BlockState block = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos.MutableBlockPos(dpx, dpy, dpz)); (block.getBlock() instanceof BushBlock || block.isAir()) && !block.is(Blocks.VOID_AIR); block = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos.MutableBlockPos(dpx, dpy, dpz))) {
+									--dpy;
+								}
+
+								AABB box = AABB.ofSize(livingEntityPatch.getOriginal().getPosition(1.0F), 1.0F, 1.0F, 1.0F);
+								List<Entity> list = (livingEntityPatch.getOriginal()).level().getEntities(livingEntityPatch.getOriginal(), box);
+								float distanceToGround = (float)Math.max(Math.abs(livingEntityPatch.getOriginal().getY() - (double)dpy) - (double)1.0F, 0.0F);
+								LivingEntity livingentity = livingEntityPatch.getOriginal();
+								Vec3 direction;
+
+								if (livingEntityPatch instanceof CharlemagnePatch charlemagnePatch)
+								{
+									direction = new Vec3(0, Math.abs(charlemagnePatch.getOriginal().getY() - charlemagnePatch.brain.getMobOpponent().getY()), 0);
+									if (Math.abs(charlemagnePatch.getOriginal().getY() - charlemagnePatch.brain.getMobOpponent().getY()) > 0.5) {
+										livingentity.move(MoverType.SELF, direction);
+										return 0.025F;
+									} else {
+										return speed * 1.5f;
+									}
+								}
+								else
+								{
+									direction = distanceTo(livingEntityPatch.getTarget(), livingEntityPatch).normalize().scale(4 - (2 * elapsedTime));
+									if (Math.abs(livingEntityPatch.getOriginal().getY() - livingEntityPatch.getTarget().getY()) > 0.5) {
+										livingentity.move(MoverType.SELF, direction);
+										return 0.025F;
+									} else {
+										return speed * 1.5f;
+									}
+								}
+
+
+							} else {
+								return speed * 1.5f;
+							}
+						})
+						.addEvents(AnimationEvent.InTimeEvent.create(0.35f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(EpicFightSounds.ROCKET_JUMP.get())));
+
+
+		IMPERATRICE_SWORD_FLAREDASH = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/superdash/flaredash", access ->
+				new OmneriaAttackAnimation(0.2f, 0.6f, 0.75f, 0.85f, 1.9f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, -40d)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1d)
+						.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
+						.addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
+						.addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f, 0.75f))
+						.addState(EntityState.CAN_SKILL_EXECUTION, false)
+						.addProperty(AnimationProperty.StaticAnimationProperty.POSE_MODIFIER, Animations.ReusableSources.ROOT_X_MODIFIER)
+						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, speed, prevElapsedTime, elapsedTime) ->
+						{
+							if (elapsedTime < 0.7F)
+							{
+								Vec3 dir = new  Vec3(0.0D, 0.1D, 0.0D);
+								livingEntityPatch.getOriginal().move(MoverType.SELF, dir);
+
+							}
+							if (elapsedTime >= 0.7F && elapsedTime < 0.75F && (livingEntityPatch.getTarget() != null)) {
+								float dpx = (float) livingEntityPatch.getOriginal().getX();
+								float dpy = (float) livingEntityPatch.getOriginal().getY();
+								float dpz = (float) livingEntityPatch.getOriginal().getZ();
+
+
+
+								for(BlockState block = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos.MutableBlockPos(dpx, dpy, dpz)); (block.getBlock() instanceof BushBlock || block.isAir()) && !block.is(Blocks.VOID_AIR); block = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos.MutableBlockPos(dpx, dpy, dpz))) {
+									--dpy;
+								}
+
+								AABB box = AABB.ofSize(livingEntityPatch.getOriginal().getPosition(1.0F), 1.0F, 1.0F, 1.0F);
+								List<Entity> list = (livingEntityPatch.getOriginal()).level().getEntities(livingEntityPatch.getOriginal(), box);
+                                LivingEntity livingentity = livingEntityPatch.getOriginal();
+								Vec3 direction = distanceTo(livingEntityPatch.getTarget(), livingEntityPatch).add(0, livingEntityPatch.getTarget().getBoundingBox().getYsize() / 2, 0).normalize().scale(4 - (2 * elapsedTime));
+
+
+								if (!livingentity.onGround() && list.isEmpty()) {
+									livingentity.move(MoverType.SELF, direction);
+									return 0.025F;
+								} else {
+									return speed * 1.5f;
+								}
+							} else {
+								return speed * 1.5f;
+							}
+						})
+						.addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESTORE_BOUNDING_BOX, AnimationEvent.Side.BOTH))
+						.addEvents(AnimationProperty.StaticAnimationProperty.TICK_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESIZE_BOUNDING_BOX, AnimationEvent.Side.BOTH).params(EntityDimensions.scalable(0.6F, 1.0F))
+								,AnimationEvent.InTimeEvent.create(0.7f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(EpicFightSounds.ROCKET_JUMP.get())
+								,AnimationEvent.InTimeEvent.create(0.75f, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.SERVER).params(new Vec3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().rootJoint, 1.2, 1F)));
+
+		IMPERATRICE_SWORD_FLAREDASH_CHARLEMAGNE = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/superdash/flaredash_charlemagne", access ->
+				new OmneriaAttackAnimation(0.2f, 0.6f, 0.75f, 0.85f, 1.9f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, -40d)
+						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1d)
+						.addProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE, true)
+						.addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
+						.addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f, 0.75f))
+						.addState(EntityState.CAN_SKILL_EXECUTION, false)
+						.addProperty(AnimationProperty.StaticAnimationProperty.POSE_MODIFIER, Animations.ReusableSources.ROOT_X_MODIFIER)
+						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, speed, prevElapsedTime, elapsedTime) ->
+						{
+							if (elapsedTime < 0.7F)
+							{
+								Vec3 dir = new  Vec3(0.0D, 0.1D, 0.0D);
+								livingEntityPatch.getOriginal().move(MoverType.SELF, dir);
+
+							}
+							if (elapsedTime >= 0.7F && elapsedTime < 0.75F && (((CharlemagnePatch)livingEntityPatch).brain.getMobOpponent() != null)) {
+								float dpx = (float) livingEntityPatch.getOriginal().getX();
+								float dpy = (float) livingEntityPatch.getOriginal().getY();
+								float dpz = (float) livingEntityPatch.getOriginal().getZ();
+
+
+
+								for(BlockState block = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos.MutableBlockPos(dpx, dpy, dpz)); (block.getBlock() instanceof BushBlock || block.isAir()) && !block.is(Blocks.VOID_AIR); block = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos.MutableBlockPos(dpx, dpy, dpz))) {
+									--dpy;
+								}
+
+								AABB box = AABB.ofSize(livingEntityPatch.getOriginal().getPosition(1.0F), 1.0F, 1.0F, 1.0F);
+								List<Entity> list = (livingEntityPatch.getOriginal()).level().getEntities(livingEntityPatch.getOriginal(), box);
+								LivingEntity livingentity = livingEntityPatch.getOriginal();
+								Vec3 direction = distanceToChar((CharlemagnePatch)livingEntityPatch).add(0, livingEntityPatch.getTarget().getBoundingBox().getYsize() / 2, 0).normalize().scale(4 - (2 * elapsedTime));
+								LogUtils.getLogger().debug(direction.toString());
+
+								if (!livingentity.onGround() && list.isEmpty()) {
+									livingentity.move(MoverType.SELF, direction);
+									return 0.025F;
+								} else {
+									return speed * 1.5f;
+								}
+							} else {
+								return speed * 1.5f;
+							}
+						})
+						.addEvents(AnimationProperty.StaticAnimationProperty.ON_END_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESTORE_BOUNDING_BOX, AnimationEvent.Side.BOTH),
+								AnimationEvent.SimpleEvent.create((livingEntityPatch, assetAccessor, animationParameters) ->
+                                        ((CharlemagnePatch)livingEntityPatch).brain.hostileAttackBehavior.hyperDash = false, AnimationEvent.Side.SERVER))
+						.addEvents(AnimationProperty.StaticAnimationProperty.TICK_EVENTS, AnimationEvent.SimpleEvent.create(Animations.ReusableSources.RESIZE_BOUNDING_BOX, AnimationEvent.Side.BOTH).params(EntityDimensions.scalable(0.6F, 1.0F))
+								,AnimationEvent.InTimeEvent.create(0.7f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(EpicFightSounds.ROCKET_JUMP.get())
+								,AnimationEvent.InTimeEvent.create(0.75f, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.SERVER).params(new Vec3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().rootJoint, 1.2, 1F)));
 
 		IMPERATRICE_SWORD_WALK_SET = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/walk_set", access ->
 				new SelectiveAnimation(debugAnim, access, IMPERATRICE_SWORD_WALK, IMPERATRICE_SWORD_WALK_BACK,IMPERATRICE_SWORD_FALL_NEUTRAL));
@@ -485,5 +656,14 @@ public class LumiereSwordAnims
 						))
 						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f));
 
+	}
+	private static Vec3 distanceTo(LivingEntity opponent, LivingEntityPatch<?> attackerPatch)
+	{
+		return opponent.position().subtract(attackerPatch.getOriginal().position());
+	}
+
+	private static Vec3 distanceToChar(CharlemagnePatch charactermagnePatch)
+	{
+		return charactermagnePatch.getTarget().position().subtract(charactermagnePatch.getOriginal().position());
 	}
 }

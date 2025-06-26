@@ -5,10 +5,12 @@ import com.mojang.logging.LogUtils;
 import mekanism.common.Mekanism;
 import mekanism.common.capabilities.Capabilities;
 import net.forixaim.omneria.registry.ItemRegistry;
+import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneBrain;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneMode;
 import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
 import net.forixaim.omneria.world.entity.special_tags.IRadiationImmune;
 import net.forixaim.omneria.world.entity.types.AbstractFriendlyNPC;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -28,18 +30,30 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 {
+
 	public CharlemagnePatch patch;
+	public CharlemagneBrain moddedBrain;
+	public double xCloakO;
+	public double yCloakO;
+	public double zCloakO;
+	public double xCloak;
+	public double yCloak;
+	public double zCloak;
 	private final SimpleContainer charlemagneInventory = new SimpleContainer(8);
 	//For debugging purposes, the entity will be set to a stationary armor stand.
 	public final TargetingConditions defConditions = TargetingConditions.forCombat().range(this.getAttributeValue(Attributes.FOLLOW_RANGE)).selector(pred -> pred instanceof Enemy);
@@ -51,6 +65,35 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 			MobEffects.HEAL,
 			MobEffects.MOVEMENT_SPEED
 	);
+
+	void followPath(List<Vec3> path, int index, Entity entity, double speed) {
+		Vec3 target = path.get(index);
+		Vec3 dir = target.subtract(entity.position());
+		Vec3 velocity = dir.normalize().scale(speed);
+		entity.setDeltaMovement(velocity.x, entity.getDeltaMovement().y, velocity.z);
+	}
+
+	private Set<Vec3> testBounds(Level level, Vec3 start)
+	{
+		Set<Vec3> obstacles = new HashSet<>();
+		int radius = 20; // example range
+		for (int x = -radius; x <= radius; x++) {
+			for (int y = -2; y <= 2; y++) {
+				for (int z = -radius; z <= radius; z++) {
+					BlockPos pos = new BlockPos((int) (start.x + x), (int) (start.y + y), (int) (start.z + z));
+					if (!isWalkable(pos, level)) {
+						obstacles.add(Vec3.atLowerCornerOf(pos));
+					}
+				}
+			}
+		}
+		return obstacles;
+	}
+
+	boolean isWalkable(BlockPos pos, Level world) {
+		BlockState state = world.getBlockState(pos);
+		return state.isAir() || state.getCollisionShape(world, pos).isEmpty();
+	}
 
 	public Charlemagne(EntityType<? extends AbstractFriendlyNPC> p_21683_, Level p_21684_)
 	{
@@ -123,6 +166,55 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 				return super.addEffect(pEffectInstance, pEntity);
 		}
 		return false;
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		this.moveCloak();
+	}
+
+	private void moveCloak() {
+		this.xCloakO = this.xCloak;
+		this.yCloakO = this.yCloak;
+		this.zCloakO = this.zCloak;
+		double d0 = this.getX() - this.xCloak;
+		double d1 = this.getY() - this.yCloak;
+		double d2 = this.getZ() - this.zCloak;
+		double d3 = (double)10.0F;
+		if (d0 > (double)10.0F) {
+			this.xCloak = this.getX();
+			this.xCloakO = this.xCloak;
+		}
+
+		if (d2 > (double)10.0F) {
+			this.zCloak = this.getZ();
+			this.zCloakO = this.zCloak;
+		}
+
+		if (d1 > (double)10.0F) {
+			this.yCloak = this.getY();
+			this.yCloakO = this.yCloak;
+		}
+
+		if (d0 < (double)-10.0F) {
+			this.xCloak = this.getX();
+			this.xCloakO = this.xCloak;
+		}
+
+		if (d2 < (double)-10.0F) {
+			this.zCloak = this.getZ();
+			this.zCloakO = this.zCloak;
+		}
+
+		if (d1 < (double)-10.0F) {
+			this.yCloak = this.getY();
+			this.yCloakO = this.yCloak;
+		}
+
+		this.xCloak += d0 * (double)0.25F;
+		this.zCloak += d2 * (double)0.25F;
+		this.yCloak += d1 * (double)0.25F;
 	}
 
 	@Override
