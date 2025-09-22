@@ -1,6 +1,6 @@
 package net.forixaim.omneria.events;
 
-import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.events.advanced_bosses.DamageDealtEvent;
 import net.forixaim.omneria.skill.battle_style.properties.FlyingEnabled;
@@ -17,7 +17,8 @@ import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.projectile.ProjectilePatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
-import yesman.epicfight.world.damagesource.EpicFightDamageType;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 
 @Mod.EventBusSubscriber(modid = VisitorsOfOmneria.MOD_ID)
 public class LivingEntityEvents
@@ -48,20 +49,12 @@ public class LivingEntityEvents
 			if (event.getSource() instanceof EpicFightDamageSource instance)
 			{
 				epicFightDamageSource = instance;
-			} else if (event.getSource().isIndirect() && event.getSource().getDirectEntity() != null)
-			{
-				ProjectilePatch<?> projectileCap = EpicFightCapabilities.getEntityPatch(event.getSource().getDirectEntity(), ProjectilePatch.class);
-
-				if (projectileCap != null)
-				{
-					epicFightDamageSource = projectileCap.getEpicFightDamageSource(event.getSource());
-				}
 			} else if (attackerEntityPatch != null)
 			{
 				epicFightDamageSource = attackerEntityPatch.getEpicFightDamageSource();
 			}
 
-			if (epicFightDamageSource != null && !epicFightDamageSource.is(EpicFightDamageType.PARTIAL_DAMAGE))
+			if (epicFightDamageSource != null && !epicFightDamageSource.is(EpicFightDamageTypeTags.GUARD_PUNCTURE))
 			{
 				LivingEntity hitEntity = event.getEntity();
 

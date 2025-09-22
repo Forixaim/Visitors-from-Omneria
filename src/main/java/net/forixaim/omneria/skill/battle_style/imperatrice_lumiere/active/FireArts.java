@@ -1,13 +1,12 @@
 package net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.active;
 
-import com.alrex.parcool.api.unstable.action.ParCoolActionEvent;
-import net.forixaim.bs_api.battle_arts_skills.active.combat_arts.CombatArt;
+import net.forixaim.battle_arts_api.battle_arts_skills.active.combat_arts.CombatArt;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.ArgumentGatherers;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.ModList;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -26,15 +25,15 @@ public class FireArts extends CombatArt
     }
 
     @Override
-    public FriendlyByteBuf gatherArguments(SkillContainer container, ControllEngine controllEngine)
+    public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine)
     {
-        return ArgumentGatherers.UniversalDirectionalInput(container.getClientExecutor(), controllEngine);
+        return ArgumentGatherers.UniversalDirectionalInput(container, controlEngine);
     }
 
     @Override
     public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args)
     {
-        return ArgumentGatherers.DirectionalExecutionPacket(container.getClientExecutor(), args, this);
+        return ArgumentGatherers.DirectionalExecutionPacket(container, args, this);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class FireArts extends CombatArt
         {
             if (!container.getExecutor().getOriginal().onGround() && container.getDataManager().getDataValue(DatakeyRegistry.FLARESPIN.get()))
             {
-                container.getDataManager().setDataSync(DatakeyRegistry.FLARESPIN.get(), false, container.getServerExecutor().getOriginal());
+                container.getDataManager().setDataSync(DatakeyRegistry.FLARESPIN.get(), false);
                 container.getServerExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_FLARESPIN, 0);
             }
             else
@@ -74,7 +73,7 @@ public class FireArts extends CombatArt
     {
         if (container.getExecutor().getOriginal().onGround() && !container.getExecutor().isLogicalClient())
         {
-            container.getDataManager().setDataSync(DatakeyRegistry.FLARESPIN.get(), true, container.getServerExecutor().getOriginal());
+            container.getDataManager().setDataSync(DatakeyRegistry.FLARESPIN.get(), true);
         }
         super.updateContainer(container);
     }

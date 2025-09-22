@@ -4,14 +4,20 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
 import net.forixaim.omneria.events.advanced_bosses.DamageDealtEvent;
+import net.forixaim.omneria.netcode.NetworkHandler;
+import net.forixaim.omneria.netcode.PacketHandler;
+import net.forixaim.omneria.netcode.packets.client.NPCDialogue;
 import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
 import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
 import net.forixaim.omneria.world.entity.charlemagne.ai.behaviors.BaseBehavior;
 import net.forixaim.omneria.world.entity.charlemagne.ai.behaviors.HostileAttackBehavior;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.AttackAnimation;
@@ -30,6 +36,7 @@ public class CharlemagneBrain
 	private final Charlemagne target;
 	public CharlemagnePatch patch;
 	public CharlemagneMode mode;
+	private Player focusedPlayer = null;
 	private LivingEntity nearestMonster;
 	private LivingEntity opponent;
 	private final Map<Emotion, AnimationManager.AnimationAccessor<? extends StaticAnimation>> emotionState = Maps.newHashMap();
@@ -118,6 +125,12 @@ public class CharlemagneBrain
 		return this.target.getBoundingBox().inflate(80.0, 40.0, 80.0);
 	}
 
+	protected AABB getPlayerSearchArea()
+	{
+		return this.target.getBoundingBox().inflate(3.0, 1.0, 3.0);
+	}
+
+
 	public Emotion getState()
 	{
 		return state;
@@ -141,11 +154,6 @@ public class CharlemagneBrain
 			tick = 0;
 			seconds++;
 			printDebugList();
-		}
-		nearestMonster = this.target.level().getNearestEntity(this.target.level().getEntitiesOfClass(Mob.class, this.getTargetSearchArea()), target.defConditions, this.target, this.target.getX(), this.target.getY(), this.target.getZ());
-		if (nearestMonster != null && !mode.is(CharlemagneMode.DUELING))
-		{
-			this.mode = CharlemagneMode.DEFENSE;
 		}
 		if (seconds >= 60)
 		{
@@ -174,10 +182,19 @@ public class CharlemagneBrain
 		}
 	}
 
-	public void debugFire()
+	public void handleInteractionServer(ServerPlayer serverPlayer)
 	{
-		this.charlemagneAttackStrings.get(0).fire(patch);
-		this.charlemagneAttackStrings.get(0).position++;
+		target.lookAt(serverPlayer, 180.0F, 180.0F);
+		if (target.getConversingPlayer() == null) {
+			NetworkHandler.sendToPlayer(NetworkHandler.PACKET_HANDLER, new NPCDialogue(target.getId(), new CompoundTag()), serverPlayer);
+			target.setConversingPlayer(serverPlayer);
+			focusedPlayer = serverPlayer;
+		}
+	}
+
+	public void handleInteractionClient(LocalPlayer localPlayer)
+	{
+
 	}
 
 	private void battleTick()
@@ -187,7 +204,18 @@ public class CharlemagneBrain
 
 	private void friendlyTick()
 	{
-		if (state != Emotion.NEUTRAL)
-			changeEmotionState(Emotion.NEUTRAL);
+		if (focusedPlayer == null)
+		{
+			focusedPlayer = this.target.level().getNearestEntity(this.target.level().getEntitiesOfClass(Player.class, this.getPlayerSearchArea()), target.playerConditions, this.target, this.target.getX(), this.target.getY(), this.target.getZ());
+		}
+		else
+		{
+			if (target.distanceTo(focusedPlayer) > 10.0)
+				focusedPlayer = null;
+			else
+			{
+				target.lookAt(focusedPlayer, 30, 360);
+			}
+		}
 	}
 }

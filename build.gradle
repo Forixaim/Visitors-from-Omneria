@@ -47,6 +47,7 @@ minecraft {
         }
         client {
             property 'forge.enabledGameTestNamespaces', mod_id
+            args '--username', 'Forixaim'
         }
         server {
             property 'forge.enabledGameTestNamespaces', mod_id
@@ -88,20 +89,21 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation fg.deobf("libs:ExCap:20.12.7.18")
-    implementation fg.deobf("libs:epicfight:20.12.1")
-    implementation fg.deobf("libs:epicskills:20.12.1")
-    implementation fg.deobf("curse.maven:official-epic-fight-x-parcool-1259252:6621494")
-    implementation fg.deobf("libs:BattleArtsAPI:20.12.7.10")
+    implementation fg.deobf("curse.maven:ex-cap-1074178:6881164")
+    implementation fg.deobf("curse.maven:epic-fight-mod-405076:6968125")
+    implementation fg.deobf("curse.maven:epic-fight-skill-tree-1295882:6854381")
+    implementation fg.deobf("curse.maven:official-epic-fight-x-parcool-1259252:6870242")
+    implementation fg.deobf("libs:BattleArtsAPI:20.12.8.1c")
     implementation fg.deobf("curse.maven:placebo-283644:6274231")
     runtimeOnly fg.deobf("curse.maven:rpg-hud-235670:4805323")
     compileOnly fg.deobf("curse.maven:mekanism-268560:5395221")
+    runtimeOnly fg.deobf("curse.maven:skinrestorer-443823:6015917")
     compileOnly fg.deobf("curse.maven:draconic-evolution-223565:5524457")
     compileOnly fg.deobf("curse.maven:brandons-core-231382:5422013")
     compileOnly fg.deobf("curse.maven:projecte-226410:4901949")
     runtimeOnly fg.deobf("curse.maven:selene-499980:5546852")
     implementation fg.deobf("curse.maven:parcool-482378:6652972")
-    runtimeOnly fg.deobf("curse.maven:mmmmmmmmmmmm-225738:5319203")
+    implementation fg.deobf("curse.maven:mmmmmmmmmmmm-225738:5319203")
     implementation fg.deobf("curse.maven:geckolib-388172:5060416")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 

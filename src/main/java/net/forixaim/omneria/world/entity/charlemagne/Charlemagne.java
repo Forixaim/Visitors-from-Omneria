@@ -4,13 +4,23 @@ import com.google.common.collect.Lists;
 import com.mojang.logging.LogUtils;
 import mekanism.common.Mekanism;
 import mekanism.common.capabilities.Capabilities;
-import net.forixaim.omneria.registry.ItemRegistry;
+import net.forixaim.omneria.VisitorsOfOmneria;
+import net.forixaim.omneria.client.ui.screens.DialogueBuilder;
+import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneBrain;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneMode;
+import net.forixaim.omneria.world.entity.charlemagne.ai.goal.PlayerConversationGoal;
 import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
 import net.forixaim.omneria.world.entity.special_tags.IRadiationImmune;
 import net.forixaim.omneria.world.entity.types.AbstractFriendlyNPC;
+import net.forixaim.omneria.world.entity.types.plugins.DialogueNPC;
+import net.forixaim.omneria.world.entity.types.plugins.SoundBasedDialogueNPC;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -27,7 +37,6 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,11 +52,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
+public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune, SoundBasedDialogueNPC
 {
 
 	public CharlemagnePatch patch;
 	public CharlemagneBrain moddedBrain;
+	public Player conversingPlayer;
 	public double xCloakO;
 	public double yCloakO;
 	public double zCloakO;
@@ -57,6 +67,8 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 	private final SimpleContainer charlemagneInventory = new SimpleContainer(8);
 	//For debugging purposes, the entity will be set to a stationary armor stand.
 	public final TargetingConditions defConditions = TargetingConditions.forCombat().range(this.getAttributeValue(Attributes.FOLLOW_RANGE)).selector(pred -> pred instanceof Enemy);
+	public final TargetingConditions playerConditions = TargetingConditions.forNonCombat().range(this.getAttributeValue(Attributes.FOLLOW_RANGE)).selector(pred -> pred instanceof Player);
+
 	private static final List<MobEffect> onlyAffectedEffects = Lists.newArrayList(
 			MobEffects.ABSORPTION,
 			MobEffects.DAMAGE_BOOST,
@@ -71,6 +83,11 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 		Vec3 dir = target.subtract(entity.position());
 		Vec3 velocity = dir.normalize().scale(speed);
 		entity.setDeltaMovement(velocity.x, entity.getDeltaMovement().y, velocity.z);
+	}
+
+	public ResourceLocation getCapeTexture()
+	{
+		return ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "textures/entity/charlemagne_cape.png");
 	}
 
 	private Set<Vec3> testBounds(Level level, Vec3 start)
@@ -98,9 +115,6 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 	public Charlemagne(EntityType<? extends AbstractFriendlyNPC> p_21683_, Level p_21684_)
 	{
 		super(p_21683_, p_21684_);
-		this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ItemRegistry.ORIGIN_JOYEUSE.get()));
-		//Mod Checks
-
 	}
 
 	@Override
@@ -115,10 +129,31 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 	}
 
 	@Override
+	public boolean canBeLeashed(@NotNull Player pPlayer)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean canBeCollidedWith()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isPushable()
+	{
+		return false;
+	}
+
+	@Override
 	public boolean canStandOnFluid(FluidState p_204042_)
 	{
 		return p_204042_.is(Fluids.LAVA) || p_204042_.is(Fluids.FLOWING_LAVA);
 	}
+
+
+
 	@Override
 	public void kill()
 	{
@@ -128,6 +163,7 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 	@Override
 	protected void registerGoals()
 	{
+		goalSelector.addGoal(0, new PlayerConversationGoal<>(this));
 		goalSelector.addGoal(0, new FloatGoal(this));
 	}
 
@@ -181,7 +217,7 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 		double d0 = this.getX() - this.xCloak;
 		double d1 = this.getY() - this.yCloak;
 		double d2 = this.getZ() - this.zCloak;
-		double d3 = (double)10.0F;
+		double d3 = 10.0F;
 		if (d0 > (double)10.0F) {
 			this.xCloak = this.getX();
 			this.xCloakO = this.xCloak;
@@ -221,8 +257,48 @@ public class Charlemagne extends AbstractFriendlyNPC implements IRadiationImmune
 	protected @NotNull InteractionResult mobInteract(@NotNull Player p_21472_, @NotNull InteractionHand p_21473_)
 	{
 		LogUtils.getLogger().debug("Interacted");
-		if (p_21472_.getItemInHand(InteractionHand.MAIN_HAND).is(Items.DEBUG_STICK) && !this.level().isClientSide)
-			this.patch.brain.debugFire();
-		return InteractionResult.SUCCESS;
+		if (!this.level().isClientSide)
+			this.patch.brain.handleInteractionServer((ServerPlayer) p_21472_);
+		return InteractionResult.sidedSuccess(level().isClientSide);
+	}
+
+	@Override
+	public void openDialogueScreen(CompoundTag senderData)
+	{
+		DialogueBuilder builder = new DialogueBuilder(this);
+
+		builder.start(0)
+				.addChoice(0, 1)
+				.addChoice(1, 2)
+				.addChoice(2, 3)
+				.addFinalChoice(9, 1L);
+
+		if(!builder.isEmpty()){
+			Minecraft.getInstance().setScreen(builder.build());
+		}
+	}
+
+	@Override
+	public void handleNpcInteraction(Player player, long interactionID)
+	{
+		setConversingPlayer(null);
+	}
+
+	@Override
+	public void setConversingPlayer(@Nullable Player player)
+	{
+		this.conversingPlayer = player;
+	}
+
+	@Override
+	public @Nullable Player getConversingPlayer()
+	{
+		return conversingPlayer;
+	}
+
+	@Override
+	public @NotNull SoundEvent getSound()
+	{
+		return SoundRegistry.SANS.get();
 	}
 }

@@ -4,7 +4,7 @@ import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.Lu
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import yesman.epicfight.client.events.engine.ControllEngine;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -19,16 +19,16 @@ public class InfernalDriver extends WeaponInnateSkill
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public FriendlyByteBuf gatherArguments(SkillContainer container, ControllEngine controllEngine)
+    public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine)
     {
-        return ArgumentGatherers.UniversalDirectionalInput((LocalPlayerPatch) container.getExecutor(), null);
+        return ArgumentGatherers.UniversalDirectionalInput(container, null);
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args)
     {
-        return ArgumentGatherers.DirectionalExecutionPacket((LocalPlayerPatch) container.getExecutor(), args, this);
+        return ArgumentGatherers.DirectionalExecutionPacket(container, args, this);
     }
 
     @Override

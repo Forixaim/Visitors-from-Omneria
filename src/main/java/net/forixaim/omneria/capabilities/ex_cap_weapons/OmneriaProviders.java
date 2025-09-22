@@ -1,10 +1,9 @@
 package net.forixaim.omneria.capabilities.ex_cap_weapons;
 
-import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
-import net.forixaim.efm_ex.api.providers.ProviderConditional;
-import net.forixaim.efm_ex.api.providers.ProviderConditionalType;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
+import net.forixaim.ex_cap.api.providers.ProviderConditional;
+import net.forixaim.ex_cap.api.providers.ProviderConditionalType;
 import net.forixaim.omneria.capabilities.styles.LumiereStyles;
-import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.skill.OmneriaSkills;
 import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
 

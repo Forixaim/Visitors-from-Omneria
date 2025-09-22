@@ -10,9 +10,9 @@ import moze_intel.projecte.api.ProjectEAPI;
 import moze_intel.projecte.gameObjs.items.armor.DMArmor;
 import moze_intel.projecte.gameObjs.items.armor.GemArmorBase;
 import moze_intel.projecte.gameObjs.items.armor.RMArmor;
-import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
-import net.forixaim.bs_api.battle_arts_skills.battle_style.BattleStyle;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.Config;
+import net.forixaim.omneria.NetworkUtils;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereUnarmedAnims;
 import net.forixaim.omneria.capabilities.styles.LumiereStyles;
@@ -37,15 +37,13 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.client.gui.BattleModeGui;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPChangeSkill;
-import yesman.epicfight.skill.ChargeableSkill;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillSlots;
-import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
-import yesman.epicfight.world.entity.eventlistener.DealtDamageEvent;
+import yesman.epicfight.world.entity.eventlistener.DealDamageEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.UUID;
@@ -62,7 +60,7 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 			{
 				if (event.getPlayerPatch().getOriginal().onGround() && !container.getExecutor().getOriginal().getAbilities().flying && !container.getDataManager().getDataValue(DatakeyRegistry.JUMPING.get()))
 				{
-					container.getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), true, event.getPlayerPatch().getOriginal());
+					container.getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), true);
 					if (container.getExecutor().getOriginal().isSprinting())
 						container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_JUMP_FORWARD, 0);
 					else
@@ -79,14 +77,19 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 			}
 		});
 
-		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.HURT_EVENT_PRE, EVENT_UUID, event -> {
+		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SKILL_CONSUME_EVENT, EVENT_UUID, event -> {
+			if (event.getSkill() == OmneriaSkills.TRAILBLAZE)
+				event.setResourceType(Resource.NONE);
+		});
+
+		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID, event -> {
 			if (container.getDataManager().getDataValue(DatakeyRegistry.JUMPING.get()))
 			{
-				container.getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false, event.getPlayerPatch().getOriginal());
+				container.getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false);
 			}
 		});
 
-		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEALT_DAMAGE_EVENT_ATTACK, EVENT_UUID, event ->
+		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID, event ->
 		{
 			if (event.getPlayerPatch().getOriginal().getItemInHand(InteractionHand.MAIN_HAND).is(ItemRegistry.ORIGIN_JOYEUSE.get()))
 			{
@@ -119,7 +122,7 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 			}
 		});
 
-		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEALT_DAMAGE_EVENT_HURT, EVENT_UUID, event ->
+		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID, event ->
 		{
 			if (event.getDamageSource().getAnimation() == LumiereSwordAnims.IMPERATRICE_SWORD_FLARIAN_IMPALER)
 			{
@@ -141,7 +144,7 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 	}
 
 	@Override
-	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y)
+	public void drawOnGui(BattleModeGui gui, SkillContainer container, GuiGraphics guiGraphics, float x, float y, float pt)
 	{
 		PoseStack poseStack = guiGraphics.pose();
 		poseStack.pushPose();
@@ -166,19 +169,11 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 	@Override
 	public void executeOnServer(SkillContainer container, FriendlyByteBuf args)
 	{
-		if (!container.getServerExecutor().getSkill(SkillSlots.BASIC_ATTACK).hasSkill(OmneriaSkills.FLARE_BLITZ))
-		{
-			container.getServerExecutor().getSkillCapability().skillContainers[SkillSlots.BASIC_ATTACK.universalOrdinal()].setSkill(OmneriaSkills.FLARE_BLITZ);
-			EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(SkillSlots.BASIC_ATTACK, OmneriaSkills.FLARE_BLITZ.toString(), SPChangeSkill.State.ENABLE), container.getServerExecutor().getOriginal());
-		}
-		if (!container.getServerExecutor().getSkill(BattleArtsSkillSlots.COMBAT_ART).hasSkill(OmneriaSkills.FIRE_ARTS))
-		{
-			container.getServerExecutor().getSkill(BattleArtsSkillSlots.COMBAT_ART).setSkill(OmneriaSkills.FIRE_ARTS);
-			EpicFightNetworkManager.sendToPlayer(new SPChangeSkill(BattleArtsSkillSlots.COMBAT_ART, OmneriaSkills.FIRE_ARTS.toString(), SPChangeSkill.State.ENABLE), container.getServerExecutor().getOriginal());
-		}
+		NetworkUtils.changeSkill(container.getServerExecutor(), SkillSlots.BASIC_ATTACK, OmneriaSkills.FLARE_BLITZ);
+		NetworkUtils.changeSkill(container.getServerExecutor(), BattleArtsSkillSlots.COMBAT_ART, OmneriaSkills.FIRE_ARTS);
 	}
 
-	private boolean isCheeseFound(DealtDamageEvent.Attack event, boolean cheeseFound)
+	private boolean isCheeseFound(DealDamageEvent.Attack event, boolean cheeseFound)
 	{
 		for (ItemStack item : event.getTarget().getArmorSlots())
 		{
@@ -208,14 +203,15 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 	public void onRemoved(SkillContainer container)
 	{
 		super.onRemoved(container);
-		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.HURT_EVENT_PRE, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_HURT, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SERVER_ITEM_STOP_EVENT, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.BASIC_ATTACK_EVENT, EVENT_UUID);
-		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEALT_DAMAGE_EVENT_ATTACK, EVENT_UUID);
-		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEALT_DAMAGE_EVENT_HURT, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.ACTION_EVENT_SERVER, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_CONSUME_EVENT, EVENT_UUID);
 	}
 
 	@Override
@@ -225,11 +221,11 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 		{
 			if (!container.getExecutor().getOriginal().onGround() && !container.getDataManager().getDataValue(DatakeyRegistry.LEFT_GROUND.get()))
 			{
-				container.getDataManager().setDataSync(DatakeyRegistry.LEFT_GROUND.get(), true, container.getServerExecutor().getOriginal());
+				container.getDataManager().setDataSync(DatakeyRegistry.LEFT_GROUND.get(), true);
 			}
 			else if (container.getExecutor().getOriginal().onGround() && container.getDataManager().getDataValue(DatakeyRegistry.LEFT_GROUND.get()))
 			{
-				container.getDataManager().setDataSync(DatakeyRegistry.LEFT_GROUND.get(), false, container.getServerExecutor().getOriginal());
+				container.getDataManager().setDataSync(DatakeyRegistry.LEFT_GROUND.get(), false);
 			}
 
 
@@ -241,7 +237,6 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 	public ImperatriceLumiere(Builder<? extends Skill> builder)
 	{
 		super(builder);
-		modifiesAttacks = true;
 		jumpBoostPower = 6f;
 		criticalHitChance = 1;
 		criticalHitDamage = 0.8f;
@@ -259,6 +254,6 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 	@Override
 	public boolean unarmedMoveset()
 	{
-		return true;
+		return false;
 	}
 }

@@ -1,34 +1,29 @@
 package net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword;
 
 import com.mojang.logging.LogUtils;
-import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
-import net.forixaim.omneria.VisitorsOfOmneria;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.animations.types.*;
 import net.forixaim.omneria.colliders.LumiereColliders;
-import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
-import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
 import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
 import yesman.epicfight.api.utils.TimePairList;
-import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -36,6 +31,7 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.damagesource.StunType;
@@ -46,11 +42,18 @@ import java.util.function.Function;
 /**
  * Module containing living motions.
  */
-@Mod.EventBusSubscriber(modid = VisitorsOfOmneria.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class LumiereSwordAnims
 {
 	public static AnimationManager.AnimationAccessor<SelectiveAnimation> IMPERATRICE_SWORD_IDLE_SET;
 	public static AnimationManager.AnimationAccessor<StaticAnimation> IMPERATRICE_SWORD_IDLE;
+	public static AnimationManager.AnimationAccessor<DodgeAnimation> IMPERATRICE_SWORD_TRAILBLAZE_LEFT;
+	public static AnimationManager.AnimationAccessor<DodgeAnimation> IMPERATRICE_SWORD_TRAILBLAZE_RIGHT;
+	public static AnimationManager.AnimationAccessor<DodgeAnimation> IMPERATRICE_SWORD_TRAILBLAZE_FORWARD;
+	public static AnimationManager.AnimationAccessor<DodgeAnimation> IMPERATRICE_SWORD_TRAILBLAZE_BACKWARD;
+	public static AnimationManager.AnimationAccessor<DodgeAnimation> IMPERATRICE_SWORD_TRAILBLAZE_VANISH;
+	public static AnimationManager.AnimationAccessor<DodgeAnimation> IMPERATRICE_SWORD_TRAILBLAZE_UP;
+
+
 	public static AnimationManager.AnimationAccessor<StaticAnimation> IMPERATRICE_SWORD_FALL_NEUTRAL;
 	public static AnimationManager.AnimationAccessor<StaticAnimation> IMPERATRICE_SWORD_FALL_FORWARD;
 	public static AnimationManager.AnimationAccessor<StaticAnimation> IMPERATRICE_SWORD_FALL_FORWARD_SPRINT;
@@ -109,11 +112,7 @@ public class LumiereSwordAnims
 	public static AnimationManager.AnimationAccessor<OmneriaAerialAttackAnimation> IMPERATRICE_SWORD_SUNRISE;
 	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_BLAZING_SUNRISE;
 
-	@SubscribeEvent
-	public static void registerAnims(AnimationManager.AnimationRegistryEvent event)
-	{
-		event.newBuilder(VisitorsOfOmneria.MOD_ID, LumiereSwordAnims::reg);
-	}
+
 
 	private static Function<LivingEntityPatch<?>, Integer> debugAnim = livingEntityPatch -> {
 		if (livingEntityPatch instanceof PlayerPatch<?> playerPatch)
@@ -146,6 +145,127 @@ public class LumiereSwordAnims
 		IMPERATRICE_SWORD_IDLE = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/idle", access ->
 				new StaticAnimation(0.3f, true, access, Armatures.BIPED));
 
+		IMPERATRICE_SWORD_TRAILBLAZE_LEFT = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/trailblaze_left", access ->
+				new DodgeAnimation(0.0f, 0.15f, access, 0.4f, 1.4f, Armatures.BIPED)
+						.addEvents(AnimationEvent.InTimeEvent.create(0.05f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundRegistry.IMPERATRICE_SPOT_DODGE.get()), AnimationEvent.InTimeEvent.create(
+								0.05f, (livingEntityPatch, assetAccessor, animationParameters) ->
+								{
+									LivingEntity entity = livingEntityPatch.getOriginal();
+									entity.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
+									RandomSource random = entity.getRandom();
+									double x = entity.getX() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+									double y = entity.getY();
+									double z = entity.getZ() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+									entity.level().addParticle(ParticleTypes.EXPLOSION, x, y, z, random.nextDouble() * 0.005, 0.0F, 0.0F);
+								}, AnimationEvent.Side.CLIENT
+						)));
+
+		IMPERATRICE_SWORD_TRAILBLAZE_UP = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/trailblaze_up", access ->
+				new DodgeAnimation(0.0f, 0.15f, access, 0.4f, 1.4f, Armatures.BIPED)
+						.addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
+						.addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, false)
+						.addEvents(AnimationEvent.InTimeEvent.create(0.05f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundRegistry.IMPERATRICE_SPOT_DODGE.get()), AnimationEvent.InTimeEvent.create(
+								0.05f, (livingEntityPatch, assetAccessor, animationParameters) ->
+								{
+									LivingEntity entity = livingEntityPatch.getOriginal();
+									entity.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
+									RandomSource random = entity.getRandom();
+									double x = entity.getX() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+									double y = entity.getY();
+									double z = entity.getZ() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+									entity.level().addParticle(ParticleTypes.EXPLOSION, x, y, z, random.nextDouble() * 0.005, 0.0F, 0.0F);
+								}, AnimationEvent.Side.CLIENT
+						)));
+
+		IMPERATRICE_SWORD_TRAILBLAZE_RIGHT = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/trailblaze_right", access ->
+				new DodgeAnimation(0.0f, 0.15f, access, 0.4f, 1.4f, Armatures.BIPED)
+						.addEvents(AnimationEvent.InTimeEvent.create(0.05f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundRegistry.IMPERATRICE_SPOT_DODGE.get())
+								, AnimationEvent.InTimeEvent.create(
+										0.05f, (livingEntityPatch, assetAccessor, animationParameters) ->
+										{
+											LivingEntity entity = livingEntityPatch.getOriginal();
+											entity.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
+											RandomSource random = entity.getRandom();
+											double x = entity.getX() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+											double y = entity.getY();
+											double z = entity.getZ() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+											entity.level().addParticle(ParticleTypes.EXPLOSION, x, y, z, random.nextDouble() * 0.005, 0.0F, 0.0F);
+										}, AnimationEvent.Side.CLIENT
+								)));
+
+		IMPERATRICE_SWORD_TRAILBLAZE_FORWARD = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/trailblaze_forward", access ->
+				new DodgeAnimation(0.0f, 0.15f, access, 0.4f, 1.4f, Armatures.BIPED)
+						.addEvents(AnimationEvent.InTimeEvent.create(0.05f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundRegistry.IMPERATRICE_SPOT_DODGE.get())
+								, AnimationEvent.InTimeEvent.create(
+										0.05f, (livingEntityPatch, assetAccessor, animationParameters) ->
+										{
+											LivingEntity entity = livingEntityPatch.getOriginal();
+											entity.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
+											RandomSource random = entity.getRandom();
+											double x = entity.getX() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+											double y = entity.getY();
+											double z = entity.getZ() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+											entity.level().addParticle(ParticleTypes.EXPLOSION, x, y, z, random.nextDouble() * 0.005, 0.0F, 0.0F);
+										}, AnimationEvent.Side.CLIENT
+								)));
+
+		IMPERATRICE_SWORD_TRAILBLAZE_VANISH = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/trailblaze_vanish", access ->
+				new DodgeAnimation(0.0f, 0.15f, access, 0.4f, 1.4f, Armatures.BIPED)
+						.addEvents(AnimationEvent.InTimeEvent.create(0.05f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundRegistry.IMPERATRICE_SPOT_DODGE.get())
+								, AnimationEvent.InTimeEvent.create(
+										0.05f, (livingEntityPatch, assetAccessor, animationParameters) ->
+										{
+											LivingEntity entity = livingEntityPatch.getOriginal();
+											entity.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
+											RandomSource random = entity.getRandom();
+											double x = entity.getX() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+											double y = entity.getY();
+											double z = entity.getZ() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+											entity.level().addParticle(ParticleTypes.EXPLOSION, x, y, z, random.nextDouble() * 0.005, 0.0F, 0.0F);
+										}, AnimationEvent.Side.CLIENT
+								), AnimationEvent.InTimeEvent.create(0.15f, (livingEntityPatch, assetAccessor, animationParameters) ->
+								{
+									if (livingEntityPatch.getTarget() != null)
+									{
+										LivingEntity opponent = livingEntityPatch.getTarget();
+										Vec3 opponentPos = opponent.position();
+										Vec3 lookVec = opponent.getLookAngle().normalize();
+										Vec3 behindPos = opponentPos.subtract(lookVec.scale(2f));
+										livingEntityPatch.getOriginal().teleportTo((ServerLevel) opponent.level(), behindPos.x, opponentPos.y, behindPos.z, RelativeMovement.ALL, opponent.yHeadRot, livingEntityPatch.getOriginal().getViewXRot(1.0f));
+										Vec3 toOpponent = opponentPos.subtract(behindPos);
+										double yaw = Math.toDegrees(Math.atan2(-toOpponent.x, -toOpponent.z));
+										double pitch = Math.toDegrees(-Math.atan2(toOpponent.y, Math.sqrt(toOpponent.x * toOpponent.x + toOpponent.z * toOpponent.z)));
+										livingEntityPatch.getOriginal().setYRot((float)yaw);
+										livingEntityPatch.getOriginal().setXRot((float)pitch);
+										if (livingEntityPatch instanceof LocalPlayerPatch localPlayerPatch)
+										{
+											Minecraft mc = Minecraft.getInstance();
+											if (mc.player != null) {
+												mc.player.setYRot((float)yaw);
+												mc.player.setXRot((float)pitch);
+												mc.player.yRotO = (float)yaw;
+												mc.player.xRotO = (float)pitch;
+											}
+										}
+									}
+								}, AnimationEvent.Side.SERVER)));
+
+
+		IMPERATRICE_SWORD_TRAILBLAZE_BACKWARD = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/trailblaze_backward", access ->
+				new DodgeAnimation(0.0f, 0.15f, access, 0.4f, 1.4f, Armatures.BIPED)
+						.addEvents(AnimationEvent.InTimeEvent.create(0.05f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.CLIENT).params(SoundRegistry.IMPERATRICE_SPOT_DODGE.get())
+								, AnimationEvent.InTimeEvent.create(
+										0.05f, (livingEntityPatch, assetAccessor, animationParameters) ->
+										{
+											LivingEntity entity = livingEntityPatch.getOriginal();
+											entity.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
+											RandomSource random = entity.getRandom();
+											double x = entity.getX() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+											double y = entity.getY();
+											double z = entity.getZ() + (random.nextDouble() - random.nextDouble()) * (double)2.0F;
+											entity.level().addParticle(ParticleTypes.EXPLOSION, x, y, z, random.nextDouble() * 0.005, 0.0F, 0.0F);
+										}, AnimationEvent.Side.CLIENT
+								)));
 
 		IMPERATRICE_SWORD_GUARD = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/guard", access ->
 				new StaticAnimation(true, access, Armatures.BIPED));
@@ -418,7 +538,7 @@ public class LumiereSwordAnims
 							if (livingEntityPatch instanceof LocalPlayerPatch localPlayerPatch && localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.JUMPING.get()))
 							{
 								localPlayerPatch.getOriginal().jumpFromGround();
-								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false, localPlayerPatch.getOriginal());
+								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false);
 							}
 						}, AnimationEvent.Side.CLIENT))
 						.addState(EntityState.MOVEMENT_LOCKED, false));
@@ -429,10 +549,12 @@ public class LumiereSwordAnims
 							if (livingEntityPatch instanceof LocalPlayerPatch localPlayerPatch && localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.JUMPING.get()))
 							{
 								localPlayerPatch.getOriginal().jumpFromGround();
-								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false, localPlayerPatch.getOriginal());
+								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false);
 							}
 						}, AnimationEvent.Side.CLIENT))
 						.addState(EntityState.MOVEMENT_LOCKED, false));
+
+
 
 		IMPERATRICE_SWORD_JUMP_BACK = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/jump_back", access ->
 				new JumpAnimation(0.083f, false, access, Armatures.BIPED)
@@ -440,7 +562,7 @@ public class LumiereSwordAnims
 							if (livingEntityPatch instanceof LocalPlayerPatch localPlayerPatch && localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.JUMPING.get()))
 							{
 								localPlayerPatch.getOriginal().jumpFromGround();
-								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false, localPlayerPatch.getOriginal());
+								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false);
 							}
 						}, AnimationEvent.Side.CLIENT))
 						.addState(EntityState.MOVEMENT_LOCKED, false));
@@ -495,10 +617,10 @@ public class LumiereSwordAnims
 		));
 
 		IMPERATRICE_SWORD_NEUTRAL_ATTACK = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/jab", access ->
-				new OmneriaAttackAnimation(0.1f, 0, 0.35f, 0.4f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaAttackAnimation(0.2f, 0, 0.2f, 0.3f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_S.get())
 						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f)
+						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> c * 1.2f)
 						.addEvents(AnimationEvent.SimpleEvent.create(
 								(livingEntityPatch, assetAccessor, animationParameters) ->
 								{
@@ -510,7 +632,7 @@ public class LumiereSwordAnims
 						)));
 
 		IMPERATRICE_SWORD_FLARESPIN = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/flarespin/flarespin", access ->
-				new OmneriaAttackAnimation(0.1f, access, Armatures.BIPED,
+				new OmneriaAttackAnimation(0.2f, access, Armatures.BIPED,
 						new OmneriaAttackAnimation.Phase(0.0f, 0.0f, 0.05f, 0.15f, 0.15f, 0.15f, Armatures.BIPED.get().rootJoint, LumiereColliders.IMPERATRICE_NEUTRAL_AERIAL),
 						new OmneriaAttackAnimation.Phase(0.15f, 0.0f, 0.25f, 0.35f, 0.35f, 0.35f, Armatures.BIPED.get().rootJoint, LumiereColliders.IMPERATRICE_NEUTRAL_AERIAL),
 						new OmneriaAttackAnimation.Phase(0.35f, 0.0f, 0.045f, 0.55f, 0.55f, 0.55f, Armatures.BIPED.get().rootJoint, LumiereColliders.IMPERATRICE_NEUTRAL_AERIAL),
@@ -529,16 +651,16 @@ public class LumiereSwordAnims
 						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 1f));
 
 		IMPERATRICE_SWORD_CROUCH_ATTACK = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/crouch", access ->
-				new OmneriaAttackAnimation(0.1f, 0, 0.45f, 0.6f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaAttackAnimation(0.2f, 0, 0.45f, 0.6f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_S.get())
 						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f));
 
 		IMPERATRICE_SWORD_NEUTRAL_ATTACK_ALT = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/jab_alt", access ->
-				new OmneriaAttackAnimation(0.1f, 0, 0.4f, 0.5f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaAttackAnimation(0.2f, 0, 0.2f, 0.3f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_S.get())
 						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
-						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f)
+						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> c * 1.2f)
 						.addEvents(AnimationEvent.SimpleEvent.create(
 								(livingEntityPatch, assetAccessor, animationParameters) ->
 								{
@@ -550,7 +672,7 @@ public class LumiereSwordAnims
 						)));
 
 		IMPERATRICE_SWORD_LEFT_ATTACK = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/left", access ->
-				new OmneriaAttackAnimation(0.1f, 0, 0.6f, 0.7f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaAttackAnimation(0.2f, 0, 0.6f, 0.7f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_S.get())
 						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 						.addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS, 2)
@@ -566,7 +688,7 @@ public class LumiereSwordAnims
 						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f));
 
 		IMPERATRICE_SWORD_RIGHT_ATTACK = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/right", access ->
-				new OmneriaAttackAnimation(0.1f, 0, 0.3f, 0.4f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaAttackAnimation(0.2f, 0, 0.3f, 0.4f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_S.get())
 						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 						.addProperty(AnimationProperty.AttackAnimationProperty.EXTRA_COLLIDERS, 2)
@@ -582,7 +704,7 @@ public class LumiereSwordAnims
 						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f));
 
 		IMPERATRICE_SWORD_BACK_ATTACK = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/back", access ->
-				new OmneriaAttackAnimation(0.1f, 0, 0.5f, 0.6f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaAttackAnimation(0.2f, 0, 0.5f, 0.6f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_S.get())
 						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 						.addEvents(AnimationEvent.SimpleEvent.create(
@@ -627,7 +749,7 @@ public class LumiereSwordAnims
 						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f));
 
 		IMPERATRICE_SWORD_FRONT_ATTACK = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/front", access ->
-				new OmneriaAttackAnimation(0.1f, 0, 0.5f, 0.7f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaAttackAnimation(0.1f, 0, 0.3f, 0.4f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_S.get())
 						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 						.addEvents(AnimationEvent.SimpleEvent.create(
@@ -639,10 +761,10 @@ public class LumiereSwordAnims
 									}
 								}, AnimationEvent.Side.SERVER
 						))
-						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f));
+						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 1f));
 
 		IMPERATRICE_SWORD_FRONT_ATTACK_ALT = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/front_alt", access ->
-				new OmneriaAttackAnimation(0.1f, 0, 0.5f, 0.7f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaAttackAnimation(0.1f, 0, 0.3f, 0.4f, 1.5f, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_S.get())
 						.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
 						.addEvents(AnimationEvent.SimpleEvent.create(
@@ -654,7 +776,7 @@ public class LumiereSwordAnims
 									}
 								}, AnimationEvent.Side.SERVER
 						))
-						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 2f));
+						.addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (a,b,c,d,e) -> 1f));
 
 	}
 	private static Vec3 distanceTo(LivingEntity opponent, LivingEntityPatch<?> attackerPatch)

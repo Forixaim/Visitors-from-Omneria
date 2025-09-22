@@ -1,7 +1,7 @@
 package net.forixaim.omneria.capabilities.weapons;
 
-import net.forixaim.efm_ex.api.events.ExCapMovesetRegistryEvent;
-import net.forixaim.efm_ex.capabilities.weapon_presets.ExCapWeapons;
+import net.forixaim.ex_cap.api.events.ExCapMovesetRegistryEvent;
+import net.forixaim.ex_cap.capabilities.weapon_presets.ExCapWeapons;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.capabilities.ex_cap_weapons.OmneriaProviders;
 import net.forixaim.omneria.capabilities.ex_cap_weapons.movesets.ImperatriceMovesets;

@@ -1,6 +1,7 @@
 package net.forixaim.omneria.skill;
 
 import net.forixaim.omneria.VisitorsOfOmneria;
+import net.forixaim.omneria.skill.battle_style.genesis_wyrm.GenesisWyrm;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.FlareBlitz;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.ImperatriceLumiere;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.active.FireArts;
@@ -24,6 +25,15 @@ public class DatakeyRegistry
 			)
 	);
 
+	public static final RegistryObject<SkillDataKey<Boolean>> RIGHT_CLICKED = DATA_KEYS.register("right_clicked", () ->
+			SkillDataKey.createSkillDataKey(
+					PacketBufferCodec.BOOLEAN,
+					false,
+					true,
+					GenesisWyrm.class
+			)
+	);
+
 	public static final RegistryObject<SkillDataKey<Integer>> PREV_ANIM = DATA_KEYS.register("prev_anim", () ->
 			SkillDataKey.createSkillDataKey(
 					PacketBufferCodec.INTEGER,
@@ -33,12 +43,39 @@ public class DatakeyRegistry
 			)
 	);
 
-	public static final RegistryObject<SkillDataKey<Integer>> BLAZE_COMBO = DATA_KEYS.register("blaze_combo", () ->
+	public static final RegistryObject<SkillDataKey<Integer>> OMNERIA_COMBO = DATA_KEYS.register("omneria_combo", () ->
 			SkillDataKey.createSkillDataKey(
 					PacketBufferCodec.INTEGER,
 					0,
 					false,
 					FlareBlitz.class
+			)
+	);
+
+	public static final RegistryObject<SkillDataKey<Integer>> OMNERIA_COMBO_GENESIS_WYRM = DATA_KEYS.register("omneria_combo_gwm", () ->
+			SkillDataKey.createSkillDataKey(
+					PacketBufferCodec.INTEGER,
+					0,
+					false,
+					GenesisWyrm.class
+			)
+	);
+
+	public static final RegistryObject<SkillDataKey<Integer>> OMNERIA_COMBO_GENESIS_WYRM_BLAST = DATA_KEYS.register("omneria_combo_gwm_blast", () ->
+			SkillDataKey.createSkillDataKey(
+					PacketBufferCodec.INTEGER,
+					0,
+					false,
+					GenesisWyrm.class
+			)
+	);
+
+	public static final RegistryObject<SkillDataKey<Integer>> OMNERIA_COMBO_GENESIS_WYRM_LEGS = DATA_KEYS.register("omneria_combo_gwm_legs", () ->
+			SkillDataKey.createSkillDataKey(
+					PacketBufferCodec.INTEGER,
+					0,
+					false,
+					GenesisWyrm.class
 			)
 	);
 

@@ -3,44 +3,38 @@ package net.forixaim.omneria.world.entity.patches;
 import com.google.common.collect.Lists;
 import com.yesman.epicparcool.EpicParCool;
 import com.yesman.epicparcool.ParcoolLivingMotions;
-import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereUnarmedAnims;
+import net.forixaim.omneria.animations.entity.CharlemagneAnimations;
 import net.forixaim.omneria.events.advanced_bosses.DamageDealtEvent;
+import net.forixaim.omneria.world.entity.FacialLivingMotions;
 import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneAttackString;
 import net.forixaim.omneria.world.entity.charlemagne.ai.CharlemagneBrain;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.PlayerModelPart;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.ModList;
-import org.jetbrains.annotations.Nullable;
 import yesman.epicfight.api.animation.Animator;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.client.model.SoftBodyTranslatable;
-import yesman.epicfight.api.client.online.EpicSkins;
 import yesman.epicfight.api.client.physics.cloth.ClothColliderPresets;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulatable;
 import yesman.epicfight.api.client.physics.cloth.ClothSimulator;
 import yesman.epicfight.api.physics.PhysicsSimulator;
 import yesman.epicfight.api.physics.SimulationTypes;
 import yesman.epicfight.api.utils.AttackResult;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.AbstractClientPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.world.capabilities.entitypatch.Faction;
 import yesman.epicfight.world.capabilities.entitypatch.Factions;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@SuppressWarnings("unchecked")
 public class CharlemagnePatch extends FriendlyHumanoidNPCPatch<Charlemagne> implements ClothSimulatable
 {
 
@@ -101,10 +95,11 @@ public class CharlemagnePatch extends FriendlyHumanoidNPCPatch<Charlemagne> impl
 	@Override
 	public void initAnimator(Animator animator)
 	{
-		animator.addLivingAnimation(LivingMotions.IDLE, Animations.BIPED_IDLE);
+		animator.addLivingAnimation(LivingMotions.IDLE, CharlemagneAnimations.IDLE);
 		animator.addLivingAnimation(LivingMotions.WALK, Animations.BIPED_WALK);
 		animator.addLivingAnimation(LivingMotions.RUN, Animations.BIPED_RUN);
 		animator.addLivingAnimation(LivingMotions.DEATH, Animations.BIPED_DEATH);
+		animator.addLivingAnimation(FacialLivingMotions.CHARLEMAGNE_NEUTRAL, CharlemagneAnimations.FACE_NEUTRAL);
 	}
 
 	@Override
@@ -147,8 +142,7 @@ public class CharlemagnePatch extends FriendlyHumanoidNPCPatch<Charlemagne> impl
 			this.currentLivingMotion = LivingMotions.FALL;
 		}
 
-
-		this.currentCompositeMotion = this.currentLivingMotion;
+        this.currentCompositeMotion = FacialLivingMotions.CHARLEMAGNE_NEUTRAL;
 	}
 
 	@Override

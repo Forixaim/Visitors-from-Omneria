@@ -23,7 +23,7 @@ public class LumiereMovements extends Skill
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_ID, event ->
         {
             if (event.getPlayerPatch().getOriginal().getVehicle() != null || !event.getPlayerPatch().isEpicFightMode() || event.getPlayerPatch().getOriginal().getAbilities().flying
-                    || event.getPlayerPatch().isChargingSkill() || event.getPlayerPatch().getEntityState().inaction()) {
+                    || event.getPlayerPatch().isHoldingAny() || event.getPlayerPatch().getEntityState().inaction()) {
                 return;
             }
 

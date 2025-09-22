@@ -19,6 +19,11 @@
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_heavy_swing",
     "sounds":[{"name":"omneria:entity/weapon/heavy_blade_swing", "stream":true}]
   },
+  "entity.speak.sans": {
+    "category": "master",
+    "subtitle": "sounds.omneria.entity.speak.sans",
+    "sounds":[{"name":"omneria:entity/speak/test_typewriter", "stream":true}]
+  },
   "entity.weapon.imperatrice_hit_s": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_hit_s",

@@ -4,6 +4,7 @@ import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -60,7 +61,7 @@ public enum VisitorsOfOmneriaTiers implements Tier
 	}
 
 	@Override
-	public Ingredient getRepairIngredient()
+	public @NotNull Ingredient getRepairIngredient()
 	{
 		return this.repairMaterial.get();
 	}

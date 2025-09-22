@@ -1,13 +1,6 @@
 package net.forixaim.omneria.animations.types;
 
-import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
-import net.forixaim.omneria.Config;
-import net.forixaim.omneria.combat.OmneriaDamageSource;
-import net.forixaim.omneria.combat.OmneriaDamageSources;
-import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -33,7 +26,6 @@ import yesman.epicfight.api.utils.HitEntityList;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -42,7 +34,6 @@ import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.effect.EpicFightMobEffects;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class OmneriaAerialAttackAnimation extends AirSlashAnimation
@@ -179,35 +170,7 @@ public class OmneriaAerialAttackAnimation extends AirSlashAnimation
         });
     }
 
-    @Override
-    public EpicFightDamageSource getEpicFightDamageSource(DamageSource originalSource, LivingEntityPatch<?> entitypatch, Entity target, Phase phase) {
-        if (phase == null) {
-            phase = this.getPhaseByTime(Objects.requireNonNull(entitypatch.getAnimator().getPlayerFor(this.getAccessor())).getElapsedTime());
-        }
 
-        OmneriaDamageSource extendedSource;
-        if (originalSource instanceof OmneriaDamageSource epicfightDamageSource) {
-            extendedSource = epicfightDamageSource;
-        } else {
-            extendedSource = OmneriaDamageSources.copy(originalSource).setAnimation(this.getAccessor());
-        }
-
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER).ifPresent(extendedSource::setDamageModifier);
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.ARMOR_NEGATION_MODIFIER).ifPresent((opt) -> extendedSource.setArmorNegation(opt.getTotalValue(extendedSource.getArmorNegation())));
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER).ifPresent((opt) -> extendedSource.setImpact(opt.getTotalValue(extendedSource.getImpact())));
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).ifPresent(extendedSource::setStunType);
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG).ifPresent((opt) -> {
-            Objects.requireNonNull(extendedSource);
-            opt.forEach(extendedSource::addRuntimeTag);
-        });
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.EXTRA_DAMAGE).ifPresent((opt) -> {
-            Objects.requireNonNull(extendedSource);
-            opt.forEach(extendedSource::addExtraDamage);
-        });
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresent((opt) -> extendedSource.setInitialPosition((Vec3)opt.apply(entitypatch)));
-        phase.getProperty(AnimationProperty.AttackPhaseProperty.SOURCE_LOCATION_PROVIDER).ifPresentOrElse((opt) -> extendedSource.setInitialPosition((Vec3)opt.apply(entitypatch)), () -> extendedSource.setInitialPosition(((LivingEntity)entitypatch.getOriginal()).position()));
-        return extendedSource;
-    }
 
     public EpicFightDamageSource getEpicFightDamageSource(LivingEntityPatch<?> entitypatch, Entity target, Phase phase) {
         return this.getEpicFightDamageSource(entitypatch.getDamageSource(this.getAccessor(), phase.hand), entitypatch, target, phase);
@@ -221,12 +184,12 @@ public class OmneriaAerialAttackAnimation extends AirSlashAnimation
         if (!list.isEmpty()) {
             HitEntityList hitEntities = new HitEntityList(entitypatch, list, phase.getProperty(AnimationProperty.AttackPhaseProperty.HIT_PRIORITY).orElse(HitEntityList.Priority.DISTANCE));
             int maxStrikes = this.getMaxStrikes(entitypatch, phase);
-            while (entitypatch.getCurrenltyHurtEntities().size() < maxStrikes && hitEntities.next())
+            while (entitypatch.getCurrentlyActuallyHitEntities().size() < maxStrikes && hitEntities.next())
             {
                 Entity target = hitEntities.getEntity();
                 LivingEntity trueEntity = this.getTrueEntity(target);
                 HurtableEntityPatch<?> hitHurtableEntityPatch = EpicFightCapabilities.getEntityPatch(target, HurtableEntityPatch.class);
-                if (trueEntity != null && trueEntity.isAlive() && !entitypatch.getCurrenltyAttackedEntities().contains(trueEntity) && !entitypatch.isTargetInvulnerable(target) && (target instanceof LivingEntity || target instanceof PartEntity) && attacker.hasLineOfSight(target)) {
+                if (trueEntity != null && trueEntity.isAlive() && !entitypatch.getCurrentlyAttackTriedEntities().contains(trueEntity) && !entitypatch.isTargetInvulnerable(target) && (target instanceof LivingEntity || target instanceof PartEntity) && attacker.hasLineOfSight(target)) {
                     EpicFightDamageSource source = this.getEpicFightDamageSource(entitypatch, target, phase);
                     int prevInvulTime = target.invulnerableTime;
                     target.invulnerableTime = 0;
@@ -240,10 +203,10 @@ public class OmneriaAerialAttackAnimation extends AirSlashAnimation
                         if (hitHurtableEntityPatch != null && phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).isPresent() && !hitHurtableEntityPatch.getOriginal().hasEffect(EpicFightMobEffects.STUN_IMMUNITY.get())) {
                             float stunTime;
                             if (phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).get() == StunType.FALL) {
-                                stunTime = (float) ((double) (source.getImpact() * 0.4F) * (1.0 - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
+                                stunTime = (float) ((double) (source.getBaseImpact() * 0.4F) * (1.0 - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
                                 if (hitHurtableEntityPatch.getOriginal().isAlive()) {
                                     hitHurtableEntityPatch.applyStun(StunType.SHORT, stunTime);
-                                    AtomicReference<Double> power = new AtomicReference<>((double) source.getImpact() * 0.3F);
+                                    AtomicReference<Double> power = new AtomicReference<>((double) source.getBaseImpact() * 0.3F);
 
                                     phase.getProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER).ifPresent(power::set);
 
@@ -283,9 +246,9 @@ public class OmneriaAerialAttackAnimation extends AirSlashAnimation
                         }
                     }
 
-                    entitypatch.getCurrenltyAttackedEntities().add(trueEntity);
+                    entitypatch.getCurrentlyAttackTriedEntities().add(trueEntity);
                     if (attackResult.resultType.shouldCount()) {
-                        entitypatch.getCurrenltyHurtEntities().add(trueEntity);
+                        entitypatch.getCurrentlyActuallyHitEntities().add(trueEntity);
                     }
                 }
             }

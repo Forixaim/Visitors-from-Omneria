@@ -1,7 +1,7 @@
 package net.forixaim.omneria.skill.battle_style.imperatrice_lumiere;
 
-import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillCategories;
-import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillCategories;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.capabilities.styles.LumiereStyles;
 import net.forixaim.omneria.skill.DatakeyRegistry;
@@ -14,8 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
-import yesman.epicfight.client.events.engine.ControllEngine;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.skill.*;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -34,7 +33,6 @@ public class FlareBlitz extends BasicAttack
 	private static final UUID EVENT_UUID = UUID.fromString("bb4af80f-603a-4b52-a92d-1d4a444749af");
 	public static SkillBuilder<FlareBlitz> createImperatriceAttackSet()
 	{
-
 		return (new SkillBuilder<FlareBlitz>()).setCategory(SkillCategories.BASIC_ATTACK).setActivateType(ActivateType.ONE_SHOT).setResource(Resource.NONE);
 	}
 
@@ -47,7 +45,7 @@ public class FlareBlitz extends BasicAttack
 	public void onInitiate(SkillContainer container)
 	{
 		super.onInitiate(container);
-		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID, event ->
+		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID, event ->
 		{
 			if ((event.getSkillContainer().getSkill().getCategory() == SkillCategories.BASIC_ATTACK || event.getSkillContainer().getSkill().getCategory() == BattleArtsSkillCategories.COMBAT_ART) && container.getDataManager().getDataValue(DatakeyRegistry.HIT.get()) && container.getExecutor().getStamina() >= 2f && !event.getPlayerPatch().getEntityState().attacking())
 			{
@@ -59,16 +57,16 @@ public class FlareBlitz extends BasicAttack
 
 		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID, event ->
 		{
-			container.getDataManager().setDataSync(DatakeyRegistry.PREV_ANIM.get(), -1, container.getServerExecutor().getOriginal());
-			container.getDataManager().setDataSync(DatakeyRegistry.HIT.get(), false, container.getServerExecutor().getOriginal());
+			container.getDataManager().setDataSync(DatakeyRegistry.PREV_ANIM.get(), -1);
+			container.getDataManager().setDataSync(DatakeyRegistry.HIT.get(), false);
 		});
 
-		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEALT_DAMAGE_EVENT_ATTACK, EVENT_UUID, event ->
+		container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID, event ->
 		{
 			if (container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(container.getExecutor()) == LumiereStyles.IMPERATRICE_SWORD)
 			{
-				container.getDataManager().setDataSync(DatakeyRegistry.PREV_ANIM.get(), event.getDamageSource().getAnimation().id(), container.getServerExecutor().getOriginal());
-				container.getDataManager().setDataSync(DatakeyRegistry.HIT.get(), true, container.getServerExecutor().getOriginal());
+				container.getDataManager().setDataSync(DatakeyRegistry.PREV_ANIM.get(), event.getDamageSource().getAnimation().id());
+				container.getDataManager().setDataSync(DatakeyRegistry.HIT.get(), true);
 			}
 		});
 
@@ -78,32 +76,32 @@ public class FlareBlitz extends BasicAttack
 	@Override
 	public void onRemoved(SkillContainer container)
 	{
-		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_EXECUTE_EVENT, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);
 		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.ATTACK_ANIMATION_END_EVENT, EVENT_UUID);
-		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEALT_DAMAGE_EVENT_HURT, EVENT_UUID);
+		container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_ATTACK, EVENT_UUID);
 		super.onRemoved(container);
 	}
 
 	public static void setComboCounterWithEvent(ComboCounterHandleEvent.Causal reason, ServerPlayerPatch playerpatch, SkillContainer container, AnimationManager.AnimationAccessor<? extends StaticAnimation> causalAnimation, int value)
 	{
-		int prevValue = container.getDataManager().getDataValue(DatakeyRegistry.BLAZE_COMBO.get());
+		int prevValue = container.getDataManager().getDataValue(DatakeyRegistry.OMNERIA_COMBO.get());
 		ComboCounterHandleEvent comboResetEvent = new ComboCounterHandleEvent(reason, playerpatch, causalAnimation, prevValue, value);
 		container.getExecutor().getEventListener().triggerEvents(PlayerEventListener.EventType.COMBO_COUNTER_HANDLE_EVENT, comboResetEvent);
-		container.getDataManager().setData(DatakeyRegistry.BLAZE_COMBO.get(), comboResetEvent.getNextValue());
+		container.getDataManager().setData(DatakeyRegistry.OMNERIA_COMBO.get(), comboResetEvent.getNextValue());
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	@Override
-	public FriendlyByteBuf gatherArguments(SkillContainer container, ControllEngine controllEngine)
+	public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine)
 	{
-		return ArgumentGatherers.UniversalDirectionalInput((LocalPlayerPatch) container.getExecutor(), null);
+		return ArgumentGatherers.UniversalDirectionalInput(container, controlEngine);
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args)
 	{
-		return ArgumentGatherers.DirectionalExecutionPacket((LocalPlayerPatch) container.getExecutor(), args, this);
+		return ArgumentGatherers.DirectionalExecutionPacket(container, args, this);
 	}
 
 	@Override
@@ -112,7 +110,7 @@ public class FlareBlitz extends BasicAttack
 		if (container.getExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(container.getServerExecutor()).equals(LumiereStyles.IMPERATRICE_SWORD) || container.getServerExecutor().getHoldingItemCapability(InteractionHand.MAIN_HAND).getStyle(container.getServerExecutor()).equals(LumiereStyles.FORIXAIM_SWORD))
 		{
 
-			SkillConsumeEvent event = new SkillConsumeEvent(container.getExecutor(), this, this.resource);
+			SkillConsumeEvent event = new SkillConsumeEvent(container.getExecutor(), this, this.resource, args);
 			container.getExecutor().getEventListener().triggerEvents(PlayerEventListener.EventType.SKILL_CONSUME_EVENT, event);
 
 			if (!event.isCanceled())
@@ -129,7 +127,7 @@ public class FlareBlitz extends BasicAttack
 			AnimationManager.AnimationAccessor<? extends StaticAnimation> attackMotion = null;
 			ServerPlayer player = (ServerPlayer) container.getExecutor().getOriginal();
 			SkillDataManager dataManager = container.getDataManager();
-			int comboCounter = dataManager.getDataValue(DatakeyRegistry.BLAZE_COMBO.get());
+			int comboCounter = dataManager.getDataValue(DatakeyRegistry.OMNERIA_COMBO.get());
 
 			int prevAnim = container.getDataManager().getDataValue(DatakeyRegistry.PREV_ANIM.get());
             if (player.isPassenger())
@@ -195,9 +193,9 @@ public class FlareBlitz extends BasicAttack
 				if (container.getExecutor().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.JUMPING.get()) && container.getExecutor().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(DatakeyRegistry.JUMPING.get()))
 					container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_SUNRISE, 0);
 				else
-					container.getExecutor().playAnimationSynchronized(attackMotion, startupReduction);
+					container.getExecutor().playAnimationSynchronized(attackMotion, 0);
 
-				container.getDataManager().setDataSync(DatakeyRegistry.HIT.get(), false, container.getServerExecutor().getOriginal());
+				container.getDataManager().setDataSync(DatakeyRegistry.HIT.get(), false);
 
 
 			}

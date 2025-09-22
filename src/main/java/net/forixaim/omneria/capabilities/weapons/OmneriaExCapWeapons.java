@@ -1,7 +1,6 @@
 package net.forixaim.omneria.capabilities.weapons;
 
-import net.forixaim.efm_ex.EpicFightEXCapability;
-import net.forixaim.efm_ex.capabilities.CoreCapability;
+import net.forixaim.ex_cap.capabilities.CoreCapability;
 import net.forixaim.omneria.colliders.LumiereColliders;
 import yesman.epicfight.gameasset.EpicFightSounds;
 

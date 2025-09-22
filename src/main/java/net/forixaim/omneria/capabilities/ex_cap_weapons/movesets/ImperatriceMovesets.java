@@ -1,7 +1,7 @@
 package net.forixaim.omneria.capabilities.ex_cap_weapons.movesets;
 
-import net.forixaim.efm_ex.api.events.MoveSetDefinitionRegistryEvent;
-import net.forixaim.efm_ex.api.moveset.MoveSet;
+import net.forixaim.ex_cap.api.events.MoveSetDefinitionRegistryEvent;
+import net.forixaim.ex_cap.api.moveset.MoveSet;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.skill.OmneriaSkills;

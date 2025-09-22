@@ -154,18 +154,14 @@ public class HostileAttackBehavior extends BaseBehavior
 
 	private void attack(LivingEntity opponent)
 	{
-		try {
-			AnimationManager.AnimationAccessor<? extends AttackAnimation> attack = BASE_MOB_COMBO.get(combo);
+			AnimationManager.AnimationAccessor<? extends AttackAnimation> attack = BASE_MOB_COMBO.get(combo % BASE_MOB_COMBO.size());
 			combo++;
 			if (attack != null)
 			{
 				mobPatch.rotateTo(opponent, 360, true);
 				mobPatch.playAnimationSynchronized(attack, 0);
 			}
-		}
-		catch (final Exception e) {
-			LogUtils.getLogger().warn("bruh");
-		}
+
 	}
 
 	private Vec3 copyPosition(Vec3 toCopy)

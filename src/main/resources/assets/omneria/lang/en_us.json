@@ -22,6 +22,8 @@
 	"skill.omneria.imperatrice_ultimate.tooltip": "Required Battle Style: Impératrice Lumiére\n\nSpecified Weapon: Origin Joyeuse or Derived Joyeuse\n\nCasts three different ultimate arts based if you have the correct weapons or not.",
 
 	"sounds.omneria.entity.weapon.imperatrice_swing": "Light Blade Swing",
+	"sounds.omneria.entity.weapon.imperatrice_spot_dodge": "Rapid Step",
+
 	"sounds.omneria.entity.weapon.imperatrice_hit_s": "Light Blade Hit",
 	"sounds.omneria.entity.weapon.imperatrice_hit_m": "Medium Blade Hit",
 	"sounds.omneria.entity.weapon.imperatrice_hit_l": "Heavy Blade Hit",
@@ -36,5 +38,18 @@
 	"epicfight.style.imperatrice_sword": "House Flaron's Impératrice Lumiére Art",
 	"epicfight.style.forixaim_sword": "Charlemagne's Impératrice Lumiére Art",
 
-	"itemGroup.omneria.visitors_of_omneria": "Battle Arts - Visitors of Omneria"
+	"itemGroup.omneria.visitors_of_omneria": "Battle Arts - Visitors of Omneria",
+
+	"death.omneria.energy_blast_1": "%1$s was blasted by %2$s.",
+	"death.omneria.energy_blast_2": "%1$s thought that %2$s hadn't mastered Vegeta's Technique.",
+	"death.omneria.energy_blast_3": "%1$s died to a blast fired from %2$s.",
+
+	"death.omneria.dragon_claw_1": "%1$s was violently clawed by %2$s.",
+	"death.omneria.dragon_claw_2": "%2$s used %1$s as a scratch pole.",
+	"death.omneria.dragon_claw_3": "%2$s proved %1$s that their nails are sharper than theirs.",
+
+	"death.omneria.dragon_kick_1": "%2$s made %1$s believe that they are Iron Fist.",
+	"death.omneria.dragon_kick_2": "%2$s gave %1$s their foot fungus.",
+	"death.omneria.dragon_kick_3": "%1$s was kicked out of life by %2$s."
+
 }

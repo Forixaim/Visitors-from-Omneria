@@ -2,6 +2,7 @@ package net.forixaim.omneria.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.forixaim.omneria.VisitorsOfOmneria;
+import net.forixaim.omneria.client.renderer.entity.layers.CharlemagneCapeLayer;
 import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
 import net.forixaim.omneria.client.models.entity.mob.CharlemagneModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -9,6 +10,7 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 public class CharlemagneRenderer extends AbstractFriendlyNPCRenderer<Charlemagne, CharlemagneModel>
@@ -21,6 +23,7 @@ public class CharlemagneRenderer extends AbstractFriendlyNPCRenderer<Charlemagne
 
 	public CharlemagneRenderer(EntityRendererProvider.Context pContext, ModelLayerLocation layerLoc, ModelLayerLocation pInnerArmor, ModelLayerLocation pOuterArmor, ResourceLocation location) {
 		super(pContext, new CharlemagneModel(pContext.bakeLayer(layerLoc)), new CharlemagneModel(pContext.bakeLayer(pInnerArmor)), new CharlemagneModel(pContext.bakeLayer(pOuterArmor)), location);
+		this.addLayer(new CharlemagneCapeLayer(this));
 	}
 
 	@Override

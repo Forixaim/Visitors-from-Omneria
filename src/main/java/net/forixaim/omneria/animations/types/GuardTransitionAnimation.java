@@ -1,15 +1,11 @@
 package net.forixaim.omneria.animations.types;
 
-import net.forixaim.bs_api.battle_arts_skills.BattleArtsSkillSlots;
 import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.DynamicAnimation;
-import yesman.epicfight.api.animation.types.StateSpectrum;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.model.Armature;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 
 public class GuardTransitionAnimation extends StaticAnimation
 {

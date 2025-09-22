@@ -1,11 +1,14 @@
 package net.forixaim.omneria;
 
 import dev.shadowsoffire.placebo.Placebo;
+import net.forixaim.omneria.client.renderer.entity.DragonShotRenderer;
+import net.forixaim.omneria.netcode.PacketHandler;
 import net.forixaim.omneria.registry.ArmatureRegistry;
 import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.client.renderer.entity.CharlemagneRenderer;
+import net.forixaim.omneria.world.entity.FacialLivingMotions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.common.MinecraftForge;
@@ -16,6 +19,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.MobCombatBehaviors;
 import yesman.epicfight.main.EpicFightExtensions;
@@ -48,8 +52,9 @@ public class VisitorsOfOmneria
 		modEventBus.addListener(this::commonSetup);
 		modEventBus.addListener(this::clientSetup);
 		MinecraftForge.EVENT_BUS.register(this);
+		LivingMotion.ENUM_MANAGER.registerEnumCls(MOD_ID, FacialLivingMotions.class);
 		context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-		context.registerExtensionPoint(EpicFightExtensions.class, () -> new EpicFightExtensions(VISITORS_OF_OMNERIA.get()));
+		context.registerExtensionPoint(EpicFightExtensions.class, () -> new EpicFightExtensions(VISITORS_OF_OMNERIA));
 	}
 
 	private static void registerEntityTypes()
@@ -60,11 +65,14 @@ public class VisitorsOfOmneria
 
 	private void commonSetup(final FMLCommonSetupEvent event)
 	{
+		event.enqueueWork(PacketHandler::register);
 		event.enqueueWork(VisitorsOfOmneria::registerEntityTypes);
 	}
 
 	private void clientSetup(final FMLClientSetupEvent event)
 	{
 		EntityRenderers.register(EntityRegistry.CHARLEMAGNE.get(), CharlemagneRenderer::new);
+		EntityRenderers.register(EntityRegistry.DRAGON_SHOT.get(), DragonShotRenderer::new);
+
 	}
 }
