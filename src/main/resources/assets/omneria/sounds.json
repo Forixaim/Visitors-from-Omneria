@@ -2,97 +2,97 @@
   "entity.weapon.imperatrice_swing1": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_swing",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_swing1", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_swing1", "stream":false}]
   },
   "entity.weapon.imperatrice_swing2": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_swing",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_swing2", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_swing2", "stream":false}]
   },
   "entity.weapon.imperatrice_swing3": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_swing",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_swing3", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_swing3", "stream":false}]
   },
   "entity.weapon.imperatrice_heavy_swing": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_heavy_swing",
-    "sounds":[{"name":"omneria:entity/weapon/heavy_blade_swing", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/heavy_blade_swing", "stream":false}]
   },
   "entity.speak.sans": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.speak.sans",
-    "sounds":[{"name":"omneria:entity/speak/test_typewriter", "stream":true}]
+    "sounds":[{"name":"omneria:entity/speak/test_typewriter", "stream":false}]
   },
   "entity.weapon.imperatrice_hit_s": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_hit_s",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_hit_s", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_hit_s", "stream":false}]
   },
   "entity.weapon.imperatrice_hit_m": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_hit_m",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_hit_m", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_hit_m", "stream":false}]
   },
   "entity.weapon.imperatrice_hit_l": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_hit_l",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_hit_l", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_hit_l", "stream":false}]
   },
   "entity.weapon.imperatrice_hit_finisher": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_hit_l",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_hit_l_mix", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_hit_l_mix", "stream":false}]
   },
   "entity.weapon.fatal_ultimate": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.fatal_ultimate",
-    "sounds":[{"name":"omneria:entity/weapon/fatalultimate", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/fatalultimate", "stream":false}]
   },
   "entity.weapon.imperatrice_thrust_l": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_thrust_l",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_thrust_l", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_thrust_l", "stream":false}]
   },
   "entity.weapon.imperatrice_kick_impact_m": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_kick_impact_m",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_kick_impact_m", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_kick_impact_m", "stream":false}]
   },
   "entity.weapon.imperatrice_punch_impact_m": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_punch_impact_m",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_punch_impact_m", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_punch_impact_m", "stream":false}]
   },
   "entity.combat.critical_hit": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.combat.critical_hit",
-    "sounds":[{"name":"omneria:entity/combat/critical_hit", "stream":true}]
+    "sounds":[{"name":"omneria:entity/combat/critical_hit", "stream":false}]
   },
   "entity.combat.nocheese": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.combat.nocheese",
-    "sounds":[{"name":"omneria:entity/combat/nocheese", "stream":true}]
+    "sounds":[{"name":"omneria:entity/combat/nocheese", "stream":false}]
   },
   "entity.weapon.crit2": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.crit_2",
-    "sounds":[{"name":"omneria:entity/weapon/crit_2", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/crit_2", "stream":false}]
   },
   "entity.weapon.imperatrice_spot_dodge": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_spot_dodge",
-    "sounds":[{"name":"omneria:entity/weapon/imperatrice_spot_dodge", "stream":true}]
+    "sounds":[{"name":"omneria:entity/weapon/imperatrice_spot_dodge", "stream":false}]
   },
   "util.silence": {
     "category": "master",
     "subtitle": "sounds.omneria.util.silence",
-    "sounds":[{"name":"omneria:util/silence", "stream":true}]
+    "sounds":[{"name":"omneria:util/silence", "stream":false}]
   },
   "entity.combat.spike": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.combat.spike",
-    "sounds":[{"name":"omneria:entity/combat/spike", "stream":true}]
+    "sounds":[{"name":"omneria:entity/combat/spike", "stream":false}]
   },
   "entity.weapon.imperatrice_anti_cheese": {
     "category": "master",
@@ -100,14 +100,14 @@
     "sounds": [
       {
         "name":  "omneria:entity/weapon/imperatrice_anti_mekasuit_draconic_armor_critical",
-        "stream": true
+        "stream": false
       },
       {
         "name":  "omneria:entity/weapon/imperatrice_anti_mekasuit_draconic_armor_critical2",
-        "stream": true
+        "stream": false
       },{
         "name":  "omneria:entity/weapon/imperatrice_anti_mekasuit_draconic_armor_critical3",
-        "stream": true
+        "stream": false
       }
 
     ]
@@ -118,7 +118,7 @@
     "sounds": [
       {
         "name":  "omneria:entity/weapon/flare_burst_aura",
-        "stream": true
+        "stream": false
       }
     ]
   },
@@ -128,7 +128,7 @@
     "sounds": [
       {
         "name":  "omneria:battle_style/burst_art_ready",
-        "stream": true
+        "stream": false
       }
     ]
   },
@@ -138,7 +138,7 @@
     "sounds": [
       {
         "name":  "omneria:battle_style/ultimate_art_execute",
-        "stream": true
+        "stream": false
       }
     ]
   },
@@ -148,7 +148,7 @@
     "sounds": [
       {
         "name":  "omneria:battle_style/imperatrice_lumiere/flash",
-        "stream": true
+        "stream": false
       }
     ]
   }
