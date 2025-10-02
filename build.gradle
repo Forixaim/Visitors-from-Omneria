@@ -93,7 +93,7 @@ dependencies {
     implementation fg.deobf("curse.maven:epic-fight-mod-405076:6968125")
     implementation fg.deobf("curse.maven:epic-fight-skill-tree-1295882:6854381")
     implementation fg.deobf("curse.maven:official-epic-fight-x-parcool-1259252:6870242")
-    implementation fg.deobf("libs:BattleArtsAPI:20.12.8.1c")
+    implementation fg.deobf("curse.maven:battle-arts-api-1091499:6945958")
     implementation fg.deobf("curse.maven:placebo-283644:6274231")
     runtimeOnly fg.deobf("curse.maven:rpg-hud-235670:4805323")
     compileOnly fg.deobf("curse.maven:mekanism-268560:5395221")
