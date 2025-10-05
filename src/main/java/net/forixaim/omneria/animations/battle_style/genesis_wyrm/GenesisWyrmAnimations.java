@@ -4,11 +4,13 @@ import net.forixaim.omneria.animations.ReusableEvents;
 import net.forixaim.omneria.animations.types.BattleArtsAttackPhaseProperties;
 import net.forixaim.omneria.animations.types.OmneriaAttackAnimation;
 import net.forixaim.omneria.colliders.GenesisWyrmColliders;
+import net.forixaim.omneria.registry.SoundRegistry;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.types.AttackAnimation;
 import yesman.epicfight.api.animation.types.BasicAttackAnimation;
+import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
@@ -21,6 +23,10 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> AUTO1;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> AUTO2;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> AUTO3;
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> AUTO4;
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> AUTO5;
+
+
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> LEG_AUTO1;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> LEG_AUTO2;
 
@@ -32,7 +38,7 @@ public class GenesisWyrmAnimations
     public static void build(AnimationManager.AnimationBuilder builder)
     {
         AUTO1 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/auto1", access -> new BasicAttackAnimation(
-                0.1f, 0.0f, 0.1f, 0.2f, 0.4f, GenesisWyrmColliders.GW_CLAW, Armatures.BIPED.get().handL, access, Armatures.BIPED
+                0.1f, 0.0f, 0.1f, 0.2f, 0.2f, GenesisWyrmColliders.GW_CLAW, Armatures.BIPED.get().handL, access, Armatures.BIPED
         ).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
@@ -40,7 +46,7 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
         AUTO2 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/auto2", access -> new BasicAttackAnimation(
-                0.1f, 0.0f, 0.1f, 0.2f, 0.4f, GenesisWyrmColliders.GW_CLAW, Armatures.BIPED.get().handR, access, Armatures.BIPED
+                0.1f, 0.0f, 0.1f, 0.2f, 0.2f, GenesisWyrmColliders.GW_CLAW, Armatures.BIPED.get().handR, access, Armatures.BIPED
         ).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
@@ -60,6 +66,32 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
                 .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
+
+        AUTO4 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/auto4", access -> new OmneriaAttackAnimation(
+                0.1f,access, Armatures.BIPED,
+                new AttackAnimation.Phase(0.0f, 0.0f, 0.1f, 0.15f, 0.15f, 0.15f, Armatures.BIPED.get().rootJoint, GenesisWyrmColliders.GW_CIRCLE_CLAW_BURST),
+                new AttackAnimation.Phase(0.15f, 0.0f, 0.15f, 0.2f, 0.4f, 0.4f, Armatures.BIPED.get().rootJoint, GenesisWyrmColliders.GW_CIRCLE_CLAW_BURST)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
+
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 25d, 1)
+                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 3.0d, 1)
+                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
+                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
+                .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
+                .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
+
+        AUTO5 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/auto5", access -> new OmneriaAttackAnimation(
+                0.1f, 0.0f, 0.1f, 0.2f, 1f, GenesisWyrmColliders.GW_CLAW_CLEAVE, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED
+        )
+                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 45d)
+                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 3.0d)
+                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(4))
+                .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
+                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_FINISHER.get())
+                .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
         LEG_AUTO1 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/leg_auto1", access -> new OmneriaAttackAnimation(
@@ -84,12 +116,12 @@ public class GenesisWyrmAnimations
                 0.1f, 0.0f, 0.0f, 0.05f, 0.05f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
         ).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-                .addEvents(AnimationEvent.InTimeEvent.create(0.05f, ReusableEvents.FIRE_DRAGON_SHOT, AnimationEvent.Side.BOTH)));
+                .addEvents(AnimationEvent.InTimeEvent.create(0.15f, ReusableEvents.FIRE_DRAGON_SHOT, AnimationEvent.Side.BOTH)));
 
         BLAST_AUTO2 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/blast_auto2", access -> new BasicAttackAnimation(
-                0.1f, 0.0f, 0.0f, 0.05f, 0.05f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
+                0.1f, 0.0f, 0.0f, 0.05f, 1f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
         ).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
-                .addEvents(AnimationEvent.InTimeEvent.create(0.05f, ReusableEvents.FIRE_DRAGON_SHOT, AnimationEvent.Side.BOTH)));
+                .addEvents(AnimationEvent.InTimeEvent.create(0.15f, ReusableEvents.FIRE_DRAGON_SHOT, AnimationEvent.Side.BOTH)));
     }
 }

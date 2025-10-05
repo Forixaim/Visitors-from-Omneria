@@ -27,7 +27,9 @@ public class GenesisWyrm extends OmneriaBattleStyle
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] HAND_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.AUTO1,
             GenesisWyrmAnimations.AUTO2,
-            GenesisWyrmAnimations.AUTO3
+            GenesisWyrmAnimations.AUTO3,
+            GenesisWyrmAnimations.AUTO4,
+            GenesisWyrmAnimations.AUTO5
     };
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] LEG_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.LEG_AUTO1,
