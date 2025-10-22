@@ -5,6 +5,7 @@ import net.forixaim.omneria.animations.types.BattleArtsAttackPhaseProperties;
 import net.forixaim.omneria.animations.types.OmneriaAttackAnimation;
 import net.forixaim.omneria.colliders.GenesisWyrmColliders;
 import net.forixaim.omneria.registry.SoundRegistry;
+import net.minecraft.tags.DamageTypeTags;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
@@ -17,6 +18,8 @@ import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.damagesource.StunType;
+
+import java.util.Set;
 
 public class GenesisWyrmAnimations
 {
@@ -40,6 +43,7 @@ public class GenesisWyrmAnimations
         AUTO1 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/auto1", access -> new BasicAttackAnimation(
                 0.1f, 0.0f, 0.1f, 0.2f, 0.2f, GenesisWyrmColliders.GW_CLAW, Armatures.BIPED.get().handL, access, Armatures.BIPED
         ).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
@@ -49,20 +53,28 @@ public class GenesisWyrmAnimations
                 0.1f, 0.0f, 0.1f, 0.2f, 0.2f, GenesisWyrmColliders.GW_CLAW, Armatures.BIPED.get().handR, access, Armatures.BIPED
         ).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
+                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
+
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
         AUTO3 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/auto3", access -> new OmneriaAttackAnimation(
                 0.1f,access, Armatures.BIPED,
-                new AttackAnimation.Phase(0.0f, 0.0f, 0.1f, 0.15f, 0.15f, 0.15f, Armatures.BIPED.get().rootJoint, GenesisWyrmColliders.GW_CIRCLE_CLAW),
+                new AttackAnimation.Phase(0.0f, 0.0f, 0.1f, 0.15f, 0.15f, 0.15f, Armatures.BIPED.get().rootJoint, GenesisWyrmColliders.GW_CIRCLE_CLAW)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
+                ,
                 new AttackAnimation.Phase(0.15f, 0.0f, 0.15f, 0.2f, 0.2f, 0.4f, Armatures.BIPED.get().rootJoint, GenesisWyrmColliders.GW_CIRCLE_CLAW)
                         .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
+
 
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 25d)
                 .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 3.0d)
                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
+                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
+
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
                 .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
@@ -70,14 +82,20 @@ public class GenesisWyrmAnimations
 
         AUTO4 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/auto4", access -> new OmneriaAttackAnimation(
                 0.1f,access, Armatures.BIPED,
-                new AttackAnimation.Phase(0.0f, 0.0f, 0.1f, 0.15f, 0.15f, 0.15f, Armatures.BIPED.get().rootJoint, GenesisWyrmColliders.GW_CIRCLE_CLAW_BURST),
+                new AttackAnimation.Phase(0.0f, 0.0f, 0.1f, 0.15f, 0.15f, 0.15f, Armatures.BIPED.get().rootJoint, GenesisWyrmColliders.GW_CIRCLE_CLAW_BURST)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
+                ,
                 new AttackAnimation.Phase(0.15f, 0.0f, 0.15f, 0.2f, 0.4f, 0.4f, Armatures.BIPED.get().rootJoint, GenesisWyrmColliders.GW_CIRCLE_CLAW_BURST)
                         .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
+
 
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 25d, 1)
                 .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 3.0d, 1)
                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.SWORDMASTER_SWING.get())
+                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
+
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLADE_HIT.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)
                 .addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
@@ -89,6 +107,8 @@ public class GenesisWyrmAnimations
                 .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 45d)
                 .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 3.0d)
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(4))
+                .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(DamageTypeTags.BYPASSES_RESISTANCE))
+
                 .addProperty(AnimationProperty.AttackPhaseProperty.SWING_SOUND, EpicFightSounds.WHOOSH_SHARP.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_FINISHER.get())
                 .addProperty(AnimationProperty.AttackPhaseProperty.PARTICLE, EpicFightParticles.HIT_BLADE)

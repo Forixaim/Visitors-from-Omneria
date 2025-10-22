@@ -2,8 +2,11 @@ package net.forixaim.omneria.events;
 
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.client.models.entity.projectile.DragonShotModel;
+import net.forixaim.omneria.client.particles.GenesisAuraParticle;
+import net.forixaim.omneria.registry.ParticleRegistry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -14,5 +17,11 @@ public class ClientEvents
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event)
     {
         event.registerLayerDefinition(DragonShotModel.LAYER_LOCATION, DragonShotModel::createBodyLayer);
+    }
+
+    @SubscribeEvent
+    public static void onParticle(RegisterParticleProvidersEvent event)
+    {
+        event.registerSpriteSet(ParticleRegistry.GENESIS_AURA.get(), GenesisAuraParticle.Provider::new);
     }
 }

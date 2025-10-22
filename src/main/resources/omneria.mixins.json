@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "vfo.refmap.json",
   "mixins": [
-    "MixinAttackAnimation"
+    "MixinAttackAnimation",
+    "MixinSkillbookItem"
   ],
   "client": [
     "MixinPPlayerRenderer",

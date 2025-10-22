@@ -15,9 +15,9 @@ public class WeaponTypeInjection
 	@SubscribeEvent
 	public static void inject(ExCapMovesetRegistryEvent event)
 	{
-		event.addProvider(ExCapWeapons.BOKKEN, OmneriaProviders.IMPERATRICE_SWORD_PROVIDER, OmneriaProviders.CHARLEMAGNE_UNCONDITIONAL);
-		event.addMoveset(ExCapWeapons.BOKKEN, LumiereStyles.IMPERATRICE_SWORD, ImperatriceMovesets.IMPERATRICE_SWORD_PRIMARY);
-		event.addProvider(ExCapWeapons.LONGSWORD, OmneriaProviders.IMPERATRICE_SWORD_PROVIDER, OmneriaProviders.CHARLEMAGNE_UNCONDITIONAL);
-		event.addMoveset(ExCapWeapons.LONGSWORD, LumiereStyles.IMPERATRICE_SWORD, ImperatriceMovesets.IMPERATRICE_SWORD_PRIMARY);
+		event.addProvider(ExCapWeapons.BOKKEN.get(), OmneriaProviders.IMPERATRICE_SWORD_PROVIDER, OmneriaProviders.CHARLEMAGNE_UNCONDITIONAL);
+		event.addMoveset(ExCapWeapons.BOKKEN.get(), LumiereStyles.IMPERATRICE_SWORD, ImperatriceMovesets.IMPERATRICE_SWORD_PRIMARY);
+		event.addProvider(ExCapWeapons.LONGSWORD.get(), OmneriaProviders.IMPERATRICE_SWORD_PROVIDER, OmneriaProviders.CHARLEMAGNE_UNCONDITIONAL);
+		event.addMoveset(ExCapWeapons.LONGSWORD.get(), LumiereStyles.IMPERATRICE_SWORD, ImperatriceMovesets.IMPERATRICE_SWORD_PRIMARY);
 	}
 }

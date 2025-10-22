@@ -2,11 +2,15 @@ package net.forixaim.omneria.skill.battle_style.genesis_wyrm;
 
 import io.netty.buffer.Unpooled;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
+import net.forixaim.omneria.client.particles.types.TrackingParticleOptions;
+import net.forixaim.omneria.client.particles.types.TrackingParticleType;
+import net.forixaim.omneria.registry.ParticleRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.skill.OmneriaSkills;
 import net.forixaim.omneria.skill.battle_style.OmneriaBattleStyle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.RegistryObject;
 import yesman.epicfight.api.animation.AnimationManager;
@@ -148,6 +152,15 @@ public class GenesisWyrm extends OmneriaBattleStyle
             {
                 container.getDataManager().setDataSync(DatakeyRegistry.RIGHT_CLICKED.get(),  false);
             }
+        }
+        else
+        {
+            if (container.getExecutor().getOriginal().tickCount % 4 == 0)
+                ((ServerLevel)container.getServerExecutor().getOriginal().level()).sendParticles(new TrackingParticleOptions(container.getServerExecutor().getOriginal().getId()),
+                        container.getServerExecutor().getOriginal().getX(),
+                        container.getServerExecutor().getOriginal().getY() +
+                                container.getServerExecutor().getOriginal().getEyeHeight(),
+                        container.getServerExecutor().getOriginal().getZ(), 1, 0.0, 0.0, 0.0, 0.0);
         }
         if (container.getExecutor().getTickSinceLastAction() > 16 && container.getDataManager().getDataValue(DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM.get()) > 0)
         {

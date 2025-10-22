@@ -1,16 +1,28 @@
 package net.forixaim.omneria;
 
+import com.anthonyhilyard.legendarytooltips.LegendaryTooltips;
+import com.anthonyhilyard.legendarytooltips.Loader;
+import com.anthonyhilyard.legendarytooltips.config.LegendaryTooltipsConfig;
+import com.anthonyhilyard.prism.Prism;
+import com.anthonyhilyard.prism.util.ColorUtil;
+import com.anthonyhilyard.prism.util.ConfigHelper;
+import com.google.common.collect.Lists;
 import dev.shadowsoffire.placebo.Placebo;
+import net.forixaim.omneria.capabilities.weapons.OmneriaExCapWeapons;
 import net.forixaim.omneria.client.renderer.entity.DragonShotRenderer;
+import net.forixaim.omneria.item.OmneriaRarities;
 import net.forixaim.omneria.netcode.PacketHandler;
 import net.forixaim.omneria.registry.ArmatureRegistry;
 import net.forixaim.omneria.registry.EntityRegistry;
+import net.forixaim.omneria.registry.ParticleRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.client.renderer.entity.CharlemagneRenderer;
 import net.forixaim.omneria.world.entity.FacialLivingMotions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.CommonColors;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
@@ -49,6 +61,8 @@ public class VisitorsOfOmneria
 		EntityRegistry.Register(modEventBus);
 		DatakeyRegistry.DATA_KEYS.register(modEventBus);
 		SoundRegistry.SOUNDS.register(modEventBus);
+        ParticleRegistry.PARTICLES.register(modEventBus);
+        OmneriaExCapWeapons.EX_CAP_WEAPONS.register(modEventBus);
 		modEventBus.addListener(this::commonSetup);
 		modEventBus.addListener(this::clientSetup);
 		MinecraftForge.EVENT_BUS.register(this);
@@ -67,7 +81,17 @@ public class VisitorsOfOmneria
 	{
 		event.enqueueWork(PacketHandler::register);
 		event.enqueueWork(VisitorsOfOmneria::registerEntityTypes);
+        event.enqueueWork(this::registerStuff);
 	}
+
+    private void registerStuff()
+    {
+        if (ModList.get().isLoaded(Loader.MODID))
+        {
+            LegendaryTooltipsConfig.INSTANCE.addFrameDefinition(ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, "textures/gui/genesis_wyrm_rarity.png")
+            , 1, () -> ColorUtil.combineRGB(255, 0, 255), () -> ColorUtil.combineRGB(102, 0, 169), () -> CommonColors.BLACK, 2, Lists.newArrayList());
+        }
+    }
 
 	private void clientSetup(final FMLClientSetupEvent event)
 	{
