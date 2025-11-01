@@ -249,13 +249,13 @@ public class GenesisWyrmAnimations
         HEAVY_AUTO1 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/heavy_auto1", access -> new OmneriaAttackAnimation(
                 0.1f, 0.0f, 0.3f, 0.5f, 0.6f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 25d)
-                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 3.0d)
+                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 0.2d)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f));
 
         HEAVY_AUTO2 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/heavy_auto2", access -> new OmneriaAttackAnimation(
                 0.1f, 0.0f, 0.2f, 0.3f, 0.65f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 25d)
-                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 3.0d)
+                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 0.2d)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f));
     }
 }
