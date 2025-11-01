@@ -2,6 +2,7 @@ package net.forixaim.omneria.skill;
 
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.skill.battle_style.genesis_wyrm.GenesisWyrm;
+import net.forixaim.omneria.skill.battle_style.genesis_wyrm.InitialForce;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.FlareBlitz;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.ImperatriceLumiere;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.active.FireArts;
@@ -34,6 +35,39 @@ public class DatakeyRegistry
 			)
 	);
 
+    public static final RegistryObject<SkillDataKey<Integer>> OPPONENT = DATA_KEYS.register("opponent", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.INTEGER,
+                    -1,
+                    true,
+                    GenesisWyrm.class
+            )
+    );
+
+    public static final RegistryObject<SkillDataKey<Boolean>> PROJECTILE = DATA_KEYS.register("projectile", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.BOOLEAN,
+                    false,
+                    true,
+                    GenesisWyrm.class
+            )
+    );
+
+    public static final RegistryObject<SkillDataKey<Boolean>> MOUSE3 = DATA_KEYS.register("mouse3", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.BOOLEAN,
+                    false,
+                    true,
+                    GenesisWyrm.class
+            )
+    );
+
+    public static final RegistryObject<SkillDataKey<Integer>> REFLECT_WINDOW = DATA_KEYS.register("reflect_window", () ->
+            SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, true, GenesisWyrm.class));
+
+    public static final RegistryObject<SkillDataKey<Integer>> COUNTER_WINDOW = DATA_KEYS.register("counter_window", () ->
+            SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, 0, true, GenesisWyrm.class));
+
 	public static final RegistryObject<SkillDataKey<Integer>> PREV_ANIM = DATA_KEYS.register("prev_anim", () ->
 			SkillDataKey.createSkillDataKey(
 					PacketBufferCodec.INTEGER,
@@ -51,6 +85,15 @@ public class DatakeyRegistry
 					FlareBlitz.class
 			)
 	);
+
+    public static final RegistryObject<SkillDataKey<Integer>> INITIAL_FORCE_COMBO = DATA_KEYS.register("initial_force_combo", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.INTEGER,
+                    0,
+                    false,
+                    InitialForce.class
+            )
+    );
 
 	public static final RegistryObject<SkillDataKey<Integer>> OMNERIA_COMBO_GENESIS_WYRM = DATA_KEYS.register("omneria_combo_gwm", () ->
 			SkillDataKey.createSkillDataKey(

@@ -32,6 +32,7 @@ public class SoundRegistry
 	public static final RegistryObject<SoundEvent> SILENCE = registerSound("util.silence");
 	public static final RegistryObject<SoundEvent> SPIKE = registerSound("entity.combat.spike");
 	public static final RegistryObject<SoundEvent> FLARE_BURST_AURA = registerSound("entity.weapon.flare_burst_aura");
+    public static final RegistryObject<SoundEvent> BLAST = registerSound("battle_style.genesis_wyrm.blast");
 
 	public static final RegistryObject<SoundEvent> CRITICAL_HIT = registerSound("entity.combat.critical_hit");
 	public static final RegistryObject<SoundEvent> BURST_ART_READY = registerSound("battle_style.burst_art_ready");

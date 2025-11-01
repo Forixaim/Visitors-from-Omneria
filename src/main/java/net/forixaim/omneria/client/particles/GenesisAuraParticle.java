@@ -61,12 +61,8 @@ public class GenesisAuraParticle extends TextureSheetParticle {
             public Particle createParticle(@NotNull TrackingParticleOptions typeIn, @NotNull ClientLevel worldIn,
                                            double x, double y, double z,
                                            double xSpeed, double ySpeed, double zSpeed) {
-                return new GenesisAuraParticle(worldIn, x, y, z, typeIn.entityId, sprites);
+                return new GenesisAuraParticle(worldIn, x, y, z, typeIn.entityId(), sprites);
 
         }
-
-
-
-
     }
 }

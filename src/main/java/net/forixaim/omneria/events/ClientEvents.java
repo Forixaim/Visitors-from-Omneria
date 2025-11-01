@@ -2,6 +2,7 @@ package net.forixaim.omneria.events;
 
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.client.models.entity.projectile.DragonShotModel;
+import net.forixaim.omneria.client.particles.DraconicBlastParticle;
 import net.forixaim.omneria.client.particles.GenesisAuraParticle;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,5 +24,8 @@ public class ClientEvents
     public static void onParticle(RegisterParticleProvidersEvent event)
     {
         event.registerSpriteSet(ParticleRegistry.GENESIS_AURA.get(), GenesisAuraParticle.Provider::new);
+        event.registerSpriteSet(ParticleRegistry.DRACONIC_BLAST_IMPACT.get(), DraconicBlastParticle.Provider::new);
+        event.registerSpriteSet(ParticleRegistry.DRACONIC_BLAST_FLASH.get(), DraconicBlastParticle.ProviderSmall::new);
+
     }
 }

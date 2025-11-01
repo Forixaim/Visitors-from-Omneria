@@ -65,7 +65,7 @@ side = "BOTH"
 [[dependencies."${mod_id}"]]
 modId="epicfight"
 mandatory=true
-versionRange="[20.12.,20.13)"
+versionRange="[20.13.,20.14)"
 ordering="AFTER"
 side="BOTH"
 
@@ -79,6 +79,6 @@ side="BOTH"
 [[dependencies."${mod_id}"]]
 modId="battlearts_api"
 mandatory=true
-versionRange="[20.9,)"
+versionRange="[20.13,)"
 ordering="AFTER"
 side="BOTH"

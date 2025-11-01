@@ -6,6 +6,8 @@ import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.registry.CreativeTabRegistry;
 import net.forixaim.omneria.skill.battle_style.genesis_wyrm.GenesisWyrm;
+import net.forixaim.omneria.skill.battle_style.genesis_wyrm.InitialForce;
+import net.forixaim.omneria.skill.battle_style.genesis_wyrm.PrimordialBarrier;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.*;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.active.FireArts;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -16,6 +18,7 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.dodge.DodgeSkill;
 import yesman.epicfight.skill.dodge.StepSkill;
+import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 
 @Mod.EventBusSubscriber(modid = VisitorsOfOmneria.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -23,11 +26,13 @@ public class OmneriaSkills
 {
 	public static Skill IMPERATRICE_LUMIERE;
 	public static Skill GENESIS_WYRM;
+    public static Skill INITIAL_FORCE;
 	public static Skill FLARE_BLITZ;
 	public static Skill INFERNAL_DRIVER;
 	public static Skill FIRE_ARTS;
 	public static Skill IMPERATRICE_WP;
 	public static Skill TRAILBLAZE;
+    public static Skill PRIMORDIAL_BARRIER;
 
 
 	@SubscribeEvent
@@ -41,5 +46,7 @@ public class OmneriaSkills
 		FLARE_BLITZ = registryWorker.build("flare_blitz", FlareBlitz::new, FlareBlitz.createImperatriceAttackSet().setCreativeTab(CreativeTabRegistry.VISITORS_OF_OMNERIA.get()));
 		IMPERATRICE_WP = registryWorker.build("imperatrice_wp", ImperatriceWP::new, Skill.createBuilder().setCategory(SkillCategories.WEAPON_PASSIVE).setResource(Skill.Resource.NONE));
 		FIRE_ARTS = registryWorker.build("fire_arts", FireArts::new, CombatArt.createCombatArt().setResource(Skill.Resource.COOLDOWN));
-	}
+	    PRIMORDIAL_BARRIER = registryWorker.build("primordial_barrier", PrimordialBarrier::new, GuardSkill.createGuardBuilder());
+        INITIAL_FORCE = registryWorker.build("initial_force", InitialForce::new, WeaponInnateSkill.createWeaponInnateBuilder().setResource(Skill.Resource.NONE));
+    }
 }

@@ -2,8 +2,14 @@ package net.forixaim.omneria.world.entity.projectiles;
 
 import com.mojang.logging.LogUtils;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
+import net.forixaim.omneria.registry.ParticleRegistry;
 import net.mehvahdjukaar.dummmmmmy.Dummmmmmy;
 import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
+import net.minecraft.client.particle.FlameParticle;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -94,32 +100,39 @@ public class DragonShotProjectile extends Projectile
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult pResult)
+    protected void onHitBlock(@NotNull BlockHitResult pResult)
     {
-
+        if (!this.level().isClientSide())
+        {
+            this.playSound(SoundEvents.GENERIC_EXPLODE, 1.0f, 1.0f);
+            ((ServerLevel)this.level()).sendParticles(ParticleRegistry.DRACONIC_BLAST_IMPACT.get(), this.getX(), this.getY(), this.getZ(), 1, 0, 0, 0, 0);
+            for (int i = 0; i < 10; i++)
+            {
+                RandomSource rng = this.level().getRandom();
+                ((ServerLevel)this.level()).sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, this.getX() + rng.nextFloat() * 0.5f, this.getY() + rng.nextFloat() * 0.5f, this.getZ() + rng.nextFloat() * 0.5f, 1, 0, 0, 0, 0.05f);
+            }
+        }
         this.discard();
     }
+
+
 
     @Override
     protected void onHitEntity(@NotNull EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
-        LogUtils.getLogger().debug("Smack!");
         if (!this.level().isClientSide()) {
             Entity entity = hitResult.getEntity();
             Entity entity1 = this.getOwner();
             PlayerPatch<?> playerpatch = EpicFightCapabilities.getEntityPatch(this.getOwner(), PlayerPatch.class);
             if (entity1 instanceof LivingEntity livingEntity && playerpatch != null)
             {
-                LogUtils.getLogger().debug("Check passed");
                 if (!(entity instanceof Enemy || (ModList.get().isLoaded(Dummmmmmy.MOD_ID) && (entity instanceof TargetDummyEntity)))) {
                     if (entity instanceof TamableAnimal pet) {
                         if (Objects.requireNonNull(pet.getOwner()).is(entity1) || pet.getOwner().getTeam() == entity1.getTeam() || (pet.getOwner().getTeam() != null && pet.getOwner().getTeam().isAlliedTo(entity1.getTeam()))) {
-                            LogUtils.getLogger().debug("Pet");
                             return;
                         }
                     }
                     if (livingEntity.getTeam() == entity1.getTeam() || (livingEntity.getTeam() != null && livingEntity.getTeam().isAlliedTo(entity1.getTeam()))) {
-                        LogUtils.getLogger().debug("Teammate");
                         return;
                     }
                 }
@@ -129,9 +142,17 @@ public class DragonShotProjectile extends Projectile
                 damage.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE);
                 entity.invulnerableTime = 0;
                 playerpatch.attack(damage, entity, InteractionHand.MAIN_HAND);
-                entity.playSound(EpicFightSounds.BLADE_HIT.get(), 1.0f, 1.0f);
+                entity.playSound(SoundEvents.GENERIC_EXPLODE, 1.0f, 1.0f);
                 entity.level().addParticle(EpicFightParticles.HIT_BLADE.get(), entity.getX(), entity.getY(), entity.getZ(), 0.0D, 0.0D, 0.0D);
-                this.level().explode(getOwner(), this.getX(), this.getY(), this.getZ(), 1.5f, Level.ExplosionInteraction.NONE);
+                if (!entity.level().isClientSide())
+                {
+                    ((ServerLevel)entity.level()).sendParticles(ParticleRegistry.DRACONIC_BLAST_IMPACT.get(), this.getX(), this.getY(), this.getZ(), 1, 0, 0, 0, 0);
+                    for (int i = 0; i < 10; i++)
+                    {
+                        RandomSource rng = this.level().getRandom();
+                        ((ServerLevel)entity.level()).sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, this.getX() + rng.nextFloat() * 0.5f, this.getY() + rng.nextFloat() * 0.5f, this.getZ() + rng.nextFloat() * 0.5f, 1, 0, 0, 0, 0.05f);
+                    }
+                }
                 this.discard();
             } else {
                 entity.hurt(this.damageSources().magic(), 6.0F);

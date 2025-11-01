@@ -237,7 +237,7 @@ public class LumiereSwordAnims
 										double pitch = Math.toDegrees(-Math.atan2(toOpponent.y, Math.sqrt(toOpponent.x * toOpponent.x + toOpponent.z * toOpponent.z)));
 										livingEntityPatch.getOriginal().setYRot((float)yaw);
 										livingEntityPatch.getOriginal().setXRot((float)pitch);
-										if (livingEntityPatch instanceof LocalPlayerPatch localPlayerPatch)
+										if (livingEntityPatch instanceof LocalPlayerPatch)
 										{
 											Minecraft mc = Minecraft.getInstance();
 											if (mc.player != null) {
