@@ -1,6 +1,8 @@
 package net.forixaim.omneria.client.particles;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.forixaim.omneria.client.particles.types.TrackingParticleOptions;
+import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.world.entity.Entity;
@@ -38,8 +40,12 @@ public class GenesisAuraParticle extends TextureSheetParticle {
         } else {
             this.setSpriteFromAge(this.frames);
         }
+    }
+
+    @Override
+    public void render(@NotNull VertexConsumer pBuffer, @NotNull Camera pRenderInfo, float pPartialTicks) {
+        super.render(pBuffer, pRenderInfo, pPartialTicks);
         Entity e = level.getEntity(trackedEntityId);
-        // Follow the player’s position
         if (e != null) {
             setPos(e.getX(), e.getY() + e.getEyeHeight(), e.getZ());
         }

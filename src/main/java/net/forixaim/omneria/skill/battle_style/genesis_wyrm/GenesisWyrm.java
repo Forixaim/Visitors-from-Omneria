@@ -33,7 +33,9 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
+import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.EpicFightSkills;
+import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataKey;
 import yesman.epicfight.skill.SkillSlots;
@@ -55,7 +57,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
     private static final UUID EVENT_UUID = UUID.fromString("68440271-f5d3-49bf-ba07-d7f9bdf55951");
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] HAND_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.HEAVY_AUTO1,
-            GenesisWyrmAnimations.HEAVY_AUTO2
+            GenesisWyrmAnimations.HEAVY_AUTO2,
+            GenesisWyrmAnimations.HEAVY_AUTO3
     };
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] LEG_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.LEG_AUTO1,
@@ -124,7 +127,17 @@ public class GenesisWyrm extends OmneriaBattleStyle
             }
         });
 
-        container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID, CommonEvents::BUILD_METER);
+        container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID, event ->
+        {
+            CommonEvents.BUILD_METER(event);
+            if (event.getDamageSource().getAnimation() == GenesisWyrmAnimations.DRAGON_THROW_TRY && EpicFightCapabilities.getEntityPatch(event.getTarget(), EntityPatch.class) instanceof LivingEntityPatch<?> livingEntityPatch) {
+                if (livingEntityPatch.getArmature() instanceof HumanoidArmature && livingEntityPatch.getOriginal().isAlive()) {
+                    event.getPlayerPatch().playAnimationSynchronized(GenesisWyrmAnimations.DRAGON_THROW, 0);
+                }
+            }
+        });
+
+
 
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SERVER_ITEM_USE_EVENT, EVENT_UUID, event -> {
             if (container.getExecutor().getOriginal().getMainHandItem().isEmpty())
@@ -348,13 +361,13 @@ public class GenesisWyrm extends OmneriaBattleStyle
             {
                 container.getDataManager().setDataSyncF(DatakeyRegistry.COUNTER_WINDOW.get(), data -> data - 1);
             }
-//            if (container.getExecutor().getOriginal().tickCount % 4 == 0) {
-//                ((ServerLevel) container.getServerExecutor().getOriginal().level()).sendParticles(new TrackingParticleOptions(container.getServerExecutor().getOriginal().getId()),
-//                        container.getServerExecutor().getOriginal().getX(),
-//                        container.getServerExecutor().getOriginal().getY() +
-//                                container.getServerExecutor().getOriginal().getEyeHeight(),
-//                        container.getServerExecutor().getOriginal().getZ(), 1, 0.0, 0.0, 0.0, 0.0);
-//            }
+            if (container.getExecutor().getOriginal().tickCount % 4 == 0) {
+                ((ServerLevel) container.getServerExecutor().getOriginal().level()).sendParticles(new TrackingParticleOptions(container.getServerExecutor().getOriginal().getId()),
+                        container.getServerExecutor().getOriginal().getX(),
+                        container.getServerExecutor().getOriginal().getY() +
+                                container.getServerExecutor().getOriginal().getEyeHeight(),
+                        container.getServerExecutor().getOriginal().getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+            }
         }
 
         if (container.getExecutor().getTickSinceLastAction() > 16 && container.getDataManager().getDataValue(DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM.get()) > 0)

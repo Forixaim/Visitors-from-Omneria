@@ -6,6 +6,7 @@
   "refmap": "vfo.refmap.json",
   "mixins": [
     "MixinAttackAnimation",
+    "MixinLivingEntity",
     "MixinSkillbookItem"
   ],
   "client": [

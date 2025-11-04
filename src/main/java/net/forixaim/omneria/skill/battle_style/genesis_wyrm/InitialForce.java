@@ -1,5 +1,6 @@
 package net.forixaim.omneria.skill.battle_style.genesis_wyrm;
 
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -7,6 +8,7 @@ import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
+import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 
@@ -34,10 +36,26 @@ public class InitialForce extends WeaponInnateSkill
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         super.executeOnServer(container, args);
         int combo = container.getDataManager().getDataValue(DatakeyRegistry.INITIAL_FORCE_COMBO.get());
-        combo %= DEFAULT_COMBO.length;
-        AnimationManager.AnimationAccessor<? extends StaticAnimation> anim = DEFAULT_COMBO[combo];
-        combo++;
-        GenesisWyrm.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, container.getServerExecutor(), container, anim, combo, DatakeyRegistry.INITIAL_FORCE_COMBO);
+        SkillDataManager skillDataManager = container.getExecutor().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager();
+        AnimationManager.AnimationAccessor<? extends StaticAnimation> anim;
+        if (container.getExecutor().getOriginal().isSprinting())
+        {
+            anim = GenesisWyrmAnimations.UMBRAL_HAMMER;
+        }
+        else if (skillDataManager.hasData(DatakeyRegistry.RIGHT_CLICKED.get()) && skillDataManager.getDataValue(DatakeyRegistry.RIGHT_CLICKED.get()))
+        {
+            anim = GenesisWyrmAnimations.DRAGON_THROW_TRY;
+        }
+        else
+        {
+            combo %= DEFAULT_COMBO.length;
+            anim = DEFAULT_COMBO[combo];
+            combo++;
+
+            GenesisWyrm.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, container.getServerExecutor(), container, anim, combo, DatakeyRegistry.INITIAL_FORCE_COMBO);
+        }
+
+
         if (anim != null)
         {
             container.getExecutor().playAnimationSynchronized(anim, 0);
