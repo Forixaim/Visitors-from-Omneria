@@ -9,6 +9,7 @@ import com.anthonyhilyard.prism.util.ConfigHelper;
 import com.google.common.collect.Lists;
 import dev.shadowsoffire.placebo.Placebo;
 import net.forixaim.omneria.capabilities.weapons.OmneriaExCapWeapons;
+import net.forixaim.omneria.client.renderer.entity.DarkBangRenderer;
 import net.forixaim.omneria.client.renderer.entity.DragonShotRenderer;
 import net.forixaim.omneria.item.OmneriaRarities;
 import net.forixaim.omneria.netcode.PacketHandler;
@@ -97,6 +98,7 @@ public class VisitorsOfOmneria
 	{
 		EntityRenderers.register(EntityRegistry.CHARLEMAGNE.get(), CharlemagneRenderer::new);
 		EntityRenderers.register(EntityRegistry.DRAGON_SHOT.get(), DragonShotRenderer::new);
+        EntityRenderers.register(EntityRegistry.DARK_BANG.get(), DarkBangRenderer::new);
 
 	}
 }

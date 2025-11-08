@@ -33,7 +33,7 @@ public class FireArts extends CombatArt
     @Override
     public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args)
     {
-        return ArgumentGatherers.DirectionalExecutionPacket(container, args, this);
+        return ArgumentGatherers.DirectionalExecutionPacket(container, args);
     }
 
     @Override

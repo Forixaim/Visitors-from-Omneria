@@ -33,10 +33,9 @@ public class NetworkUtils
             return;
         EpicFightNetworkManager.PayloadBundleBuilder toLocal = EpicFightNetworkManager.PayloadBundleBuilder.create();
         EpicFightNetworkManager.PayloadBundleBuilder toRemote = EpicFightNetworkManager.PayloadBundleBuilder.create();
+        playerPatch.getSkill(slot).setSkill(skill);
         toLocal.and(new SPChangeSkill(slot, playerPatch.getOriginal().getId(), skill));
         toRemote.and(new SPSetRemotePlayerSkill(playerPatch.getOriginal().getId(), slot, skill));
         NetworkUtils.syncPlayer(playerPatch.getOriginal(), toLocal, toRemote);
-        playerPatch.getSkill(slot).setSkill(skill);
-
     }
 }

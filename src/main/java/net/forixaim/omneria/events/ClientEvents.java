@@ -26,6 +26,7 @@ public class ClientEvents
         event.registerSpriteSet(ParticleRegistry.GENESIS_AURA.get(), GenesisAuraParticle.Provider::new);
         event.registerSpriteSet(ParticleRegistry.DRACONIC_BLAST_IMPACT.get(), DraconicBlastParticle.Provider::new);
         event.registerSpriteSet(ParticleRegistry.DRACONIC_BLAST_FLASH.get(), DraconicBlastParticle.ProviderSmall::new);
+        event.registerSpriteSet(ParticleRegistry.DARK_BANG_EXPLOSION.get(), DraconicBlastParticle.ProviderLarge::new);
 
     }
 }

@@ -1,7 +1,7 @@
 package net.forixaim.omneria.client.particles;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.forixaim.omneria.client.particles.types.TrackingParticleOptions;
+import net.forixaim.omneria.client.particles.types.TrackingParticleType;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
@@ -14,16 +14,17 @@ import org.jetbrains.annotations.NotNull;
 public class GenesisAuraParticle extends TextureSheetParticle {
     private final SpriteSet frames;
 
-    private final int trackedEntityId;
+    private Entity trackedEntity;
 
     protected GenesisAuraParticle(ClientLevel pLevel, double pX, double pY, double pZ, int id, SpriteSet sprites) {
         super(pLevel, pX, pY, pZ);
-        this.trackedEntityId = id;
         this.rCol = 1.0F;
         this.gCol = 1.0F;
         this.bCol = 1.0F;
         this.lifetime = 4; // total ticks
         this.quadSize = 2.5f;
+
+        this.trackedEntity = pLevel.getEntity(id);
 
         frames = sprites;
         setSpriteFromAge(frames);
@@ -45,9 +46,8 @@ public class GenesisAuraParticle extends TextureSheetParticle {
     @Override
     public void render(@NotNull VertexConsumer pBuffer, @NotNull Camera pRenderInfo, float pPartialTicks) {
         super.render(pBuffer, pRenderInfo, pPartialTicks);
-        Entity e = level.getEntity(trackedEntityId);
-        if (e != null) {
-            setPos(e.getX(), e.getY() + e.getEyeHeight(), e.getZ());
+        if (trackedEntity != null) {
+            setPos(trackedEntity.getX(), trackedEntity.getY() + trackedEntity.getEyeHeight(), trackedEntity.getZ());
         }
     }
 
@@ -61,13 +61,13 @@ public class GenesisAuraParticle extends TextureSheetParticle {
         return 15728880;
     }
 
-    public record Provider(SpriteSet sprites) implements ParticleProvider<TrackingParticleOptions> {
+    public record Provider(SpriteSet sprites) implements ParticleProvider<TrackingParticleType> {
 
         @Override
-            public Particle createParticle(@NotNull TrackingParticleOptions typeIn, @NotNull ClientLevel worldIn,
+            public Particle createParticle(@NotNull TrackingParticleType typeIn, @NotNull ClientLevel worldIn,
                                            double x, double y, double z,
                                            double xSpeed, double ySpeed, double zSpeed) {
-                return new GenesisAuraParticle(worldIn, x, y, z, typeIn.entityId(), sprites);
+                return new GenesisAuraParticle(worldIn, x, y, z, typeIn.getEntityId(), sprites);
 
         }
     }

@@ -2,8 +2,9 @@ package net.forixaim.omneria.skill.battle_style.genesis_wyrm;
 
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
+import net.forixaim.battle_arts_api.client.KeyBinds;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
-import net.forixaim.omneria.client.particles.types.TrackingParticleOptions;
 import net.forixaim.omneria.client.particles.types.TrackingParticleType;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.forixaim.omneria.skill.CommonEvents;
@@ -14,8 +15,6 @@ import net.forixaim.omneria.util.NetworkUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -31,9 +30,9 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.ValueModifier;
+import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.skill.SkillContainer;
@@ -105,6 +104,9 @@ public class GenesisWyrm extends OmneriaBattleStyle
     public void onInitiate(SkillContainer container)
     {
         super.onInitiate(container);
+        NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.BURST_ART, OmneriaSkills.TWILIGHT);
+        NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.COMBAT_ART, OmneriaSkills.DARK_ARTS);
+
         if (!container.getExecutor().isLogicalClient() && container.getExecutor().getOriginal().getMainHandItem().is(Items.AIR))
             container.getServerExecutor().modifyLivingMotionByCurrentItem(true);
 
@@ -123,7 +125,11 @@ public class GenesisWyrm extends OmneriaBattleStyle
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MODIFY_DAMAGE_EVENT, EVENT_UUID, event -> {
             if (container.getExecutor().getOriginal().getMainHandItem().isEmpty())
             {
-                event.attachValueModifier(ValueModifier.multiplier(7));
+                event.attachValueModifier(ValueModifier.setter(7));
+                if (container.getDataManager().getDataValue(DatakeyRegistry.TWILIGHT.get()))
+                {
+                    event.attachValueModifier(ValueModifier.multiplier(1.4f));
+                }
             }
         });
 
@@ -131,7 +137,7 @@ public class GenesisWyrm extends OmneriaBattleStyle
         {
             CommonEvents.BUILD_METER(event);
             if (event.getDamageSource().getAnimation() == GenesisWyrmAnimations.DRAGON_THROW_TRY && EpicFightCapabilities.getEntityPatch(event.getTarget(), EntityPatch.class) instanceof LivingEntityPatch<?> livingEntityPatch) {
-                if (livingEntityPatch.getArmature() instanceof HumanoidArmature && livingEntityPatch.getOriginal().isAlive()) {
+                if (livingEntityPatch.getArmature() instanceof HumanoidArmature && !event.getTarget().isDeadOrDying()) {
                     event.getPlayerPatch().playAnimationSynchronized(GenesisWyrmAnimations.DRAGON_THROW, 0);
                 }
             }
@@ -220,6 +226,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
     public void onRemoved(SkillContainer container)
     {
         super.onRemoved(container);
+        NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.BURST_ART, null);
+        NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.COMBAT_ART, null);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_CONSUME_EVENT, EVENT_UUID);
@@ -361,8 +369,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
             {
                 container.getDataManager().setDataSyncF(DatakeyRegistry.COUNTER_WINDOW.get(), data -> data - 1);
             }
-            if (container.getExecutor().getOriginal().tickCount % 4 == 0) {
-                ((ServerLevel) container.getServerExecutor().getOriginal().level()).sendParticles(new TrackingParticleOptions(container.getServerExecutor().getOriginal().getId()),
+            if (container.getExecutor().getOriginal().tickCount % 4 == 0 && container.getDataManager().getDataValue(DatakeyRegistry.TWILIGHT.get())) {
+                ((ServerLevel) container.getServerExecutor().getOriginal().level()).sendParticles(new TrackingParticleType(container.getServerExecutor().getOriginal().getId(), ParticleRegistry.GENESIS_AURA.get()),
                         container.getServerExecutor().getOriginal().getX(),
                         container.getServerExecutor().getOriginal().getY() +
                                 container.getServerExecutor().getOriginal().getEyeHeight(),

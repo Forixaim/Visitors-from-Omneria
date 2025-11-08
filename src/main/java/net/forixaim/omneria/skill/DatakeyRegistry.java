@@ -26,6 +26,15 @@ public class DatakeyRegistry
 			)
 	);
 
+    public static final RegistryObject<SkillDataKey<Boolean>> TWILIGHT = DATA_KEYS.register("twilight", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.BOOLEAN,
+                    false,
+                    true,
+                    GenesisWyrm.class
+            )
+    );
+
 	public static final RegistryObject<SkillDataKey<Boolean>> RIGHT_CLICKED = DATA_KEYS.register("right_clicked", () ->
 			SkillDataKey.createSkillDataKey(
 					PacketBufferCodec.BOOLEAN,

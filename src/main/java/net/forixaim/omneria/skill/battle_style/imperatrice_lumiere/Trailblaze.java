@@ -49,7 +49,7 @@ public class Trailblaze extends DodgeSkill
     @Override
     public Object getExecutionPacket(SkillContainer skillContainer, FriendlyByteBuf args)
     {
-        return ArgumentGatherers.DirectionalExecutionPacket(skillContainer, args, this);
+        return ArgumentGatherers.DirectionalExecutionPacket(skillContainer, args);
     }
 
     @Override

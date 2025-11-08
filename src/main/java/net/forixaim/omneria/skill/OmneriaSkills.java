@@ -1,13 +1,12 @@
 package net.forixaim.omneria.skill;
 
+import net.forixaim.battle_arts_api.battle_arts_skills.active.burst_arts.BurstArt;
 import net.forixaim.battle_arts_api.battle_arts_skills.active.combat_arts.CombatArt;
 import net.forixaim.battle_arts_api.battle_arts_skills.battle_style.BattleStyle;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.registry.CreativeTabRegistry;
-import net.forixaim.omneria.skill.battle_style.genesis_wyrm.GenesisWyrm;
-import net.forixaim.omneria.skill.battle_style.genesis_wyrm.InitialForce;
-import net.forixaim.omneria.skill.battle_style.genesis_wyrm.PrimordialBarrier;
+import net.forixaim.omneria.skill.battle_style.genesis_wyrm.*;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.*;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.active.FireArts;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -33,9 +32,11 @@ public class OmneriaSkills
 	public static Skill IMPERATRICE_WP;
 	public static Skill TRAILBLAZE;
     public static Skill PRIMORDIAL_BARRIER;
+    public static Skill TWILIGHT;
+    public static Skill DARK_ARTS;
 
 
-	@SubscribeEvent
+    @SubscribeEvent
 	public static void BuildSkillEvent(SkillBuildEvent OnBuild)
 	{
 		SkillBuildEvent.ModRegistryWorker registryWorker = OnBuild.createRegistryWorker(VisitorsOfOmneria.MOD_ID);
@@ -48,5 +49,8 @@ public class OmneriaSkills
 		FIRE_ARTS = registryWorker.build("fire_arts", FireArts::new, CombatArt.createCombatArt().setResource(Skill.Resource.COOLDOWN));
 	    PRIMORDIAL_BARRIER = registryWorker.build("primordial_barrier", PrimordialBarrier::new, GuardSkill.createGuardBuilder());
         INITIAL_FORCE = registryWorker.build("initial_force", InitialForce::new, WeaponInnateSkill.createWeaponInnateBuilder().setResource(Skill.Resource.NONE));
+        TWILIGHT = registryWorker.build("twilight", Twilight::new, BurstArt.createBurstArt().setResource(Skill.Resource.NONE));
+        DARK_ARTS = registryWorker.build("dark_arts", DarkArts::new, DarkArts.createCombatArt().setResource(Skill.Resource.NONE));
+
     }
 }

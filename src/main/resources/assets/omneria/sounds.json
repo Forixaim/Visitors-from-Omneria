@@ -14,6 +14,26 @@
     "subtitle": "sounds.omneria.genesis_wyrm.blast",
     "sounds":[{"name":"omneria:battle_style/genesis_wyrm/blast", "stream":false}]
   },
+  "battle_style.genesis_wyrm.heavy_blast": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.blast",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/heavy_blast", "stream":false}]
+  },
+  "battle_style.genesis_wyrm.power_up": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.blast",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/power_up", "stream":false}]
+  },
+  "battle_style.genesis_wyrm.dark_bang_manifest": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.blast",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/dark_bang_manifest", "stream":false}]
+  },
+  "battle_style.genesis_wyrm.dark_bang_charge": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.blast",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/dark_bang_charge", "stream":false}]
+  },
   "entity.weapon.imperatrice_swing3": {
     "category": "master",
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_swing",

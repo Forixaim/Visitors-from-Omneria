@@ -1,5 +1,7 @@
 package net.forixaim.omneria.animations.battle_style.genesis_wyrm;
 
+import com.mojang.logging.LogUtils;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.animations.ReusableEvents;
 import net.forixaim.omneria.animations.types.BattleArtsAttackPhaseProperties;
 import net.forixaim.omneria.animations.types.OmneriaAttackAnimation;
@@ -7,13 +9,18 @@ import net.forixaim.omneria.animations.types.OmneriaEntityStates;
 import net.forixaim.omneria.animations.types.OmneriaGrabAnimation;
 import net.forixaim.omneria.colliders.GenesisWyrmColliders;
 import net.forixaim.omneria.combat.OmneriaDamageTypes;
+import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
+import net.forixaim.omneria.skill.DatakeyRegistry;
+import net.forixaim.omneria.world.entity.projectiles.DarkBangProjectile;
+import net.forixaim.omneria.world.entity.projectiles.DragonShotProjectile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
@@ -24,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager;
+import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
@@ -40,9 +48,12 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
+import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
@@ -76,8 +87,7 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> MELEE_COUNTER;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> RANGED_COUNTER;
 
-
-
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> TWILIGHT_ACTIVATION;
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> LEG_AUTO1;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> LEG_AUTO2;
@@ -96,6 +106,7 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> BLAST_AUTO1;
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> BLAST_AUTO2;
 
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DARK_BANG;
 
 
     public static void build(AnimationManager.AnimationBuilder builder)
@@ -116,6 +127,20 @@ public class GenesisWyrmAnimations
                     return 0;
                 }, access, IDLE, IDLE_INJURED, IDLE_EXHAUSTED
         ));
+
+        TWILIGHT_ACTIVATION = builder.nextAccessor("battle_style/legendary/genesis_wyrm/twilight_activation", access ->
+                new InvincibleAnimation(0.05f, access, Armatures.BIPED)
+                        .addEvents(AnimationEvent.InTimeEvent.create(0.6f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                        {
+                            if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch)
+                            {
+                                if (serverPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.TWILIGHT.get()))
+                                {
+                                    serverPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.TWILIGHT.get(), true);
+                                    serverPlayerPatch.playSound(SoundRegistry.POWER_UP.get(), 2, 0, 0);
+                                }
+                            }
+                        }, AnimationEvent.Side.SERVER)));
 
         WALK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/walk", access -> new MovementAnimation(0.1f, true, access, Armatures.BIPED)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) ->
@@ -302,6 +327,52 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                 .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1d)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f));
+
+        DARK_BANG = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dark_bang", access -> new OmneriaAttackAnimation(
+                0.05f, 0.0f, 0.1f, 0.25f, 2f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 70d)
+                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
+                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1d)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f)
+                .addEvents(AnimationEvent.InTimeEvent.create(0.6f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                {
+                    float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
+
+                    Vec3 position = new Vec3(livingEntityPatch.getOriginal().getLookAngle().x, 0, livingEntityPatch.getOriginal().getLookAngle().z).normalize().scale(1.5);
+                    Vec3 shootVec = new Vec3(Math.cos(ang), 0 , Math.sin(ang));
+                    Vec3 shootPos = livingEntityPatch.getOriginal().position().add(0, livingEntityPatch.getOriginal().getEyeHeight() - 0.5, 0).add(position);
+
+
+                    DarkBangProjectile projectile = EntityRegistry.DARK_BANG.get().create(livingEntityPatch.getOriginal().level());
+
+                    if (projectile != null) {
+
+                        projectile.setPos(shootPos);
+                        projectile.shoot(shootVec.x(), 0, shootVec.z(), 4.2f, 0);
+                        projectile.setCountdown(8);
+                        projectile.setDamageSource(livingEntityPatch.getDamageSource(access, InteractionHand.MAIN_HAND));
+                        if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
+                            Vec3 lv = livingEntityPatch.getOriginal().getLookAngle();
+                            OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
+                            LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
+                            projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
+                            projectile.shoot(lv.x, lv.y, lv.z, 0, 0);
+
+                            projectile.setSavedDeltaMovement(lv.x, lv.y, lv.z, 4.2, 0);
+                            if (!livingEntityPatch.isLogicalClient()) {
+                                ((ServerLevel) livingEntityPatch.getOriginal().level()).sendParticles(ParticleRegistry.DRACONIC_BLAST_FLASH.get(), jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z, 1, 0, 0, 0, 0);
+                            }
+                        }
+                        projectile.setOwner(livingEntityPatch.getOriginal());
+                        livingEntityPatch.getOriginal().level().addFreshEntity(projectile);
+                        if (!livingEntityPatch.isLogicalClient()) {
+                            livingEntityPatch.playSound(SoundRegistry.DARK_BANG_MANIFEST.get(), 1f, 20.0f, 20.0f);
+                            livingEntityPatch.playSound(SoundRegistry.DARK_BANG_CHARGE.get(), 1f, 20.0f, 20.0f);
+
+                        }
+                    }
+                }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.0f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.SERVER).params(SoundRegistry.HEAVY_BLAST.get()))
+                .addState(EntityState.CAN_SKILL_EXECUTION, false));
 
         UMBRAL_HAMMER = builder.nextAccessor("battle_style/legendary/genesis_wyrm/umbral_hammer", access -> new OmneriaAttackAnimation(
                 0.05f, 0.0f, 0.2f, 0.35f, 1.65f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED

@@ -5,7 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import yesman.epicfight.client.events.engine.ControlEngine;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
@@ -28,7 +27,7 @@ public class InfernalDriver extends WeaponInnateSkill
     @Override
     public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args)
     {
-        return ArgumentGatherers.DirectionalExecutionPacket(container, args, this);
+        return ArgumentGatherers.DirectionalExecutionPacket(container, args);
     }
 
     @Override

@@ -66,4 +66,13 @@ public class DraconicBlastParticle extends TextureSheetParticle
             return new DraconicBlastParticle(pLevel, pX, pY, pZ, spriteSet, 0.5f);
         }
     }
+
+    public record ProviderLarge(SpriteSet spriteSet) implements ParticleProvider<SimpleParticleType>
+    {
+        @Override
+        public @NotNull Particle createParticle(@NotNull SimpleParticleType pType, @NotNull ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+            return new DraconicBlastParticle(pLevel, pX, pY, pZ, spriteSet, 4f);
+        }
+    }
 }
+

@@ -6,10 +6,8 @@ import net.minecraft.client.player.Input;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import yesman.epicfight.api.animation.types.AirSlashAnimation;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.network.client.CPSkillRequest;
-import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillContainer;
 
 public class ArgumentGatherers
@@ -38,7 +36,7 @@ public class ArgumentGatherers
 		return buf;
 	}
 
-	public static Object DirectionalExecutionPacket(SkillContainer container, FriendlyByteBuf args, Skill skill)
+	public static Object DirectionalExecutionPacket(SkillContainer container, FriendlyByteBuf args)
 	{
 		int forward = args.readInt();
 		int backward = args.readInt();
