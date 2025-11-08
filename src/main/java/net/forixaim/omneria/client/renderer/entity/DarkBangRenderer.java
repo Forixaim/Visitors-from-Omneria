@@ -2,6 +2,7 @@ package net.forixaim.omneria.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.logging.LogUtils;
 import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.skill.DatakeyRegistry;
@@ -51,6 +52,7 @@ public class DarkBangRenderer extends EntityRenderer<DarkBangProjectile>
 
         // Optional: scale size
         float scale = 1.0f;
+
         poseStack.scale(scale, scale, scale);
 
         // Draw a flat quad

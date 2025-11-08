@@ -41,6 +41,7 @@ public class DarkBangProjectile extends Projectile {
     protected double decelerationConstant = 0.2;
     protected EpicFightDamageSource dmgSrc = null;
     protected int countdown = 0;
+    protected int initialCountdown = 0;
     protected Vec3 savedDeltaMovement = new Vec3(0,0,0);
 
     public DarkBangProjectile(EntityType<? extends Projectile> pEntityType, Level pLevel) {
@@ -64,6 +65,17 @@ public class DarkBangProjectile extends Projectile {
 
     public void setCountdown(int countdown) {
         this.countdown = countdown;
+        this.initialCountdown = countdown;
+    }
+
+    public int getCountdown()
+    {
+        return this.countdown;
+    }
+
+    public int getInitialCountdown()
+    {
+        return this.initialCountdown;
     }
 
 

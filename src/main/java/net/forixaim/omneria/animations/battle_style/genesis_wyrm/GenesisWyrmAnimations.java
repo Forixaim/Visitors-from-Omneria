@@ -137,7 +137,7 @@ public class GenesisWyrmAnimations
                                 if (serverPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.TWILIGHT.get()))
                                 {
                                     serverPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.TWILIGHT.get(), true);
-                                    serverPlayerPatch.playSound(SoundRegistry.POWER_UP.get(), 2, 0, 0);
+                                    serverPlayerPatch.playSound(SoundRegistry.POWER_UP.get(), 50, 0, 0);
                                 }
                             }
                         }, AnimationEvent.Side.SERVER)));
