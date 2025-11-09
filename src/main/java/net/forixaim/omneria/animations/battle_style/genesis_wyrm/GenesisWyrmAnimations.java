@@ -336,6 +336,20 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f)
                 .addEvents(AnimationEvent.InTimeEvent.create(0.6f, (livingEntityPatch, assetAccessor, animationParameters) ->
                 {
+
+                    if (!livingEntityPatch.isLogicalClient()) {
+                        if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
+                            Vec3 lv = livingEntityPatch.getOriginal().getLookAngle();
+                            OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
+                            LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
+                            ((ServerLevel) livingEntityPatch.getOriginal().level()).sendParticles(ParticleRegistry.DRACONIC_BLAST_FLASH.get(), jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z, 1, 0, 0, 0, 0);
+                        }
+                        livingEntityPatch.playSound(SoundRegistry.DARK_BANG_MANIFEST.get(), 1f, 20.0f, 20.0f);
+                        livingEntityPatch.playSound(SoundRegistry.DARK_BANG_CHARGE.get(), 1f, 20.0f, 20.0f);
+
+                    }
+                }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.0f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                {
                     float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
 
                     Vec3 position = new Vec3(livingEntityPatch.getOriginal().getLookAngle().x, 0, livingEntityPatch.getOriginal().getLookAngle().z).normalize().scale(1.5);
@@ -348,30 +362,23 @@ public class GenesisWyrmAnimations
                     if (projectile != null) {
 
                         projectile.setPos(shootPos);
-                        projectile.shoot(shootVec.x(), 0, shootVec.z(), 4.2f, 0);
-                        projectile.setCountdown(8);
+                        projectile.shoot(shootVec.x(), 0, shootVec.z(), 2.2f, 0);
+                        projectile.setCountdown(0);
                         projectile.setDamageSource(livingEntityPatch.getDamageSource(access, InteractionHand.MAIN_HAND));
                         if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
                             Vec3 lv = livingEntityPatch.getOriginal().getLookAngle();
                             OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
                             LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
                             projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
-                            projectile.shoot(lv.x, lv.y, lv.z, 0, 0);
+                            projectile.shoot(lv.x, lv.y, lv.z, 2.2f, 0);
 
-                            projectile.setSavedDeltaMovement(lv.x, lv.y, lv.z, 4.2, 0);
-                            if (!livingEntityPatch.isLogicalClient()) {
-                                ((ServerLevel) livingEntityPatch.getOriginal().level()).sendParticles(ParticleRegistry.DRACONIC_BLAST_FLASH.get(), jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z, 1, 0, 0, 0, 0);
-                            }
                         }
                         projectile.setOwner(livingEntityPatch.getOriginal());
+                        livingEntityPatch.playSound(SoundRegistry.HEAVY_BLAST.get(), 0, 0);
                         livingEntityPatch.getOriginal().level().addFreshEntity(projectile);
-                        if (!livingEntityPatch.isLogicalClient()) {
-                            livingEntityPatch.playSound(SoundRegistry.DARK_BANG_MANIFEST.get(), 1f, 20.0f, 20.0f);
-                            livingEntityPatch.playSound(SoundRegistry.DARK_BANG_CHARGE.get(), 1f, 20.0f, 20.0f);
 
-                        }
                     }
-                }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.0f, Animations.ReusableSources.PLAY_SOUND, AnimationEvent.Side.SERVER).params(SoundRegistry.HEAVY_BLAST.get()))
+                }, AnimationEvent.Side.SERVER))
                 .addState(EntityState.CAN_SKILL_EXECUTION, false));
 
         UMBRAL_HAMMER = builder.nextAccessor("battle_style/legendary/genesis_wyrm/umbral_hammer", access -> new OmneriaAttackAnimation(

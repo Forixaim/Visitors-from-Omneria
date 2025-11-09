@@ -71,7 +71,7 @@ public class DraconicBlastParticle extends TextureSheetParticle
     {
         @Override
         public @NotNull Particle createParticle(@NotNull SimpleParticleType pType, @NotNull ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            return new DraconicBlastParticle(pLevel, pX, pY, pZ, spriteSet, 4f);
+            return new DraconicBlastParticle(pLevel, pX, pY, pZ, spriteSet, 10f);
         }
     }
 }

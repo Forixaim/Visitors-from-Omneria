@@ -84,18 +84,8 @@ public class DarkBangProjectile extends Projectile {
     public void tick()
     {
         super.tick();
-        if (countdown > 0)
-        {
-            countdown--;
-        }
-        else
-        {
-            lifetime--;
-        }
-        if (countdown == 0)
-        {
-            this.setDeltaMovement(this.savedDeltaMovement);
-        }
+        lifetime--;
+
         Vec3 originalVec = this.getDeltaMovement();
         if (deceleration == null)
         {
@@ -130,8 +120,7 @@ public class DarkBangProjectile extends Projectile {
         if (!(countdown > 0))
         {
             this.setPos(d7, d2, d3);
-            }
-
+        }
         if (lifetime <= 0)
         {
             this.discard();
