@@ -248,6 +248,32 @@ public class LumiereSwordAnims
 											}
 										}
 									}
+									if (livingEntityPatch instanceof PlayerPatch<?> playerPatch && playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()) && playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) > 0)
+									{
+										Entity opponent = livingEntityPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()));
+										if (opponent instanceof LivingEntity livingEntity)
+										{
+											Vec3 opponentPos = opponent.position();
+											Vec3 lookVec = opponent.getLookAngle().normalize();
+											Vec3 behindPos = opponentPos.subtract(lookVec.scale(2f));
+											livingEntityPatch.getOriginal().teleportTo((ServerLevel) opponent.level(), behindPos.x, opponentPos.y, behindPos.z, RelativeMovement.ALL, livingEntity.yHeadRot, livingEntityPatch.getOriginal().getViewXRot(1.0f));
+											Vec3 toOpponent = opponentPos.subtract(behindPos);
+											double yaw = Math.toDegrees(Math.atan2(-toOpponent.x, -toOpponent.z));
+											double pitch = Math.toDegrees(-Math.atan2(toOpponent.y, Math.sqrt(toOpponent.x * toOpponent.x + toOpponent.z * toOpponent.z)));
+											livingEntityPatch.getOriginal().setYRot((float)yaw);
+											livingEntityPatch.getOriginal().setXRot((float)pitch);
+											if (livingEntityPatch instanceof LocalPlayerPatch)
+											{
+												Minecraft mc = Minecraft.getInstance();
+												if (mc.player != null) {
+													mc.player.setYRot((float)yaw);
+													mc.player.setXRot((float)pitch);
+													mc.player.yRotO = (float)yaw;
+													mc.player.xRotO = (float)pitch;
+												}
+											}
+										}
+									}
 								}, AnimationEvent.Side.SERVER)));
 
 

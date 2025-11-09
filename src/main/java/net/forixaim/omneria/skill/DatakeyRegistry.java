@@ -44,6 +44,9 @@ public class DatakeyRegistry
 			)
 	);
 
+	public static final RegistryObject<SkillDataKey<Integer>> FOCUSED_TARGET = DATA_KEYS.register("focused_target", () ->
+			SkillDataKey.createSkillDataKey(PacketBufferCodec.INTEGER, -1, true, CosmicFocus.class));
+
     public static final RegistryObject<SkillDataKey<Integer>> OPPONENT = DATA_KEYS.register("opponent", () ->
             SkillDataKey.createSkillDataKey(
                     PacketBufferCodec.INTEGER,
