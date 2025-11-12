@@ -1,8 +1,10 @@
 package net.forixaim.omneria.skill;
 
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillCategories;
 import net.forixaim.battle_arts_api.battle_arts_skills.active.burst_arts.BurstArt;
 import net.forixaim.battle_arts_api.battle_arts_skills.active.combat_arts.CombatArt;
 import net.forixaim.battle_arts_api.battle_arts_skills.battle_style.BattleStyle;
+import net.forixaim.battle_arts_api.battle_arts_skills.mana_arts.ManaArt;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.registry.CreativeTabRegistry;
@@ -34,6 +36,7 @@ public class OmneriaSkills
     public static Skill PRIMORDIAL_BARRIER;
     public static Skill TWILIGHT;
     public static Skill DARK_ARTS;
+    public static Skill COSMIC_FOCUS;
 
 
     @SubscribeEvent
@@ -51,6 +54,6 @@ public class OmneriaSkills
         INITIAL_FORCE = registryWorker.build("initial_force", InitialForce::new, WeaponInnateSkill.createWeaponInnateBuilder().setResource(Skill.Resource.NONE));
         TWILIGHT = registryWorker.build("twilight", Twilight::new, BurstArt.createBurstArt().setResource(Skill.Resource.NONE));
         DARK_ARTS = registryWorker.build("dark_arts", DarkArts::new, DarkArts.createCombatArt().setResource(Skill.Resource.NONE));
-
+        COSMIC_FOCUS = registryWorker.build("cosmic_focus", CosmicFocus::new, Skill.createBuilder().setResource(Skill.Resource.NONE).setCategory(BattleArtsSkillCategories.MANA_ART));
     }
 }

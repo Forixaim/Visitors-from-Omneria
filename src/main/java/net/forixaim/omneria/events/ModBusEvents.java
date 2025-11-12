@@ -5,6 +5,7 @@ import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
 import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
 import net.forixaim.omneria.client.renderer.patched.entities.living.PCharlemagneRenderer;
+import net.forixaim.omneria.world.entity.patches.DarkBangPatch;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,6 +24,7 @@ public class ModBusEvents
 		public static void onEntityPatchRegister(EntityPatchRegistryEvent event)
 		{
 			event.getTypeEntry().put(EntityRegistry.CHARLEMAGNE.get(), entity -> CharlemagnePatch::new);
+            event.getTypeEntry().put(EntityRegistry.DARK_BANG.get(), entity -> DarkBangPatch::new);
 		}
 
 		@SubscribeEvent

@@ -4,6 +4,7 @@ import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.client.models.entity.projectile.DragonShotModel;
 import net.forixaim.omneria.client.particles.DraconicBlastParticle;
 import net.forixaim.omneria.client.particles.GenesisAuraParticle;
+import net.forixaim.omneria.client.particles.OmneriaProjectileTrailParticle;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -27,6 +28,7 @@ public class ClientEvents
         event.registerSpriteSet(ParticleRegistry.DRACONIC_BLAST_IMPACT.get(), DraconicBlastParticle.Provider::new);
         event.registerSpriteSet(ParticleRegistry.DRACONIC_BLAST_FLASH.get(), DraconicBlastParticle.ProviderSmall::new);
         event.registerSpriteSet(ParticleRegistry.DARK_BANG_EXPLOSION.get(), DraconicBlastParticle.ProviderLarge::new);
+        event.registerSpecial(ParticleRegistry.OMNERIA_PROJECTILE_TRAIL.get(), new OmneriaProjectileTrailParticle.Provider());
 
     }
 }

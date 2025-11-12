@@ -92,6 +92,9 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> LEG_AUTO1;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> LEG_AUTO2;
 
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> FOCUS_AUTO1;
+    public static AnimationManager.AnimationAccessor<BasicAttackAnimation> FOCUS_AUTO2;
+
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> HEAVY_AUTO1;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> HEAVY_AUTO2;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> HEAVY_AUTO3;
@@ -329,7 +332,7 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f));
 
         DARK_BANG = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dark_bang", access -> new OmneriaAttackAnimation(
-                0.05f, 0.0f, 0.1f, 0.25f, 2f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
+                0.05f, 1.0f, 0.1f, 0.25f, 2f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 70d)
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                 .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1d)
@@ -362,7 +365,7 @@ public class GenesisWyrmAnimations
                     if (projectile != null) {
 
                         projectile.setPos(shootPos);
-                        projectile.shoot(shootVec.x(), 0, shootVec.z(), 2.2f, 0);
+                        projectile.shoot(shootVec.x(), 0, shootVec.z(), 4.2f, 0);
                         projectile.setCountdown(0);
                         projectile.setDamageSource(livingEntityPatch.getDamageSource(access, InteractionHand.MAIN_HAND));
                         if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
@@ -370,7 +373,7 @@ public class GenesisWyrmAnimations
                             OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
                             LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
                             projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
-                            projectile.shoot(lv.x, lv.y, lv.z, 2.2f, 0);
+                            projectile.shoot(lv.x, lv.y, lv.z, 4.2f, 0);
 
                         }
                         projectile.setOwner(livingEntityPatch.getOriginal());
@@ -445,6 +448,14 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.StaticAnimationProperty.NO_PHYSICS, true)
                 .addState(OmneriaEntityStates.CAN_BE_PUSHED, false)
                 .addState(EntityState.ATTACKING, true));
+
+        FOCUS_AUTO1 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/focused_auto1", access -> new BasicAttackAnimation(
+                0.05f, 0.05f, 0.05f, 0.05f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
+        ).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1));
+
+        FOCUS_AUTO2 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/focused_auto2", access -> new BasicAttackAnimation(
+                0.05f, 0.05f, 0.05f, 0.05f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
+        ).addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1));
 
         DRAGON_THROW_TRY = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dragon_throw_try", access ->
                 new OmneriaGrabAnimation(0.2f, 0.0f, 0.4f, 0.5f, 1.0f, ColliderPreset.BIPED_BODY_COLLIDER, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED, DRAGON_THROW_VICTIM_BIPED)

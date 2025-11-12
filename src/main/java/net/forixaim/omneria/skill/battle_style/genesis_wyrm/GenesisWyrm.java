@@ -54,6 +54,10 @@ import java.util.UUID;
 public class GenesisWyrm extends OmneriaBattleStyle
 {
     private static final UUID EVENT_UUID = UUID.fromString("68440271-f5d3-49bf-ba07-d7f9bdf55951");
+    public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] FOCUS_COMBO = new AnimationManager.AnimationAccessor[]{
+            GenesisWyrmAnimations.FOCUS_AUTO1,
+            GenesisWyrmAnimations.FOCUS_AUTO2
+    };
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] HAND_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.HEAVY_AUTO1,
             GenesisWyrmAnimations.HEAVY_AUTO2,
@@ -228,6 +232,7 @@ public class GenesisWyrm extends OmneriaBattleStyle
         super.onRemoved(container);
         NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.BURST_ART, null);
         NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.COMBAT_ART, null);
+        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_CONSUME_EVENT, EVENT_UUID);
@@ -306,8 +311,17 @@ public class GenesisWyrm extends OmneriaBattleStyle
             } else
             {
                 comboCounter = container.getDataManager().getDataValue(DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM.get());
-                comboCounter %= HAND_COMBO.length;
-                attackAnimation = HAND_COMBO[comboCounter];
+                if (container.getExecutor().getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()) && container.getExecutor().getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) > -1)
+                {
+                    comboCounter %= FOCUS_COMBO.length;
+                    attackAnimation = FOCUS_COMBO[comboCounter];
+                }
+                else
+                {
+                    comboCounter %= HAND_COMBO.length;
+                    attackAnimation = HAND_COMBO[comboCounter];
+                }
+
                 comboCounter++;
                 setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, container.getServerExecutor(), container, attackAnimation, comboCounter, DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM);
             }
