@@ -98,7 +98,7 @@ dependencies {
     implementation fg.deobf("curse.maven:official-epic-fight-x-parcool-1259252:6870242")
     implementation fg.deobf("curse.maven:iceberg-520110:5138899")
     implementation fg.deobf("curse.maven:prism-lib-638111:4650325")
-    compileOnly fg.deobf("libs:nf:lol")
+    //compileOnly fg.deobf("libs:nf:lol")
 
     compileOnly fg.deobf("curse.maven:legendary-tooltips-532127:4662781")
     implementation fg.deobf("curse.maven:placebo-283644:6274231")

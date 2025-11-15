@@ -3,29 +3,23 @@ package net.forixaim.omneria.client.particles;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.forixaim.omneria.client.particles.types.BeamParticleType;
-import net.forixaim.omneria.registry.MeshRegistry;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.model.ClassicMesh;
 import yesman.epicfight.api.client.model.Meshes;
-import yesman.epicfight.api.client.model.SkinnedMesh;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.client.particle.CustomModelParticle;
 import yesman.epicfight.client.particle.EpicFightParticleRenderTypes;
-import yesman.epicfight.client.particle.LaserParticle;
+
 
 @OnlyIn(Dist.CLIENT)
 public class SquareLaserParticle extends CustomModelParticle<ClassicMesh> {
@@ -33,8 +27,9 @@ public class SquareLaserParticle extends CustomModelParticle<ClassicMesh> {
 	private final float xRot;
 	private final float yRot;
     private final float width;
+	private final double speed;
 
-	public SquareLaserParticle(ClientLevel level, double x, double y, double z, double toX, double toY, double toZ, float width, float r, float g, float b, float a) {
+	public SquareLaserParticle(ClientLevel level, double x, double y, double z, double toX, double toY, double toZ, float width, float r, float g, float b, float a, double speed) {
 		super(level, x, y, z, 0, 0, 0, Meshes.LASER);
 		this.lifetime = 12;
 		this.width = width;
@@ -42,7 +37,7 @@ public class SquareLaserParticle extends CustomModelParticle<ClassicMesh> {
         this.gCol = g;
         this.bCol = b;
         this.alpha = a;
-
+		this.speed = speed;
 
         double xLength = toX - x;
 		double yLength = toY - y;
@@ -72,9 +67,9 @@ public class SquareLaserParticle extends CustomModelParticle<ClassicMesh> {
 		poseStack.mulPose(QuaternionUtils.XP.rotationDegrees(this.xRot));
 		
 		float progression = (this.age + partialTick) / (this.lifetime + 1);
-		float scale = Mth.sin(progression * (float)Math.PI);
+		float scale = Mth.cos((progression * (float)Math.PI)/2);
 
-		poseStack.scale(width * scale, width * scale, this.length / 2);
+		poseStack.scale(width * scale, width * scale, (float) ((float) (this.length / Math.E) + (progression * speed)));
 	}
 	
 	@Override
@@ -87,7 +82,7 @@ public class SquareLaserParticle extends CustomModelParticle<ClassicMesh> {
 		@Override
 		public Particle createParticle(@NotNull BeamParticleType typeIn, @NotNull ClientLevel level, double startX, double startY, double startZ, double endX, double endY, double endZ) {
 			Vec3 endPos = typeIn.getEndPos();
-            return new SquareLaserParticle(level, startX, startY, startZ, endPos.x, endPos.y, endPos.z, typeIn.getWidth(), typeIn.getRed(), typeIn.getGreen(), typeIn.getBlue(), typeIn.getAlpha());
+            return new SquareLaserParticle(level, startX, startY, startZ, endPos.x, endPos.y, endPos.z, typeIn.getWidth(), typeIn.getRed(), typeIn.getGreen(), typeIn.getBlue(), typeIn.getAlpha(), typeIn.getSpeed());
 		}
 	}
 }

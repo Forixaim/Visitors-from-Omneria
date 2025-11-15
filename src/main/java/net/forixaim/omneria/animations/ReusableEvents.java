@@ -38,13 +38,12 @@ public class ReusableEvents
             projectile.setPos(shootPos);
             projectile.shoot(shootVec.x(), 0, shootVec.z(), 4.2f, 0);
 
-            if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha && animationParameters.first() instanceof Joint joint && animationParameters.second() instanceof Float floatValue)
+            if (livingEntityPatch.getArmature() instanceof HumanoidArmature && animationParameters.first() instanceof Joint joint && animationParameters.second() instanceof Float floatValue)
             {
                 Vec3 lv = livingEntityPatch.getOriginal().getLookAngle();
                 OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), joint).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
-                LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
+                jointMatrix.translate(0, 0.5f, 0);
                 projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
-                joint.getLocalTransform().toQuaternion();
                 projectile.shoot(lv.x, lv.y, lv.z, 2, 0);
                 if (!livingEntityPatch.isLogicalClient())
                 {

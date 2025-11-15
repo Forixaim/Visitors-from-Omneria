@@ -178,7 +178,7 @@ public class GenesisWyrmAnimations
                         .addEvents(AnimationEvent.InTimeEvent.create(0.25f, (livingEntityPatch, assetAccessor, animationParameters) -> {
                             livingEntityPatch.playSound(SoundRegistry.DARK_BANG_MANIFEST.get(),  1, 0, 0);
                             livingEntityPatch.playSound(SoundRegistry.CANNON_CHARGE.get(), 1, 0,0 );
-                            }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.7f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                            }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.75f, (livingEntityPatch, assetAccessor, animationParameters) ->
                         {
                             float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
 
@@ -197,6 +197,7 @@ public class GenesisWyrmAnimations
                                 if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
                                     OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
                                     LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
+                                    jointMatrix.translate(new Vec3f(0.0F, 3, 0F));
                                     projectile.setOrigin(jointMatrix.toTranslationVector().toDoubleVector());
                                     projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
                                 }
@@ -499,7 +500,7 @@ public class GenesisWyrmAnimations
                         if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
                             Vec3 lv = livingEntityPatch.getOriginal().getLookAngle();
                             OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
-                            LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
+                            jointMatrix.translate(0, 0.5f, 0);
                             projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
                             projectile.shoot(lv.x, lv.y, lv.z, 4.2f, 0);
 

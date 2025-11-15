@@ -26,6 +26,7 @@ public class BeamParticleType extends ParticleType<BeamParticleType> implements 
     private final double x;
     private final double y;
     private final double z;
+    private final double speed;
 
     public static final Deserializer<BeamParticleType> DESERIALIZER = new Deserializer<>() {
         @Override
@@ -51,6 +52,7 @@ public class BeamParticleType extends ParticleType<BeamParticleType> implements 
         this.x = 0.0F;
         this.y = 0.0F;
         this.z = 0.0F;
+        this.speed = 0.0F;
     }
 
     public BeamParticleType(boolean override) {
@@ -64,13 +66,14 @@ public class BeamParticleType extends ParticleType<BeamParticleType> implements 
         this.x = 0.0F;
         this.y = 0.0F;
         this.z = 0.0F;
+        this.speed = 0.0F;
     }
 
     public BeamParticleType(float width) {
         this(width, false);
     }
 
-    public BeamParticleType(Float width, BeamParticleType type, Integer r, Integer g, Integer b, Integer a, Double x, Double y, Double z) {
+    public BeamParticleType(Float width, BeamParticleType type, Integer r, Integer g, Integer b, Integer a, Double x, Double y, Double z, Double speed) {
         super(false, DESERIALIZER);
         this.width = width;
         this.type = type;
@@ -81,6 +84,7 @@ public class BeamParticleType extends ParticleType<BeamParticleType> implements 
         this.x = x;
         this.y = y;
         this.z = z;
+        this.speed = speed;
     }
 
     public float getRed()
@@ -106,6 +110,11 @@ public class BeamParticleType extends ParticleType<BeamParticleType> implements 
     public float getAlpha()
     {
         return this.a / 255.0F;
+    }
+
+    public double getSpeed()
+    {
+        return this.speed;
     }
 
     public void writeToNetwork(@NotNull FriendlyByteBuf pBuffer)
