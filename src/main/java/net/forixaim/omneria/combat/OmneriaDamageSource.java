@@ -31,7 +31,7 @@ public class OmneriaDamageSource extends EpicFightDamageSource
                             Component.translatable("death.omneria.dragon_claw_2"),
                             Component.translatable("death.omneria.dragon_claw_3")
                     )),
-            Map.entry(OmneriaDamageTypes.DRAGON_CLAW,
+            Map.entry(OmneriaDamageTypes.DRAGON_KICK,
                     Lists.newArrayList(
                             Component.translatable("death.omneria.dragon_kick_1"),
                             Component.translatable("death.omneria.dragon_kick_2"),
@@ -57,7 +57,6 @@ public class OmneriaDamageSource extends EpicFightDamageSource
     @Override
     public @NotNull Component getLocalizedDeathMessage(LivingEntity pLivingEntity)
     {
-
         return super.getLocalizedDeathMessage(pLivingEntity);
     }
 }

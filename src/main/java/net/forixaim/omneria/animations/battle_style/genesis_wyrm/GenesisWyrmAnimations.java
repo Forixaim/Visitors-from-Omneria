@@ -7,16 +7,20 @@ import net.forixaim.omneria.animations.types.BattleArtsAttackPhaseProperties;
 import net.forixaim.omneria.animations.types.OmneriaAttackAnimation;
 import net.forixaim.omneria.animations.types.OmneriaEntityStates;
 import net.forixaim.omneria.animations.types.OmneriaGrabAnimation;
+import net.forixaim.omneria.client.particles.types.BeamParticleType;
 import net.forixaim.omneria.colliders.GenesisWyrmColliders;
+import net.forixaim.omneria.combat.OmneriaDamageSources;
 import net.forixaim.omneria.combat.OmneriaDamageTypes;
 import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.world.entity.projectiles.DarkBangProjectile;
+import net.forixaim.omneria.world.entity.projectiles.DragonCannonBeam;
 import net.forixaim.omneria.world.entity.projectiles.DragonShotProjectile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
@@ -29,9 +33,11 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.Joint;
+import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
@@ -41,6 +47,7 @@ import yesman.epicfight.api.animation.types.grappling.GrapplingHitAnimation;
 import yesman.epicfight.api.animation.types.grappling.GrapplingTryAnimation;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
+import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
@@ -52,8 +59,12 @@ import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.skill.SkillSlots;
 import yesman.epicfight.skill.guard.GuardSkill;
+import yesman.epicfight.world.capabilities.EpicFightCapabilities;
+import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
+import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
@@ -88,6 +99,10 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> RANGED_COUNTER;
 
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> TWILIGHT_ACTIVATION;
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRAGON_CANNON;
+
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> COSMIC_CHASER;
+
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> LEG_AUTO1;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> LEG_AUTO2;
@@ -144,6 +159,120 @@ public class GenesisWyrmAnimations
                                 }
                             }
                         }, AnimationEvent.Side.SERVER)));
+
+        DRAGON_CANNON = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dragon_cannon", access ->
+                new InvincibleAnimation(0.05f, access, Armatures.BIPED)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) ->
+                        {
+                            if (livingEntityPatch instanceof PlayerPatch<?> playerPatch && playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.BEAM.get()) && playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(DatakeyRegistry.BEAM.get()) > -1)
+                            {
+                                Entity beam = playerPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(DatakeyRegistry.BEAM.get()));
+                                if (beam instanceof DragonCannonBeam trueBeam && !trueBeam.isRemoved())
+                                {
+                                    return 0;
+                                }
+                            }
+                            return 1;
+                        })
+                        .addEvents(AnimationEvent.InTimeEvent.create(0.25f, (livingEntityPatch, assetAccessor, animationParameters) -> {
+                            livingEntityPatch.playSound(SoundRegistry.DARK_BANG_MANIFEST.get(),  1, 0, 0);
+                            livingEntityPatch.playSound(SoundRegistry.CANNON_CHARGE.get(), 1, 0,0 );
+                            }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.7f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                        {
+                            float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
+
+                            Vec3 position = new Vec3(livingEntityPatch.getOriginal().getLookAngle().x, 0, livingEntityPatch.getOriginal().getLookAngle().z).normalize().scale(1.5);
+                            Vec3 shootVec = new Vec3(Math.cos(ang), 0 , Math.sin(ang));
+                            Vec3 shootPos = livingEntityPatch.getOriginal().position().add(0, livingEntityPatch.getOriginal().getEyeHeight() - 0.5, 0).add(position);
+
+
+                            DragonCannonBeam projectile = EntityRegistry.DRAGON_CANNON.get().create(livingEntityPatch.getOriginal().level());
+
+                            if (projectile != null) {
+
+                                projectile.setPos(shootPos);
+                                projectile.shoot(shootVec.x(), 0, shootVec.z(), 4f, 0);
+                                projectile.setDamageSource(new EpicFightDamageSource(projectile.level().damageSources().generic()));
+                                if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
+                                    OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
+                                    LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
+                                    projectile.setOrigin(jointMatrix.toTranslationVector().toDoubleVector());
+                                    projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
+                                }
+                                projectile.setOwner(livingEntityPatch.getOriginal());
+                                livingEntityPatch.playSound(SoundRegistry.HEAVY_BLAST.get(), 0, 0);
+                                livingEntityPatch.getOriginal().level().addFreshEntity(projectile);
+                                if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch)
+                                {
+                                    serverPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.BEAM.get(), projectile.getId());
+                                }
+                            }
+                        }, AnimationEvent.Side.SERVER)));
+
+        COSMIC_CHASER = builder.nextAccessor("battle_style/legendary/genesis_wyrm/timeless_chase", access ->
+                new OmneriaAttackAnimation(0.05f, access, Armatures.BIPED,
+                        new AttackAnimation.Phase(0.25f, 0.0f, 0.25f, 0.3f, 0.5f, 0.5f, Armatures.BIPED.get().rootJoint, ColliderPreset.BIPED_BODY_COLLIDER).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 15.0).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 3.0).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_PUNCH_IMPACT_M.get()))
+                        .addProperty(AnimationProperty.ActionAnimationProperty.MOVE_VERTICAL, true)
+                        .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f, 1.0f))
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, speed, prevElapsedTime, elapsedTime) ->
+                        {
+                            if (dynamicAnimation instanceof StaticAnimation staticAnimation)
+                            {
+                                if (elapsedTime >= 0.25f && elapsedTime <= 0.5f)
+                                    staticAnimation.addProperty(AnimationProperty.StaticAnimationProperty.POSE_MODIFIER, Animations.ReusableSources.ROOT_X_MODIFIER);
+                                else
+                                    staticAnimation.removeProperty(AnimationProperty.StaticAnimationProperty.POSE_MODIFIER);
+                            }
+                            LivingEntity self = livingEntityPatch.getOriginal();
+                            if (elapsedTime < 0.25f)
+                            {
+                                return 1;
+                            }
+                            else if (elapsedTime >= 0.25f && elapsedTime <= 0.5f)
+                            {
+
+                                Vec3 targetPoint;
+                                AABB scanBox = AABB.ofSize(self.position(), 4, 4, 4);
+                                List<Entity> entities = self.level().getEntities(self, scanBox);
+                                if (livingEntityPatch instanceof PlayerPatch<?> playerPatch)
+                                {
+                                    if (playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()))
+                                    {
+                                        Entity opponent = playerPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()));
+                                        if (opponent != null)
+                                        {
+                                            targetPoint = opponent.position();
+                                            if (entities.isEmpty())
+                                            {
+                                                Vec3 velocity = targetPoint.subtract(self.position()).normalize().scale(4f);
+                                                self.setDeltaMovement(velocity);
+                                                self.move(MoverType.SELF, new Vec3(0, self.getDeltaMovement().y(), 0));
+
+                                            }
+                                            else {
+
+                                                self.setDeltaMovement(Vec3.ZERO);
+                                            }
+                                            return !entities.isEmpty() ? 1f : 0.025f;
+                                        }
+                                    }
+                                    self.setDeltaMovement(self.getDeltaMovement().normalize());
+                                    self.move(MoverType.SELF, self.getLookAngle().normalize().scale(2f));
+                                    return 1f;
+                                }
+                                else
+                                {
+                                    self.setDeltaMovement(self.getLookAngle().normalize());
+                                    self.move(MoverType.SELF, self.getLookAngle().normalize().scale(2f));
+                                    return 1;
+                                }
+                            }
+                            else
+                            {
+                                return 1;
+                            }
+                        }));
 
         WALK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/walk", access -> new MovementAnimation(0.1f, true, access, Armatures.BIPED)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) ->
@@ -342,7 +471,6 @@ public class GenesisWyrmAnimations
 
                     if (!livingEntityPatch.isLogicalClient()) {
                         if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
-                            Vec3 lv = livingEntityPatch.getOriginal().getLookAngle();
                             OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
                             LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
                             ((ServerLevel) livingEntityPatch.getOriginal().level()).sendParticles(ParticleRegistry.DRACONIC_BLAST_FLASH.get(), jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z, 1, 0, 0, 0, 0);
@@ -464,5 +592,22 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.15F, 0.35F))
                 .addProperty(AnimationProperty.ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f));
+    }
+
+    public static final AnimationProperty.PoseModifier VELOCITY_X_MODIFIER = (self, pose, entitypatch, time, partialTicks) -> {
+        Vec3 d = entitypatch.getOriginal().getDeltaMovement();
+        float pitch = (float) -Math.toDegrees(Math.atan2(d.y, Math.sqrt(d.x * d.x + d.z * d.z)));
+        LogUtils.getLogger().debug("pitch: " + pitch);
+        JointTransform chest = pose.orElseEmpty("Root");
+        chest.frontResult(JointTransform.rotation(QuaternionUtils.XP.rotationDegrees(-pitch)), OpenMatrix4f::mulAsOriginInverse);
+    };
+
+    private Vec3 rotateVector(Vec3 v, double degreesPerTick) {
+        double radians = Math.toRadians(degreesPerTick);
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+        double x = v.x * cos - v.z * sin;
+        double z = v.x * sin + v.z * cos;
+        return new Vec3(x, v.y, z);
     }
 }

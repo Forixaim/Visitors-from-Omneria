@@ -3,9 +3,11 @@ package net.forixaim.omneria.skill.battle_style.genesis_wyrm;
 import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
 import net.forixaim.omneria.skill.DatakeyRegistry;
+import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.ArgumentGatherers;
 import net.minecraft.network.FriendlyByteBuf;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.skill.SkillDataManager;
@@ -28,6 +30,16 @@ public class InitialForce extends WeaponInnateSkill
     }
 
     @Override
+    public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine) {
+        return ArgumentGatherers.UniversalDirectionalInput(container, controlEngine);
+    }
+
+    @Override
+    public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args) {
+        return ArgumentGatherers.DirectionalExecutionPacket(container, args);
+    }
+
+    @Override
     public boolean canExecute(SkillContainer container) {
         return container.getExecutor().getOriginal().getMainHandItem().isEmpty();
     }
@@ -38,21 +50,21 @@ public class InitialForce extends WeaponInnateSkill
         int combo = container.getDataManager().getDataValue(DatakeyRegistry.INITIAL_FORCE_COMBO.get());
         SkillDataManager skillDataManager = container.getExecutor().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager();
         AnimationManager.AnimationAccessor<? extends StaticAnimation> anim;
-        if (container.getExecutor().getOriginal().isSprinting())
+        int fw = args.readInt();
+        int sw = args.readInt();
+        int ud = args.readInt();
         {
-            anim = GenesisWyrmAnimations.UMBRAL_HAMMER;
-        }
-        else if (skillDataManager.hasData(DatakeyRegistry.RIGHT_CLICKED.get()) && skillDataManager.getDataValue(DatakeyRegistry.RIGHT_CLICKED.get()))
-        {
-            anim = GenesisWyrmAnimations.DRAGON_THROW_TRY;
-        }
-        else
-        {
-            combo %= DEFAULT_COMBO.length;
-            anim = DEFAULT_COMBO[combo];
-            combo++;
+            if (container.getExecutor().getOriginal().isSprinting()) {
+                anim = GenesisWyrmAnimations.UMBRAL_HAMMER;
+            } else if (skillDataManager.hasData(DatakeyRegistry.RIGHT_CLICKED.get()) && skillDataManager.getDataValue(DatakeyRegistry.RIGHT_CLICKED.get())) {
+                anim = GenesisWyrmAnimations.DRAGON_THROW_TRY;
+            } else {
+                combo %= DEFAULT_COMBO.length;
+                anim = DEFAULT_COMBO[combo];
+                combo++;
 
-            GenesisWyrm.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, container.getServerExecutor(), container, anim, combo, DatakeyRegistry.INITIAL_FORCE_COMBO);
+                GenesisWyrm.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, container.getServerExecutor(), container, anim, combo, DatakeyRegistry.INITIAL_FORCE_COMBO);
+            }
         }
 
 

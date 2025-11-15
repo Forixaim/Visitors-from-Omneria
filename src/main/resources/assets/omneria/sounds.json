@@ -9,6 +9,11 @@
     "subtitle": "sounds.omneria.entity.weapon.imperatrice_swing",
     "sounds":[{"name":"omneria:entity/weapon/imperatrice_swing2", "stream":false}]
   },
+  "battle_style.genesis_wyrm.beam_charge": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.blast",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/beam_charge", "stream":false}]
+  },
   "battle_style.genesis_wyrm.blast": {
     "category": "master",
     "subtitle": "sounds.omneria.genesis_wyrm.blast",

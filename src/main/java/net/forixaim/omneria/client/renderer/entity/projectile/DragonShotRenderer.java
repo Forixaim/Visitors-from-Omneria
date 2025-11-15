@@ -1,4 +1,4 @@
-package net.forixaim.omneria.client.renderer.entity;
+package net.forixaim.omneria.client.renderer.entity.projectile;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

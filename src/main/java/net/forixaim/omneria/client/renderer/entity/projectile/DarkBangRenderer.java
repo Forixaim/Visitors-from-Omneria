@@ -1,8 +1,7 @@
-package net.forixaim.omneria.client.renderer.entity;
+package net.forixaim.omneria.client.renderer.entity.projectile;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.logging.LogUtils;
 import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.skill.DatakeyRegistry;

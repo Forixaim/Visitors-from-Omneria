@@ -37,6 +37,7 @@ public class OmneriaSkills
     public static Skill TWILIGHT;
     public static Skill DARK_ARTS;
     public static Skill COSMIC_FOCUS;
+    public static Skill COSMIC_CHASER;
 
 
     @SubscribeEvent
@@ -55,5 +56,6 @@ public class OmneriaSkills
         TWILIGHT = registryWorker.build("twilight", Twilight::new, BurstArt.createBurstArt().setResource(Skill.Resource.NONE));
         DARK_ARTS = registryWorker.build("dark_arts", DarkArts::new, DarkArts.createCombatArt().setResource(Skill.Resource.NONE));
         COSMIC_FOCUS = registryWorker.build("cosmic_focus", CosmicFocus::new, Skill.createBuilder().setResource(Skill.Resource.NONE).setCategory(BattleArtsSkillCategories.MANA_ART));
+        COSMIC_CHASER = registryWorker.build("cosmic_chaser", CosmicChaser::new, Skill.createMoverBuilder().setResource(Skill.Resource.NONE));
     }
 }

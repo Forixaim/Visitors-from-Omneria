@@ -1,4 +1,4 @@
-package net.forixaim.omneria.client.renderer.entity;
+package net.forixaim.omneria.client.renderer.entity.projectile;
 
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.client.models.entity.projectile.DragonShotModel;

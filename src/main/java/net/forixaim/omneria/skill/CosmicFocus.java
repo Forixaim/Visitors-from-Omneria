@@ -1,6 +1,7 @@
 package net.forixaim.omneria.skill;
 
 import net.forixaim.battle_arts_api.battle_arts_skills.mana_arts.ManaArt;
+import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -29,14 +30,22 @@ public class CosmicFocus extends ManaArt
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args)
     {
         super.executeOnServer(container, args);
-        if (container.getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) != -1 && container.getExecutor().getTarget() == null)
+        if (container.getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) != -1 && !container.getExecutor().getOriginal().onGround())
         {
-            container.getDataManager().setDataSync(DatakeyRegistry.FOCUSED_TARGET.get(), -1);
+            container.getExecutor().playAnimationSynchronized(GenesisWyrmAnimations.COSMIC_CHASER, 0);
         }
         else
         {
-            container.getDataManager().setDataSync(DatakeyRegistry.FOCUSED_TARGET.get(), container.getExecutor().getTarget().getId());
+            if (container.getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) != -1 && container.getExecutor().getTarget() == null)
+            {
+                container.getDataManager().setDataSync(DatakeyRegistry.FOCUSED_TARGET.get(), -1);
+            }
+            else
+            {
+                container.getDataManager().setDataSync(DatakeyRegistry.FOCUSED_TARGET.get(), container.getExecutor().getTarget().getId());
+            }
         }
+
     }
 
     @Override

@@ -1,17 +1,13 @@
 package net.forixaim.omneria;
 
-import com.anthonyhilyard.legendarytooltips.LegendaryTooltips;
 import com.anthonyhilyard.legendarytooltips.Loader;
 import com.anthonyhilyard.legendarytooltips.config.LegendaryTooltipsConfig;
-import com.anthonyhilyard.prism.Prism;
 import com.anthonyhilyard.prism.util.ColorUtil;
-import com.anthonyhilyard.prism.util.ConfigHelper;
 import com.google.common.collect.Lists;
-import dev.shadowsoffire.placebo.Placebo;
 import net.forixaim.omneria.capabilities.weapons.OmneriaExCapWeapons;
-import net.forixaim.omneria.client.renderer.entity.DarkBangRenderer;
-import net.forixaim.omneria.client.renderer.entity.DragonShotRenderer;
-import net.forixaim.omneria.item.OmneriaRarities;
+import net.forixaim.omneria.client.renderer.entity.projectile.DarkBangRenderer;
+import net.forixaim.omneria.client.renderer.entity.projectile.DragonCannonRenderer;
+import net.forixaim.omneria.client.renderer.entity.projectile.DragonShotRenderer;
 import net.forixaim.omneria.netcode.PacketHandler;
 import net.forixaim.omneria.registry.ArmatureRegistry;
 import net.forixaim.omneria.registry.EntityRegistry;
@@ -34,7 +30,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import yesman.epicfight.api.animation.LivingMotion;
 import yesman.epicfight.gameasset.Armatures;
-import yesman.epicfight.gameasset.MobCombatBehaviors;
 import yesman.epicfight.main.EpicFightExtensions;
 
 import static dev.shadowsoffire.placebo.PlaceboClient.ticks;
@@ -98,6 +93,7 @@ public class VisitorsOfOmneria
 	{
 		EntityRenderers.register(EntityRegistry.CHARLEMAGNE.get(), CharlemagneRenderer::new);
 		EntityRenderers.register(EntityRegistry.DRAGON_SHOT.get(), DragonShotRenderer::new);
+        EntityRenderers.register(EntityRegistry.DRAGON_CANNON.get(), DragonCannonRenderer::new);
         EntityRenderers.register(EntityRegistry.DARK_BANG.get(), DarkBangRenderer::new);
 
 	}

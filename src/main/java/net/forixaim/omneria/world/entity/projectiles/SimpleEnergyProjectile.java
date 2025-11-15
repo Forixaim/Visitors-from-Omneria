@@ -1,6 +1,5 @@
 package net.forixaim.omneria.world.entity.projectiles;
 
-import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.mehvahdjukaar.dummmmmmy.Dummmmmmy;
 import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
@@ -38,8 +37,6 @@ public class SimpleEnergyProjectile extends Projectile
     protected int lifetime = 80;
     protected Vec3 deceleration = null;
     protected double decelerationConstant = 0.2;
-    protected float damage = 1;
-    protected int maxStrikes = 1;
     protected EpicFightDamageSource dmgSrc = null;
 
 
@@ -137,12 +134,15 @@ public class SimpleEnergyProjectile extends Projectile
                         return;
                     }
                 }
-                EpicFightDamageSource damage = dmgSrc;
-                damage.setStunType(StunType.HOLD);
-                damage.setBaseImpact(0.5F);
-                damage.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE);
-                entity.invulnerableTime = 0;
-                playerpatch.attack(damage, entity, InteractionHand.MAIN_HAND);
+                if (dmgSrc != null)
+                {
+                    EpicFightDamageSource damage = dmgSrc;
+                    damage.setStunType(StunType.HOLD);
+                    damage.setBaseImpact(0.5F);
+                    damage.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE);
+                    entity.invulnerableTime = 0;
+                    playerpatch.attack(damage, entity, InteractionHand.MAIN_HAND);
+                }
                 entity.playSound(SoundEvents.GENERIC_EXPLODE, 1.0f, 1.0f);
                 entity.level().addParticle(EpicFightParticles.HIT_BLADE.get(), entity.getX(), entity.getY(), entity.getZ(), 0.0D, 0.0D, 0.0D);
                 if (!entity.level().isClientSide())

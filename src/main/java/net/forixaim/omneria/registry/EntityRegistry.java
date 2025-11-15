@@ -3,6 +3,7 @@ package net.forixaim.omneria.registry;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.world.entity.charlemagne.Charlemagne;
 import net.forixaim.omneria.world.entity.projectiles.DarkBangProjectile;
+import net.forixaim.omneria.world.entity.projectiles.DragonCannonBeam;
 import net.forixaim.omneria.world.entity.projectiles.DragonShotProjectile;
 import net.forixaim.omneria.world.entity.projectiles.FlareSlashProjectile;
 import net.minecraft.world.entity.EntityType;
@@ -22,9 +23,10 @@ public class EntityRegistry
 			() -> EntityType.Builder.of(FlareSlashProjectile::new, MobCategory.MISC).sized(0.1f, 0.1f).clientTrackingRange(12).build("flare_slash"));
 	public static final RegistryObject<EntityType<DragonShotProjectile>> DRAGON_SHOT = ENTITIES.register("dragon_shot",
 			() -> EntityType.Builder.of(DragonShotProjectile::new, MobCategory.MISC).sized(0.5f, 0.5f).clientTrackingRange(12).build("dragon_shot"));
-
     public static final RegistryObject<EntityType<DarkBangProjectile>> DARK_BANG = ENTITIES.register("dark_bang",
             () -> EntityType.Builder.of(DarkBangProjectile::new, MobCategory.MISC).sized(1f, 1f).clientTrackingRange(12).build("dark_bang"));
+    public static final RegistryObject<EntityType<DragonCannonBeam>> DRAGON_CANNON = ENTITIES.register("dragon_cannon",
+            () -> EntityType.Builder.of(DragonCannonBeam::new, MobCategory.MISC).sized(1.2f, 1.2f).clientTrackingRange(64).build("dragon_cannon"));
 
 
 	public static void Register(IEventBus bus)

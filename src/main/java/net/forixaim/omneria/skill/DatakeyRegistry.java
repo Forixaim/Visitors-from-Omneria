@@ -56,6 +56,15 @@ public class DatakeyRegistry
             )
     );
 
+    public static final RegistryObject<SkillDataKey<Integer>> BEAM = DATA_KEYS.register("beam", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.INTEGER,
+                    -1,
+                    true,
+                    GenesisWyrm.class
+            )
+    );
+
     public static final RegistryObject<SkillDataKey<Boolean>> PROJECTILE = DATA_KEYS.register("projectile", () ->
             SkillDataKey.createSkillDataKey(
                     PacketBufferCodec.BOOLEAN,
