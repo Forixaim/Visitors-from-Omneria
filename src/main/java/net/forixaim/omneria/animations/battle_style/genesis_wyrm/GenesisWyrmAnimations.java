@@ -8,6 +8,7 @@ import net.forixaim.omneria.animations.types.OmneriaAttackAnimation;
 import net.forixaim.omneria.animations.types.OmneriaEntityStates;
 import net.forixaim.omneria.animations.types.OmneriaGrabAnimation;
 import net.forixaim.omneria.client.particles.types.BeamParticleType;
+import net.forixaim.omneria.client.particles.types.TrackingParticleType;
 import net.forixaim.omneria.colliders.GenesisWyrmColliders;
 import net.forixaim.omneria.combat.OmneriaDamageSources;
 import net.forixaim.omneria.combat.OmneriaDamageTypes;
@@ -163,6 +164,7 @@ public class GenesisWyrmAnimations
         DRAGON_CANNON = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dragon_cannon", access ->
                 new InvincibleAnimation(0.05f, access, Armatures.BIPED)
                         .addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true)
+                        .addState(EntityState.CAN_SKILL_EXECUTION, false)
                         .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) ->
                         {
                             if (livingEntityPatch instanceof PlayerPatch<?> playerPatch && playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.BEAM.get()) && playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(DatakeyRegistry.BEAM.get()) > -1)
@@ -178,6 +180,7 @@ public class GenesisWyrmAnimations
                         .addEvents(AnimationEvent.InTimeEvent.create(0.25f, (livingEntityPatch, assetAccessor, animationParameters) -> {
                             livingEntityPatch.playSound(SoundRegistry.DARK_BANG_MANIFEST.get(),  1, 0, 0);
                             livingEntityPatch.playSound(SoundRegistry.CANNON_CHARGE.get(), 1, 0,0 );
+                            ((ServerLevel)livingEntityPatch.getOriginal().level()).sendParticles(new TrackingParticleType(livingEntityPatch.getOriginal().getId(), ParticleRegistry.DRAGON_CANNON_BEAM.get()), livingEntityPatch.getOriginal().getX(), livingEntityPatch.getOriginal().getY(), livingEntityPatch.getOriginal().getZ(), 1, 0, 0, 0, 0);
                             }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.75f, (livingEntityPatch, assetAccessor, animationParameters) ->
                         {
                             float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
@@ -197,7 +200,7 @@ public class GenesisWyrmAnimations
                                 if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
                                     OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
                                     LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
-                                    jointMatrix.translate(new Vec3f(0.0F, 3, 0F));
+                                    jointMatrix.translate(new Vec3f(0.0F, 1, 0F));
                                     projectile.setOrigin(jointMatrix.toTranslationVector().toDoubleVector());
                                     projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
                                 }
