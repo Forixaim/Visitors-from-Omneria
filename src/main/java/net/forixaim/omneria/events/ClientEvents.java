@@ -30,7 +30,7 @@ public class ClientEvents
         event.registerSpriteSet(ParticleRegistry.DRACONIC_BLAST_FLASH.get(), DraconicBlastParticle.ProviderSmall::new);
         event.registerSpriteSet(ParticleRegistry.DARK_BANG_EXPLOSION.get(), DraconicBlastParticle.ProviderLarge::new);
         event.registerSpecial(ParticleRegistry.OMNERIA_PROJECTILE_TRAIL.get(), new OmneriaProjectileTrailParticle.Provider());
-        event.registerSpecial(ParticleRegistry.DRAGON_CANNON_BEAM.get(), new DragonCannonParticle.Provider());
+        event.registerSpriteSet(ParticleRegistry.DRAGON_CANNON_BEAM.get(), DragonCannonParticle.Provider::new);
         event.registerSpecial(ParticleRegistry.SQUARE_LASER.get(), new SquareLaserParticle.Provider());
 
     }
