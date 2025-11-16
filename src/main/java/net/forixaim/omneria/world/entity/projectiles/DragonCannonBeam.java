@@ -58,7 +58,7 @@ public class DragonCannonBeam extends SimpleEnergyProjectile {
         {
             if (!this.level().isClientSide && !this.isRemoved())
             {
-                ((ServerLevel)this.level()).sendParticles(new BeamParticleType(1f, ParticleRegistry.SQUARE_LASER.get(), 255, 0, 255, 255, position().x, position().y, position().z, (double) speed), originBeam.x, originBeam.y, originBeam.z, 1, 0, 0, 0, 0);
+                ((ServerLevel)this.level()).sendParticles(new BeamParticleType(1f, ParticleRegistry.SQUARE_LASER.get(), 240, 0, 255, 255, position().x, position().y, position().z, (double) speed), originBeam.x, originBeam.y, originBeam.z, 1, 0, 0, 0, 0);
             }
         }
     }
