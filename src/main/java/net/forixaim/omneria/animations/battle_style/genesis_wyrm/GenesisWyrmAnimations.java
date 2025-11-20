@@ -7,10 +7,8 @@ import net.forixaim.omneria.animations.types.BattleArtsAttackPhaseProperties;
 import net.forixaim.omneria.animations.types.OmneriaAttackAnimation;
 import net.forixaim.omneria.animations.types.OmneriaEntityStates;
 import net.forixaim.omneria.animations.types.OmneriaGrabAnimation;
-import net.forixaim.omneria.client.particles.types.BeamParticleType;
 import net.forixaim.omneria.client.particles.types.TrackingParticleType;
 import net.forixaim.omneria.colliders.GenesisWyrmColliders;
-import net.forixaim.omneria.combat.OmneriaDamageSources;
 import net.forixaim.omneria.combat.OmneriaDamageTypes;
 import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.registry.ParticleRegistry;
@@ -18,55 +16,40 @@ import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.world.entity.projectiles.DarkBangProjectile;
 import net.forixaim.omneria.world.entity.projectiles.DragonCannonBeam;
-import net.forixaim.omneria.world.entity.projectiles.DragonShotProjectile;
-import net.minecraft.client.Minecraft;
+import net.forixaim.omneria.world.entity.projectiles.FullPowerDragonCannonBeam;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.property.AnimationEvent;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.*;
-import yesman.epicfight.api.animation.types.grappling.GrapplingAttackAnimation;
-import yesman.epicfight.api.animation.types.grappling.GrapplingHitAnimation;
-import yesman.epicfight.api.animation.types.grappling.GrapplingTryAnimation;
 import yesman.epicfight.api.utils.TimePairList;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
-import yesman.epicfight.skill.SkillSlots;
-import yesman.epicfight.skill.guard.GuardSkill;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
-import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
-import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
-import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.List;
@@ -101,6 +84,8 @@ public class GenesisWyrmAnimations
 
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> TWILIGHT_ACTIVATION;
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRAGON_CANNON;
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> FULL_POWER_DRAGON_CANNON;
+
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> COSMIC_CHASER;
 
@@ -127,6 +112,8 @@ public class GenesisWyrmAnimations
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DARK_BANG;
 
+    public static final AnimationProperty.PoseModifier LOCK_POSE = (self, pose, entitypatch, time, partialTicks) -> {
+        JointTransform chest = pose.orElseEmpty("Root");};
 
     public static void build(AnimationManager.AnimationBuilder builder)
     {
@@ -177,11 +164,10 @@ public class GenesisWyrmAnimations
                             }
                             return 1;
                         })
-                        .addEvents(AnimationEvent.InTimeEvent.create(0.25f, (livingEntityPatch, assetAccessor, animationParameters) -> {
+                        .addEvents(AnimationEvent.InTimeEvent.create(0.1f, (livingEntityPatch, assetAccessor, animationParameters) -> {
                             livingEntityPatch.playSound(SoundRegistry.DARK_BANG_MANIFEST.get(),  1, 0, 0);
-                            livingEntityPatch.playSound(SoundRegistry.CANNON_CHARGE.get(), 1, 0,0 );
-                            ((ServerLevel)livingEntityPatch.getOriginal().level()).sendParticles(new TrackingParticleType(livingEntityPatch.getOriginal().getId(), ParticleRegistry.DRAGON_CANNON_BEAM.get()), livingEntityPatch.getOriginal().getX(), livingEntityPatch.getOriginal().getY(), livingEntityPatch.getOriginal().getZ(), 1, 0, 0, 0, 0);
-                            }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.75f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                            ((ServerLevel)livingEntityPatch.getOriginal().level()).sendParticles(new TrackingParticleType(livingEntityPatch.getOriginal().getId(), ParticleRegistry.DRAGON_CANNON_CHARGE.get()), livingEntityPatch.getOriginal().getX(), livingEntityPatch.getOriginal().getY(), livingEntityPatch.getOriginal().getZ(), 1, 0, 0, 0, 0);
+                            }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(0.45f, (livingEntityPatch, assetAccessor, animationParameters) ->
                         {
                             float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
 
@@ -206,6 +192,88 @@ public class GenesisWyrmAnimations
                                 }
                                 projectile.setOwner(livingEntityPatch.getOriginal());
                                 livingEntityPatch.playSound(SoundRegistry.HEAVY_BLAST.get(), 0, 0);
+                                livingEntityPatch.getOriginal().level().addFreshEntity(projectile);
+                                if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch)
+                                {
+                                    serverPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.BEAM.get(), projectile.getId());
+                                }
+                            }
+                        }, AnimationEvent.Side.SERVER)));
+
+
+
+        FULL_POWER_DRAGON_CANNON = builder.nextAccessor("battle_style/legendary/genesis_wyrm/full_power_dragon_cannon", access ->
+                new InvincibleAnimation(0.05f, access, Armatures.BIPED)
+                        .addProperty(AnimationProperty.AttackAnimationProperty.STOP_MOVEMENT, true)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.POSE_MODIFIER, (dynamicAnimation, pose, livingEntityPatch, v, v1) ->
+                        {
+                            if (v < 1.5f)
+                            {
+                                if (livingEntityPatch.getOriginal().onGround())
+                                {
+                                    Animations.ReusableSources.COMBO_ATTACK_DIRECTION_MODIFIER.modify(dynamicAnimation, pose, livingEntityPatch, v, v1);
+                                }
+                                else
+                                {
+                                    Animations.ReusableSources.ROOT_X_MODIFIER.modify(dynamicAnimation, pose, livingEntityPatch, v, v1);
+                                }
+                            }
+                            else {
+                                LOCK_POSE.modify(dynamicAnimation, pose, livingEntityPatch, v, v1);
+                            }
+
+                        })
+                        .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                        .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) ->
+                        {
+                            if (livingEntityPatch instanceof PlayerPatch<?> playerPatch && playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.BEAM.get()) && playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(DatakeyRegistry.BEAM.get()) > -1)
+                            {
+                                Entity beam = playerPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(DatakeyRegistry.BEAM.get()));
+                                if (beam instanceof FullPowerDragonCannonBeam trueBeam && !trueBeam.isRemoved())
+                                {
+                                    return 0;
+                                }
+                            }
+                            return 1;
+                        })
+                        .addEvents(AnimationEvent.InTimeEvent.create(0.4f, (livingEntityPatch, assetAccessor, animationParameters) -> {
+                            livingEntityPatch.playSound(SoundRegistry.DARK_BANG_MANIFEST.get(),  1, 0, 0);
+                            livingEntityPatch.playSound(SoundRegistry.FPDC_CHARGE_BEGIN.get(),  1, 0, 0);
+
+                            livingEntityPatch.playSound(SoundRegistry.CANNON_CHARGE.get(),  1, 0, 0);
+
+                            ((ServerLevel)livingEntityPatch.getOriginal().level()).sendParticles(new TrackingParticleType(livingEntityPatch.getOriginal().getId(), ParticleRegistry.FULL_POWER_DRAGON_CANNON_CHARGE.get()), livingEntityPatch.getOriginal().getX(), livingEntityPatch.getOriginal().getY(), livingEntityPatch.getOriginal().getZ(), 1, 0, 0, 0, 0);
+                        }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.55f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                        {
+                            float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
+
+                            Vec3 position = new Vec3(livingEntityPatch.getOriginal().getLookAngle().x, 0, livingEntityPatch.getOriginal().getLookAngle().z).normalize().scale(1.5);
+                            Vec3 la = livingEntityPatch.getOriginal().getLookAngle().normalize();
+                            Vec3 shootVec = new Vec3(la.x, Math.max(0, la.y), la.z);
+
+                            if (!livingEntityPatch.getOriginal().onGround())
+                            {
+                                shootVec = shootVec.add(0, la.y, 0);
+                            }
+                            Vec3 shootPos = livingEntityPatch.getOriginal().position().add(0, livingEntityPatch.getOriginal().getEyeHeight() - 0.5, 0).add(position);
+
+
+                            FullPowerDragonCannonBeam projectile = EntityRegistry.FULL_POWER_DRAGON_CANNON.get().create(livingEntityPatch.getOriginal().level());
+
+                            if (projectile != null) {
+
+                                projectile.setPos(shootPos);
+                                projectile.shoot(Mth.cos(ang), shootVec.y(), Mth.sin(ang), 4f, 0);
+                                if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
+                                    OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.handR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
+                                    LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
+                                    jointMatrix.translate(new Vec3f(0.0F, 2, 0F));
+                                    ((ServerLevel)projectile.level()).sendParticles(ParticleRegistry.DARK_BANG_EXPLOSION.get(), jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z, 1 ,0, 0, 0, 0);
+                                    projectile.setOrigin(jointMatrix.toTranslationVector().toDoubleVector());
+                                    projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
+                                }
+                                projectile.setOwner(livingEntityPatch.getOriginal());
+                                livingEntityPatch.playSound(SoundRegistry.HEAVY_BLAST.get(), -5, -5);
                                 livingEntityPatch.getOriginal().level().addFreshEntity(projectile);
                                 if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch)
                                 {

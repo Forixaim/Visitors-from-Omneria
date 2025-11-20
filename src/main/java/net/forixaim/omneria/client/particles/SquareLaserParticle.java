@@ -1,5 +1,6 @@
 package net.forixaim.omneria.client.particles;
 
+import com.lowdragmc.shimmer.client.postprocessing.PostProcessing;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.forixaim.omneria.client.particles.types.BeamParticleType;
@@ -8,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -15,6 +17,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import yesman.epicfight.api.client.model.ClassicMesh;
+import yesman.epicfight.api.client.model.Mesh;
 import yesman.epicfight.api.client.model.Meshes;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.client.particle.CustomModelParticle;
@@ -52,7 +55,14 @@ public class SquareLaserParticle extends CustomModelParticle<ClassicMesh> {
 
     @Override
     public void render(VertexConsumer vertexConsumer, Camera camera, float partialTicks) {
-        super.render(vertexConsumer, camera, partialTicks);
+        PoseStack poseStack = new PoseStack();
+        poseStack.pushPose();
+        this.setupPoseStack(poseStack, camera, partialTicks);
+        this.prepareDraw(poseStack, partialTicks);
+        this.particleMeshProvider.get().draw(poseStack, vertexConsumer, Mesh.DrawingFunction.POSITION_TEX_COLOR_LIGHTMAP, this.getLightColor(partialTicks), this.rCol, this.gCol, this.bCol, this.alpha, OverlayTexture.NO_OVERLAY);
+        this.revert(poseStack);
+        poseStack.popPose();
+
     }
 
     @Override

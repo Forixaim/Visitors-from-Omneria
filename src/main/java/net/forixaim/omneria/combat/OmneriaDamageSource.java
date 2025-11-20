@@ -55,7 +55,7 @@ public class OmneriaDamageSource extends EpicFightDamageSource
     }
 
     @Override
-    public @NotNull Component getLocalizedDeathMessage(LivingEntity pLivingEntity)
+    public @NotNull Component getLocalizedDeathMessage(@NotNull LivingEntity pLivingEntity)
     {
         return super.getLocalizedDeathMessage(pLivingEntity);
     }

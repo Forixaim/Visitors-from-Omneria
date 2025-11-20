@@ -39,6 +39,8 @@ public class SoundRegistry
     public static final RegistryObject<SoundEvent> DARK_BANG_MANIFEST = registerSound("battle_style.genesis_wyrm.dark_bang_manifest");
     public static final RegistryObject<SoundEvent> DARK_BANG_CHARGE = registerSound("battle_style.genesis_wyrm.dark_bang_charge");
     public static final RegistryObject<SoundEvent> CANNON_CHARGE = registerSound("battle_style.genesis_wyrm.beam_charge");
+    public static final RegistryObject<SoundEvent> FPDC_CHARGE_BEGIN = registerSound("battle_style.genesis_wyrm.beam_charge_begin");
+    public static final RegistryObject<SoundEvent> FPDC_EXPLOSION = registerSound("battle_style.genesis_wyrm.beam_explosion");
 
 
     public static final RegistryObject<SoundEvent> CRITICAL_HIT = registerSound("entity.combat.critical_hit");

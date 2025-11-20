@@ -15,6 +15,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
@@ -47,6 +48,10 @@ public class DragonCannonBeam extends SimpleEnergyProjectile {
         this.speed = pVelocity;
     }
 
+    public void setLifetime(int lifetime) {
+        this.lifetime = lifetime;
+    }
+
     public void setOrigin(Vec3 origin) {
         this.originBeam = new Vec3(origin.x, origin.y, origin.z);
     }
@@ -58,7 +63,7 @@ public class DragonCannonBeam extends SimpleEnergyProjectile {
         {
             if (!this.level().isClientSide && !this.isRemoved())
             {
-                ((ServerLevel)this.level()).sendParticles(new BeamParticleType(1f, ParticleRegistry.SQUARE_LASER.get(), 240, 0, 255, 255, position().x, position().y, position().z, (double) speed), originBeam.x, originBeam.y, originBeam.z, 1, 0, 0, 0, 0);
+                ((ServerLevel)this.level()).sendParticles(new BeamParticleType(1f, ParticleRegistry.DRAGON_CANNON_LASER.get(), 240, 0, 255, 255, position().x, position().y, position().z, (double) speed), originBeam.x, originBeam.y, originBeam.z, 1, 0, 0, 0, 0);
             }
         }
     }
@@ -90,6 +95,26 @@ public class DragonCannonBeam extends SimpleEnergyProjectile {
                     damage.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE);
                     entity.invulnerableTime = 0;
                     playerpatch.attack(damage, entity, InteractionHand.MAIN_HAND);
+                }
+                else
+                {
+                    if (this.getOwner() instanceof Player player) {
+                        EpicFightDamageSource damage = new EpicFightDamageSource(this.level().damageSources().playerAttack(player));
+                        damage.setStunType(StunType.HOLD);
+                        damage.setBaseImpact(0.5F);
+                        damage.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE);
+                        entity.invulnerableTime = 0;
+                        playerpatch.attack(damage, entity, InteractionHand.MAIN_HAND);
+                    }
+                    else if (this.getOwner() instanceof LivingEntity le)
+                    {
+                        EpicFightDamageSource damage = new EpicFightDamageSource(this.level().damageSources().mobAttack(le));
+                        damage.setStunType(StunType.HOLD);
+                        damage.setBaseImpact(0.5F);
+                        damage.addRuntimeTag(EpicFightDamageTypeTags.WEAPON_INNATE);
+                        entity.invulnerableTime = 0;
+                        playerpatch.attack(damage, entity, InteractionHand.MAIN_HAND);
+                    }
                 }
                 entity.playSound(SoundEvents.GENERIC_EXPLODE, 1.0f, 1.0f);
                 entity.level().addParticle(EpicFightParticles.HIT_BLADE.get(), entity.getX(), entity.getY(), entity.getZ(), 0.0D, 0.0D, 0.0D);

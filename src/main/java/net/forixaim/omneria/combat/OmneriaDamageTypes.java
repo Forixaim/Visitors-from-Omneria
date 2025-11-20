@@ -15,6 +15,8 @@ public class OmneriaDamageTypes
 	public static final ResourceKey<DamageType> DRAGON_CLAW = createOriginal("dragon_claw");
 	public static final ResourceKey<DamageType> DRAGON_KICK = createOriginal("dragon_kick");
 	public static final ResourceKey<DamageType> ENERGY_BLAST = createOriginal("energy_blast");
+    public static final ResourceKey<DamageType> FP_DRAGON_CANNON = createOriginal("full_power_dragon_cannon");
+
     public static final TagKey<DamageType> GRAB = createTag("grab");
 
 	public static Holder<DamageType> getHolder(LivingEntity entity, ResourceKey<DamageType> damageTypeKey)
@@ -22,6 +24,8 @@ public class OmneriaDamageTypes
 		return entity.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(damageTypeKey);
 
 	}
+
+
 
 	private static ResourceKey<DamageType> createOriginal(final String pName)
 	{

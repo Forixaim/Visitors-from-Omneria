@@ -14,6 +14,16 @@
     "subtitle": "sounds.omneria.genesis_wyrm.blast",
     "sounds":[{"name":"omneria:battle_style/genesis_wyrm/beam_charge", "stream":false}]
   },
+  "battle_style.genesis_wyrm.beam_charge_begin": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.blast",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/fpdc_charge", "stream":false}]
+  },
+  "battle_style.genesis_wyrm.beam_explosion": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.blast",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/fpdc_explosion", "stream":true}]
+  },
   "battle_style.genesis_wyrm.blast": {
     "category": "master",
     "subtitle": "sounds.omneria.genesis_wyrm.blast",

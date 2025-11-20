@@ -8,6 +8,7 @@ import net.forixaim.omneria.world.entity.patches.CharlemagnePatch;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.GameType;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,6 +36,12 @@ public class LivingEntityEvents
 			}
 		}
 	}
+
+    @SubscribeEvent
+    public static void onDeath(LivingDeathEvent event)
+    {
+        event.getEntity().sendSystemMessage(event.getSource().getLocalizedDeathMessage(event.getEntity()));
+    }
 
 	@SubscribeEvent
 	public static void onLivingEntityHurt(LivingHurtEvent event)

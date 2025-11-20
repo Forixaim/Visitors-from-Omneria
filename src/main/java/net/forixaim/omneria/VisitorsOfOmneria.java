@@ -8,6 +8,7 @@ import net.forixaim.omneria.capabilities.weapons.OmneriaExCapWeapons;
 import net.forixaim.omneria.client.renderer.entity.projectile.DarkBangRenderer;
 import net.forixaim.omneria.client.renderer.entity.projectile.DragonCannonRenderer;
 import net.forixaim.omneria.client.renderer.entity.projectile.DragonShotRenderer;
+import net.forixaim.omneria.client.renderer.entity.projectile.FPDragonCannonRenderer;
 import net.forixaim.omneria.netcode.PacketHandler;
 import net.forixaim.omneria.registry.ArmatureRegistry;
 import net.forixaim.omneria.registry.EntityRegistry;
@@ -94,6 +95,8 @@ public class VisitorsOfOmneria
 		EntityRenderers.register(EntityRegistry.CHARLEMAGNE.get(), CharlemagneRenderer::new);
 		EntityRenderers.register(EntityRegistry.DRAGON_SHOT.get(), DragonShotRenderer::new);
         EntityRenderers.register(EntityRegistry.DRAGON_CANNON.get(), DragonCannonRenderer::new);
+        EntityRenderers.register(EntityRegistry.FULL_POWER_DRAGON_CANNON.get(), FPDragonCannonRenderer::new);
+
         EntityRenderers.register(EntityRegistry.DARK_BANG.get(), DarkBangRenderer::new);
 
 	}

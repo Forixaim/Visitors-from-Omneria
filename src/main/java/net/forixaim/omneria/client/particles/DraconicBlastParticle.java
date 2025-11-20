@@ -51,6 +51,7 @@ public class DraconicBlastParticle extends TextureSheetParticle
         return j | k << 16;
     }
 
+
     public record Provider(SpriteSet spriteSet) implements ParticleProvider<SimpleParticleType>
     {
         @Override

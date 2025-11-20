@@ -1,7 +1,6 @@
 package net.forixaim.omneria.client.particles;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.logging.LogUtils;
 import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.client.particles.types.TrackingParticleType;
 import net.forixaim.omneria.registry.ParticleRegistry;
@@ -42,11 +41,6 @@ public class DragonCannonParticle extends TextureSheetParticle
     }
 
     @Override
-    public void tick() {
-        super.tick();
-    }
-
-    @Override
     public void render(@NotNull VertexConsumer pBuffer, @NotNull Camera pRenderInfo, float pPartialTicks) {
         super.render(pBuffer, pRenderInfo, pPartialTicks);
         if (quadSize < 0.5f && age < 35)
@@ -83,7 +77,7 @@ public class DragonCannonParticle extends TextureSheetParticle
 
     @Override
     public @NotNull ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_LIT;
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public record Provider(SpriteSet sprites) implements ParticleProvider<TrackingParticleType> {

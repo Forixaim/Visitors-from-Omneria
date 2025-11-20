@@ -50,6 +50,9 @@
 
 	"death.omneria.dragon_kick_1": "%2$s made %1$s believe that they are Iron Fist.",
 	"death.omneria.dragon_kick_2": "%2$s gave %1$s their foot fungus.",
-	"death.omneria.dragon_kick_3": "%1$s was kicked out of life by %2$s."
+	"death.omneria.dragon_kick_3": "%1$s was kicked out of life by %2$s.",
+	"death.omneria.fpdc_1": "%1$s was vaporized into oblivion %2$s.",
+	"death.omneria.fpdc_2": "%1$s could not hold back %2$s's blast.",
+	"death.omneria.fpdc_3": "%1$s thought they can parry when their weapon is already broken."
 
 }

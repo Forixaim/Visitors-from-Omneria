@@ -2,11 +2,10 @@
   "required": true,
   "minVersion": "0.8",
   "package": "net.forixaim.omneria.mixin",
-  "compatibilityLevel": "JAVA_8",
-  "refmap": "vfo.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "omneria.refmap.json",
   "mixins": [
     "MixinAttackAnimation",
-    "MixinLivingEntity",
     "MixinSkillbookItem"
   ],
   "client": [

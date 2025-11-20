@@ -110,6 +110,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
         super.onInitiate(container);
         NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.BURST_ART, OmneriaSkills.TWILIGHT);
         NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.COMBAT_ART, OmneriaSkills.DARK_ARTS);
+        NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.ULTIMATE_ART, OmneriaSkills.ULTIMA_FINALE);
+
 
         if (!container.getExecutor().isLogicalClient() && container.getExecutor().getOriginal().getMainHandItem().is(Items.AIR))
             container.getServerExecutor().modifyLivingMotionByCurrentItem(true);
@@ -232,6 +234,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
         super.onRemoved(container);
         NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.BURST_ART, null);
         NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.COMBAT_ART, null);
+        NetworkUtils.changeSkill(container.getExecutor(), BattleArtsSkillSlots.ULTIMATE_ART, null);
+
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.TAKE_DAMAGE_EVENT_ATTACK, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EVENT_UUID);
         container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.DEAL_DAMAGE_EVENT_HURT, EVENT_UUID);
