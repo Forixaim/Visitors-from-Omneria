@@ -10,9 +10,11 @@ import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -129,7 +131,7 @@ public class FullPowerDragonCannonBeam extends Projectile {
                     if (!entities.isEmpty()) {
                         entities.forEach(entity -> {
                             if (entity instanceof LivingEntity livingTarget) {
-                                entityPatch.attack(new EpicFightDamageSource(this.level().damageSources().mobAttack(entityPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(44)).setStunType(StunType.HOLD).setBaseImpact(4f), livingTarget, InteractionHand.MAIN_HAND);
+                                entityPatch.attack(new EpicFightDamageSource(this.level().damageSources().mobAttack(entityPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(44)).setStunType(StunType.HOLD).setBaseImpact(4f).addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY).addRuntimeTag(EpicFightDamageTypeTags.GUARD_PUNCTURE).addRuntimeTag(EpicFightDamageTypeTags.BYPASS_DODGE), livingTarget, InteractionHand.MAIN_HAND);
 
                                 livingTarget.invulnerableTime = 0;
                             }
@@ -201,7 +203,7 @@ public class FullPowerDragonCannonBeam extends Projectile {
             this.level().getEntities(this, areaDamage).forEach(entity -> {
                 if (this.getOwner() instanceof LivingEntity livingEntity) {
                     if (EpicFightCapabilities.getEntityPatch(livingEntity, EntityPatch.class) instanceof LivingEntityPatch<?> entityPatch) {
-                        entityPatch.attack(new EpicFightDamageSource(level().damageSources().mobAttack(entityPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(225)).setStunType(StunType.HOLD).setBaseImpact(4f), entity, InteractionHand.MAIN_HAND);
+                        entityPatch.attack(new EpicFightDamageSource(level().damageSources().mobAttack(entityPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(225)).setStunType(StunType.HOLD).setBaseImpact(4f).addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY), entity, InteractionHand.MAIN_HAND);
                     }
                     else
                     {

@@ -53,17 +53,19 @@ public class InitialForce extends WeaponInnateSkill
         int fw = args.readInt();
         int sw = args.readInt();
         int ud = args.readInt();
+
+        if (container.getExecutor().getOriginal().isShiftKeyDown())
+        {
+            anim = GenesisWyrmAnimations.DARK_UPPER;
+        }
+        else
         {
             if (container.getExecutor().getOriginal().isSprinting()) {
                 anim = GenesisWyrmAnimations.UMBRAL_HAMMER;
             } else if (skillDataManager.hasData(DatakeyRegistry.RIGHT_CLICKED.get()) && skillDataManager.getDataValue(DatakeyRegistry.RIGHT_CLICKED.get())) {
                 anim = GenesisWyrmAnimations.DRAGON_THROW_TRY;
             } else {
-                combo %= DEFAULT_COMBO.length;
-                anim = DEFAULT_COMBO[combo];
-                combo++;
-
-                GenesisWyrm.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, container.getServerExecutor(), container, anim, combo, DatakeyRegistry.INITIAL_FORCE_COMBO);
+                anim = GenesisWyrmAnimations.MOONLIGHT_FINISH;
             }
         }
 

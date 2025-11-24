@@ -239,7 +239,10 @@ public class OmneriaAttackAnimation extends AttackAnimation
                             if (phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).get() == StunType.FALL) {
                                 stunTime = (float) ((double) (source.getBaseImpact() * 0.4F) * (1.0 - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
                                 if (hitHurtableEntityPatch.getOriginal().isAlive()) {
-                                    hitHurtableEntityPatch.applyStun(StunType.SHORT, stunTime);
+                                    if (phase.getProperty(BattleArtsAttackPhaseProperties.STUN_TIME).isPresent()) {
+                                        stunTime = phase.getProperty(BattleArtsAttackPhaseProperties.STUN_TIME).get() / 20f;
+                                    }
+                                    hitHurtableEntityPatch.applyStun(StunType.HOLD, stunTime);
                                     AtomicReference<Double> power = new AtomicReference<>((double) source.getBaseImpact() * 0.3F);
 
                                     phase.getProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER).ifPresent(power::set);

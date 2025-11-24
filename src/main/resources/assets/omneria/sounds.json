@@ -19,6 +19,11 @@
     "subtitle": "sounds.omneria.genesis_wyrm.blast",
     "sounds":[{"name":"omneria:battle_style/genesis_wyrm/fpdc_charge", "stream":false}]
   },
+  "battle_style.genesis_wyrm.heavy_blow": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.heavy_blow",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/heavy_blow", "stream": false}]
+  },
   "battle_style.genesis_wyrm.beam_explosion": {
     "category": "master",
     "subtitle": "sounds.omneria.genesis_wyrm.blast",

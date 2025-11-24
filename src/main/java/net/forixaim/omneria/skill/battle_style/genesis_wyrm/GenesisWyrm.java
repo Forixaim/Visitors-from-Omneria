@@ -60,8 +60,7 @@ public class GenesisWyrm extends OmneriaBattleStyle
     };
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] HAND_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.HEAVY_AUTO1,
-            GenesisWyrmAnimations.HEAVY_AUTO2,
-            GenesisWyrmAnimations.HEAVY_AUTO3
+            GenesisWyrmAnimations.HEAVY_AUTO2
     };
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] LEG_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.LEG_AUTO1,
@@ -85,6 +84,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
         this.unarmedLivingMotions.put(LivingMotions.BLOCK, GenesisWyrmAnimations.GUARD);
         this.unarmedLivingMotions.put(LivingMotions.KNEEL, GenesisWyrmAnimations.CROUCH);
         this.unarmedLivingMotions.put(LivingMotions.WALK, GenesisWyrmAnimations.WALK);
+        this.unarmedLivingMotions.put(LivingMotions.RUN, GenesisWyrmAnimations.RUN);
+
         this.unarmedInnateSkill = OmneriaSkills.INITIAL_FORCE;
         this.guardMaps.put((GuardSkill) EpicFightSkills.GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, GenesisWyrmAnimations.GUARD_HIT)));
         this.guardMaps.put((GuardSkill) EpicFightSkills.IMPACT_GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, GenesisWyrmAnimations.GUARD_HIT)));
@@ -145,6 +146,12 @@ public class GenesisWyrm extends OmneriaBattleStyle
             if (event.getDamageSource().getAnimation() == GenesisWyrmAnimations.DRAGON_THROW_TRY && EpicFightCapabilities.getEntityPatch(event.getTarget(), EntityPatch.class) instanceof LivingEntityPatch<?> livingEntityPatch) {
                 if (livingEntityPatch.getArmature() instanceof HumanoidArmature && !event.getTarget().isDeadOrDying()) {
                     event.getPlayerPatch().playAnimationSynchronized(GenesisWyrmAnimations.DRAGON_THROW, 0);
+                }
+            }
+            if (event.getDamageSource().getAnimation() == GenesisWyrmAnimations.DRAGON_RUSH_ATTEMPT && EpicFightCapabilities.getEntityPatch(event.getTarget(), EntityPatch.class) instanceof LivingEntityPatch<?> livingEntityPatch)
+            {
+                if (livingEntityPatch.getArmature() instanceof HumanoidArmature && !event.getTarget().isDeadOrDying()) {
+                    event.getPlayerPatch().playAnimationSynchronized(GenesisWyrmAnimations.DRAGON_RUSH_ATTACK, 0);
                 }
             }
         });
@@ -315,16 +322,10 @@ public class GenesisWyrm extends OmneriaBattleStyle
             } else
             {
                 comboCounter = container.getDataManager().getDataValue(DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM.get());
-                if (container.getExecutor().getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()) && container.getExecutor().getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) > -1)
-                {
-                    comboCounter %= FOCUS_COMBO.length;
-                    attackAnimation = FOCUS_COMBO[comboCounter];
-                }
-                else
-                {
-                    comboCounter %= HAND_COMBO.length;
-                    attackAnimation = HAND_COMBO[comboCounter];
-                }
+
+                comboCounter %= HAND_COMBO.length;
+                attackAnimation = HAND_COMBO[comboCounter];
+
 
                 comboCounter++;
                 setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, container.getServerExecutor(), container, attackAnimation, comboCounter, DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM);

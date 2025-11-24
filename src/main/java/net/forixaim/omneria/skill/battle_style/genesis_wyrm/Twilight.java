@@ -16,6 +16,7 @@ public class Twilight extends BurstArt {
         this.allowedWeapons.add(CapabilityItem.WeaponCategories.FIST);
     }
 
+
     @Override
     public boolean canExecute(SkillContainer container) {
         return super.canExecute(container) &&
