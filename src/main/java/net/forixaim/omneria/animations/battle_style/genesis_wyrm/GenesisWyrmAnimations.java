@@ -387,7 +387,7 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) ->
                         v * 2f));
 
-        RUN = builder.nextAccessor("battle_style/legendary/genesis_wyrm/run", access -> new MovementAnimation(0.1f, true, access, Armatures.BIPED)
+        RUN = builder.nextAccessor("battle_style/legendary/genesis_wyrm/run", access -> new MovementAnimation(0.2f, true, access, Armatures.BIPED)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) ->
                         v));
         WALK_BACK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/walk_back", access -> new MovementAnimation(0.1f, true, access, Armatures.BIPED)

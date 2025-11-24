@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.client.models.entity.projectile.DragonCannonModel;
 import net.forixaim.omneria.world.entity.projectiles.DragonCannonBeam;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -13,8 +14,13 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
+import yesman.epicfight.api.collider.OBBCollider;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
+
+import java.lang.Math;
 
 public class DragonCannonRenderer extends EntityRenderer<DragonCannonBeam> {
 
@@ -38,7 +44,26 @@ public class DragonCannonRenderer extends EntityRenderer<DragonCannonBeam> {
         pPoseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(pPartialTick, pEntity.yRotO, pEntity.getYRot()) - 90.0F));
         pPoseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(pPartialTick, pEntity.xRotO, pEntity.getXRot()) + 90.0F));
         VertexConsumer consumer = ItemRenderer.getFoilBufferDirect(pBuffer, this.model.renderType(this.getTextureLocation(pEntity)), false, false);
-        //model.renderToBuffer(pPoseStack, consumer, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes())
+        {
+            float length = Mth.sqrt((float) pEntity.distanceToSqr(pEntity.getOrigin()));
+            Vec3 mid = pEntity.getOrigin().add(pEntity.getOrigin()).scale(0.5);
+            OBBCollider hitBox = new OBBCollider(1, length, 1 , mid.x, mid.y, mid.z);
+            float yaw = pEntity.getYRot();   // horizontal rotation
+            float pitch = pEntity.getXRot(); // vertical rotation
+            float roll = 0;
+            float yawRad   = (float) Math.toRadians(yaw);
+            float pitchRad = (float) Math.toRadians(pitch);
+            float rollRad  = (float) Math.toRadians(roll);
+            Matrix4f rotMatrix = new Matrix4f()
+                    .identity()
+                    .rotateY(yawRad)     // yaw rotates around Y-axis
+                    .rotateX(pitchRad)   // pitch rotates around X-axis
+                    .rotateZ(rollRad);    // roll rotates around Z-axis
+            OpenMatrix4f transformMatrix = OpenMatrix4f.importFromMojangMatrix(rotMatrix);
+            hitBox.transform(transformMatrix);
+            hitBox.draw(pPoseStack, pBuffer, pPackedLight);
+        }
         pPoseStack.popPose();
         super.render(pEntity, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight);
     }

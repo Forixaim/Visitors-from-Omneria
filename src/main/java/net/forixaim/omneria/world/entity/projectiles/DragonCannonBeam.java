@@ -8,6 +8,7 @@ import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +23,10 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import yesman.epicfight.api.collider.Collider;
+import yesman.epicfight.api.collider.OBBCollider;
+import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
@@ -29,6 +34,7 @@ import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
+import java.util.List;
 import java.util.Objects;
 
 public class DragonCannonBeam extends SimpleEnergyProjectile {
@@ -56,11 +62,38 @@ public class DragonCannonBeam extends SimpleEnergyProjectile {
         this.originBeam = new Vec3(origin.x, origin.y, origin.z);
     }
 
+    public Vec3 getOrigin()
+    {
+        return this.originBeam;
+    }
+
     @Override
     public void tick() {
         super.tick();
         if (originBeam != null)
         {
+            float length = Mth.sqrt((float) this.distanceToSqr(originBeam));
+            Vec3 mid = originBeam.add(position()).scale(0.5);
+
+            OBBCollider hitBox = new OBBCollider(1, length, 1 , mid.x, mid.y, mid.z);
+            float yaw = this.getYRot();   // horizontal rotation
+            float pitch = this.getXRot(); // vertical rotation
+            float roll = 0;
+            float yawRad   = (float) Math.toRadians(yaw);
+            float pitchRad = (float) Math.toRadians(pitch);
+            float rollRad  = (float) Math.toRadians(roll);
+            Matrix4f rotMatrix = new Matrix4f()
+                    .identity()
+                    .rotateY(yawRad)     // yaw rotates around Y-axis
+                    .rotateX(pitchRad)   // pitch rotates around X-axis
+                    .rotateZ(rollRad);    // roll rotates around Z-axis
+            OpenMatrix4f transformMatrix = OpenMatrix4f.importFromMojangMatrix(rotMatrix);
+            hitBox.transform(transformMatrix);
+            List<Entity> entityList = hitBox.getCollideEntities(this);
+            if (!entityList.isEmpty())
+            {
+                entityList.forEach(entity -> {LogUtils.getLogger().debug(entity.toString());});
+            }
             if (!this.level().isClientSide && !this.isRemoved())
             {
                 ((ServerLevel)this.level()).sendParticles(new BeamParticleType(1f, ParticleRegistry.DRAGON_CANNON_LASER.get(), 240, 0, 255, 255, position().x, position().y, position().z, (double) speed), originBeam.x, originBeam.y, originBeam.z, 1, 0, 0, 0, 0);
