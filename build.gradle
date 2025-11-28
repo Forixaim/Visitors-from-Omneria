@@ -99,6 +99,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:official-epic-fight-x-parcool-1259252:6870242")
     compileOnly fg.deobf("curse.maven:iceberg-520110:5138899")
     compileOnly fg.deobf("curse.maven:prism-lib-638111:4650325")
+    implementation fg.deobf("curse.maven:combat-evolution-1377795:7239349")
     //compileOnly fg.deobf("libs:nf:lol")
 
     compileOnly fg.deobf("curse.maven:legendary-tooltips-532127:4662781")
@@ -107,7 +108,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:mekanism-268560:5395221")
     runtimeOnly fg.deobf("curse.maven:skinrestorer-443823:6015917")
     compileOnly fg.deobf("curse.maven:draconic-evolution-223565:5524457")
-    //compileOnly fg.deobf("libs:nightfall_invade:1.1.1")
+    compileOnly fg.deobf("libs:nightfall_invade:1.1.1")
     compileOnly fg.deobf("curse.maven:brandons-core-231382:5422013")
     compileOnly fg.deobf("curse.maven:projecte-226410:4901949")
     runtimeOnly fg.deobf("curse.maven:selene-499980:5546852")

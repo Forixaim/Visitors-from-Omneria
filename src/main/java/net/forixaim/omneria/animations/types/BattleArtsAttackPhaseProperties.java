@@ -11,6 +11,9 @@ public class BattleArtsAttackPhaseProperties
             new AnimationProperty.AttackPhaseProperty<>("knockback_angle", Codec.DOUBLE);
     public static final AnimationProperty.AttackPhaseProperty<Double> KNOCKBACK_LATERAL_ANGLE =
             new AnimationProperty.AttackPhaseProperty<>("knockback_lateral_angle", Codec.DOUBLE);
-    public static final AnimationProperty.AttackPhaseProperty<Integer> STUN_TIME =
+    public static final AnimationProperty.AttackPhaseProperty<Integer> HITSTUN_TICKS =
             new AnimationProperty.AttackPhaseProperty<>("stun_time", Codec.INT);
+
+    public static final AnimationProperty.AttackPhaseProperty<Integer> ENDLAG_TICKS =
+            new AnimationProperty.AttackPhaseProperty<>("endlag_ticks", Codec.INT);
 }

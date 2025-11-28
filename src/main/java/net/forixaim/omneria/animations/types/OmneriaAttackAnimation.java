@@ -72,6 +72,39 @@ public class OmneriaAttackAnimation extends AttackAnimation
         });
     }
 
+
+    @Override
+    protected void bindPhaseState(Phase phase) {
+        float preDelay = phase.preDelay;
+        float endlagTicks = 0;
+        if (phase.getProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS).isPresent())
+        {
+            endlagTicks = phase.getProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS).get() / 20f;
+        }
+
+        this.stateSpectrumBlueprint
+                .newTimePair(phase.start, preDelay)
+                .addState(EntityState.PHASE_LEVEL, 1)
+                .newTimePair(phase.start, phase.contact)
+                .addState(EntityState.CAN_SKILL_EXECUTION, false)
+                .newTimePair(phase.start, phase.recovery)
+                .addState(EntityState.MOVEMENT_LOCKED, true)
+                .addState(EntityState.UPDATE_LIVING_MOTION, false)
+                .newTimePair(phase.start, phase.contact + endlagTicks)
+                .addState(EntityState.MOVEMENT_LOCKED, true)
+                .addState(EntityState.CAN_BASIC_ATTACK, false)
+                .addState(EntityState.UPDATE_LIVING_MOTION, false)
+                .addState(EntityState.INACTION, true)
+                .newTimePair(phase.start, phase.end)
+                .addState(EntityState.INACTION, true)
+                .newTimePair(preDelay, phase.contact)
+                .addState(EntityState.ATTACKING, true)
+                .addState(EntityState.PHASE_LEVEL, 2)
+                .newTimePair(phase.contact, phase.end)
+                .addState(EntityState.PHASE_LEVEL, 3)
+                .addState(EntityState.TURNING_LOCKED, true);
+    }
+
     public OmneriaAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature)
     {
         super(transitionTime, antic, preDelay, contact, recovery, hand, collider, colliderJoint, accessor, armature);
@@ -239,8 +272,8 @@ public class OmneriaAttackAnimation extends AttackAnimation
                             if (phase.getProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE).get() == StunType.FALL) {
                                 stunTime = (float) ((double) (source.getBaseImpact() * 0.4F) * (1.0 - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
                                 if (hitHurtableEntityPatch.getOriginal().isAlive()) {
-                                    if (phase.getProperty(BattleArtsAttackPhaseProperties.STUN_TIME).isPresent()) {
-                                        stunTime = phase.getProperty(BattleArtsAttackPhaseProperties.STUN_TIME).get() / 20f;
+                                    if (phase.getProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS).isPresent()) {
+                                        stunTime = phase.getProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS).get() / 20f;
                                     }
                                     hitHurtableEntityPatch.applyStun(StunType.HOLD, stunTime);
                                     AtomicReference<Double> power = new AtomicReference<>((double) source.getBaseImpact() * 0.3F);
@@ -262,9 +295,6 @@ public class OmneriaAttackAnimation extends AttackAnimation
                                         finalVector = lateralDirection;
                                     }
 
-                                    if (!(trueEntity instanceof Player)) {
-                                        power.updateAndGet(v -> v * (1.0 - trueEntity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)));
-                                    }
 
                                     if (power.get() > 0.0) {
                                         target.hasImpulse = true;

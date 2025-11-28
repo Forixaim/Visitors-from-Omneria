@@ -50,6 +50,7 @@ import yesman.epicfight.particle.EpicFightParticles;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
+import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
 
 import java.util.List;
@@ -108,6 +109,11 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> HEAVY_AUTO2;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> HEAVY_AUTO3;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DARK_UPPER;
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_UPPERCUT;
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRACONIC_DODGE1;
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRACONIC_DODGE2;
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRACONIC_DODGE3;
+
 
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> UMBRAL_HAMMER;
@@ -144,6 +150,8 @@ public class GenesisWyrmAnimations
                 }, access, IDLE, IDLE_INJURED, IDLE_EXHAUSTED
         ));
 
+
+
         TWILIGHT_ACTIVATION = builder.nextAccessor("battle_style/legendary/genesis_wyrm/twilight_activation", access ->
                 new InvincibleAnimation(0.05f, access, Armatures.BIPED)
                         .addEvents(AnimationEvent.InTimeEvent.create(0.6f, (livingEntityPatch, assetAccessor, animationParameters) ->
@@ -158,10 +166,32 @@ public class GenesisWyrmAnimations
                             }
                         }, AnimationEvent.Side.SERVER)));
 
+        DRACONIC_DODGE1 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/instinct_dodge1", access ->
+                new InvincibleAnimation(0.1f, access, Armatures.BIPED));
+
+        DRACONIC_DODGE2 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/instinct_dodge2", access ->
+                new InvincibleAnimation(0.1f, access, Armatures.BIPED));
+
+        DRACONIC_DODGE3 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/instinct_dodge3", access ->
+                new InvincibleAnimation(0.1f, access, Armatures.BIPED));
+
+
+
         DARK_UPPER = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dark_upper", access -> new OmneriaAttackAnimation(
-                0.1f, 0.0f, 0.3f, 0.45f, 1f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED
-        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.5d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
+                0.1f, 0.0f, 0.1f, 0.2f, 1f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 0.7d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_PUNCH_IMPACT_M.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 5)
+                .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 4)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
+
+        DRAGON_UPPERCUT = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dragon_uppercut", access -> new OmneriaAttackAnimation(
+                0.1f, 0.0f, 0.2f, 0.35f, 0.75f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
+                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
+                .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 4)
+
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
         DRAGON_RUSH_ATTEMPT = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dragon_rush_attempt", access -> new OmneriaAttackAnimation(
@@ -197,7 +227,7 @@ public class GenesisWyrmAnimations
 
         MOONLIGHT_FINISH = builder.nextAccessor("battle_style/legendary/genesis_wyrm/moonlight_finish", access -> new OmneriaAttackAnimation(
                 0.1f, 0.0f, 0.4f, 0.65f, 1f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
-        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.0).addProperty(BattleArtsAttackPhaseProperties.STUN_TIME, 12).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 0d)
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.0).addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 0d)
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
@@ -551,15 +581,21 @@ public class GenesisWyrmAnimations
                 .addEvents(AnimationEvent.InTimeEvent.create(0.0f, ReusableEvents::FIRE_DRAGON_SHOT, AnimationEvent.Side.BOTH).params(Armatures.BIPED.get().handR, 0.0f)));
 
         HEAVY_AUTO1 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/heavy_auto1", access -> new OmneriaAttackAnimation(
-                0.1f, 0.0f, 0.15f, 0.35f, 0.4f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
+                0.1f, 0.0f, 0.15f, 0.35f, 0.7f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
         ).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+                .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 3)
+                .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 2)
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.25f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(2))
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_PUNCH_IMPACT_M.get())
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f));
 
         HEAVY_AUTO2 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/heavy_auto2", access -> new OmneriaAttackAnimation(
-                0.05f, 0.0f, 0.15f, 0.3f, 0.4f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
+                0.05f, 0.0f, 0.15f, 0.3f, 1f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
         ).addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.HOLD)
+                .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 3)
+                .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 2)
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.25f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(2))
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_PUNCH_IMPACT_M.get())
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f));
@@ -567,6 +603,7 @@ public class GenesisWyrmAnimations
         HEAVY_AUTO3 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/heavy_auto3", access -> new OmneriaAttackAnimation(
                 0.05f, 0.0f, 0.1f, 0.25f, 1.65f, ColliderPreset.FIST, Armatures.BIPED.get().legL, access, Armatures.BIPED
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 70d)
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.multiplier(0.25f))
                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, EpicFightSounds.BLUNT_HIT_HARD.get())
                 .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1d)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, v, v1, v2) -> 1f));
@@ -698,7 +735,8 @@ public class GenesisWyrmAnimations
 
         DRAGON_THROW_TRY = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dragon_throw_try", access ->
                 new OmneriaGrabAnimation(0.2f, 0.0f, 0.4f, 0.5f, 1.0f, ColliderPreset.BIPED_BODY_COLLIDER, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED, DRAGON_THROW_VICTIM_BIPED)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(OmneriaDamageTypes.GRAB))
+
+                        .addProperty(AnimationProperty.AttackPhaseProperty.SOURCE_TAG, Set.of(OmneriaDamageTypes.GRAB, EpicFightDamageTypeTags.UNBLOCKALBE))
                         .addProperty(AnimationProperty.ActionAnimationProperty.COORD_START_KEYFRAME_INDEX, 1)
                 .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.15F, 0.35F))
                 .addProperty(AnimationProperty.ActionAnimationProperty.DEST_LOCATION_PROVIDER, MoveCoordFunctions.SYNCHED_TARGET_ENTITY_LOCATION_VARIABLE)

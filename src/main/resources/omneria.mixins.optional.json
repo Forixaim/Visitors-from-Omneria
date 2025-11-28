@@ -1,15 +1,16 @@
 {
-	"required": false,
-	"minVersion": "0.8",
-	"package": "net.forixaim.omneria.mixin.optional",
-	"compatibilityLevel": "JAVA_8",
-	"refmap": "vfo.optional.refmap.json",
-	"mixins": [
-		"MixinRadiationManager"
-	],
-	"client": [
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": false,
+  "minVersion": "0.8",
+  "package": "net.forixaim.omneria.mixin.optional",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "omneria.optional.refmap.json",
+  "mixins": [
+    "MixinCEMobPatch",
+    "MixinRadiationManager"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }

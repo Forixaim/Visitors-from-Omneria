@@ -24,6 +24,11 @@
     "subtitle": "sounds.omneria.genesis_wyrm.heavy_blow",
     "sounds":[{"name":"omneria:battle_style/genesis_wyrm/heavy_blow", "stream": false}]
   },
+  "battle_style.genesis_wyrm.wyrmdodge": {
+    "category": "master",
+    "subtitle": "sounds.omneria.genesis_wyrm.wyrmdodge",
+    "sounds":[{"name":"omneria:battle_style/genesis_wyrm/wyrmdodge", "stream": false}]
+  },
   "battle_style.genesis_wyrm.beam_explosion": {
     "category": "master",
     "subtitle": "sounds.omneria.genesis_wyrm.blast",

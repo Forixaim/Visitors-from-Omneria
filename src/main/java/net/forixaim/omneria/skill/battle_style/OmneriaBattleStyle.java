@@ -6,7 +6,7 @@ import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 
-public class OmneriaBattleStyle extends BattleStyle
+public class OmneriaBattleStyle extends BattleStyle implements IIgnoresCEStunImmunity
 {
 
     public OmneriaBattleStyle(Builder<?> builder)

@@ -54,9 +54,9 @@ public class InitialForce extends WeaponInnateSkill
         int sw = args.readInt();
         int ud = args.readInt();
 
-        if (container.getExecutor().getOriginal().isShiftKeyDown())
+        if (ud == -1)
         {
-            anim = GenesisWyrmAnimations.DARK_UPPER;
+            anim = GenesisWyrmAnimations.DRAGON_UPPERCUT;
         }
         else
         {

@@ -26,6 +26,24 @@ public class DatakeyRegistry
 			)
 	);
 
+    public static final RegistryObject<SkillDataKey<Integer>> DODGE_ANIM = DATA_KEYS.register("dodge_anim", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.INTEGER,
+                    -1,
+                    true,
+                    GenesisWyrm.class
+            )
+    );
+
+    public static final RegistryObject<SkillDataKey<Boolean>> SHIFT = DATA_KEYS.register("shift", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.BOOLEAN,
+                    false,
+                    true,
+                    GenesisWyrm.class
+            )
+    );
+
     public static final RegistryObject<SkillDataKey<Boolean>> TWILIGHT = DATA_KEYS.register("twilight", () ->
             SkillDataKey.createSkillDataKey(
                     PacketBufferCodec.BOOLEAN,

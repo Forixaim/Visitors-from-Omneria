@@ -1,7 +1,6 @@
 package net.forixaim.omneria.world.entity.projectiles;
 
 import net.forixaim.omneria.client.particles.types.BeamParticleType;
-import net.forixaim.omneria.combat.OmneriaDamageSources;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.util.ParticleUtil;
@@ -13,8 +12,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,12 +24,14 @@ import net.minecraft.world.phys.*;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
 import yesman.epicfight.api.animation.Pose;
 import yesman.epicfight.api.collider.OBBCollider;
 import yesman.epicfight.api.model.Armature;
+import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.particle.EpicFightParticles;
@@ -131,7 +130,10 @@ public class FullPowerDragonCannonBeam extends Projectile {
                     if (!entities.isEmpty()) {
                         entities.forEach(entity -> {
                             if (entity instanceof LivingEntity livingTarget) {
-                                entityPatch.attack(new EpicFightDamageSource(this.level().damageSources().mobAttack(entityPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(44)).setStunType(StunType.HOLD).setBaseImpact(4f).addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY).addRuntimeTag(EpicFightDamageTypeTags.GUARD_PUNCTURE).addRuntimeTag(EpicFightDamageTypeTags.BYPASS_DODGE), livingTarget, InteractionHand.MAIN_HAND);
+                                if (entityPatch.attack(new EpicFightDamageSource(this.level().damageSources().mobAttack(entityPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(44)).setStunType(StunType.HOLD).setBaseImpact(4f).addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY).addRuntimeTag(DamageTypeTags.BYPASSES_ARMOR).addRuntimeTag(EpicFightDamageTypeTags.UNBLOCKALBE).addRuntimeTag(DamageTypeTags.BYPASSES_RESISTANCE).addRuntimeTag(DamageTypeTags.BYPASSES_EFFECTS).addRuntimeTag(EpicFightDamageTypeTags.BYPASS_DODGE), livingTarget, InteractionHand.MAIN_HAND).resultType != AttackResult.ResultType.SUCCESS)
+                                {
+                                    livingTarget.hurt(this.level().damageSources().genericKill(), 44);
+                                }
 
                                 livingTarget.invulnerableTime = 0;
                             }
@@ -150,7 +152,7 @@ public class FullPowerDragonCannonBeam extends Projectile {
     }
 
     public List<Entity> updateAndSelectCollideEntity(LivingEntityPatch<?> entitypatch, OBBCollider collider, Joint joint) {
-        OpenMatrix4f transformMatrix;
+        Matrix4f transformMatrix;
         Armature armature = entitypatch.getArmature();
         Vec3 origin = this.originBeam; // fixed start
         Vec3 head = this.position();
@@ -159,14 +161,14 @@ public class FullPowerDragonCannonBeam extends Projectile {
         if (armature.rootJoint.equals(joint)) {
             Pose rootPose = new Pose();
             rootPose.putJointData("Root", JointTransform.empty());
-            transformMatrix = rootPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new OpenMatrix4f()).removeTranslation();
+            transformMatrix = OpenMatrix4f.exportToMojangMatrix(rootPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new OpenMatrix4f()).removeTranslation());
         } else {
-            transformMatrix = armature.getBoundTransformFor(entitypatch.getAnimator().getPose(0f), joint);
+            transformMatrix = OpenMatrix4f.exportToMojangMatrix(armature.getBoundTransformFor(entitypatch.getAnimator().getPose(0f), joint));
         }
 
-        OpenMatrix4f toWorldCoord = OpenMatrix4f.createTranslation(-(float)midpoint.x, (float)midpoint.y, -(float)midpoint.z);
-        transformMatrix.mulFront(toWorldCoord.mulBack(entitypatch.getModelMatrix(0.0F)));
-        collider.transform(transformMatrix);
+        Matrix4f toWorldCoord = new Matrix4f().setTranslation(-(float)midpoint.x, (float)midpoint.y, -(float)midpoint.z);
+        transformMatrix.mulLocal(toWorldCoord.mul(OpenMatrix4f.exportToMojangMatrix(entitypatch.getModelMatrix(0.0F))));
+        collider.transform(OpenMatrix4f.importFromMojangMatrix(transformMatrix));
 
         return collider.getCollideEntities(entitypatch.getOriginal());
     }
@@ -201,9 +203,12 @@ public class FullPowerDragonCannonBeam extends Projectile {
             playSound(SoundRegistry.FPDC_EXPLOSION.get(), 32.0f, 1);
             AABB areaDamage = AABB.ofSize(this.position(), 50, 50, 50);
             this.level().getEntities(this, areaDamage).forEach(entity -> {
-                if (this.getOwner() instanceof LivingEntity livingEntity) {
+                if (this.getOwner() instanceof LivingEntity livingEntity && !entity.is(this.getOwner())) {
                     if (EpicFightCapabilities.getEntityPatch(livingEntity, EntityPatch.class) instanceof LivingEntityPatch<?> entityPatch) {
-                        entityPatch.attack(new EpicFightDamageSource(level().damageSources().mobAttack(entityPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(225)).setStunType(StunType.HOLD).setBaseImpact(4f).addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY), entity, InteractionHand.MAIN_HAND);
+                        if (entityPatch.attack(new EpicFightDamageSource(level().damageSources().mobAttack(entityPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(225)).setStunType(StunType.HOLD).setBaseImpact(4f).addRuntimeTag(DamageTypeTags.BYPASSES_ARMOR).addRuntimeTag(EpicFightDamageTypeTags.UNBLOCKALBE).addRuntimeTag(DamageTypeTags.BYPASSES_RESISTANCE).addRuntimeTag(DamageTypeTags.BYPASSES_EFFECTS).addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY), entity, InteractionHand.MAIN_HAND).resultType != AttackResult.ResultType.SUCCESS)
+                        {
+                            entity.hurt(level().damageSources().genericKill(), 255);
+                        }
                     }
                     else
                     {

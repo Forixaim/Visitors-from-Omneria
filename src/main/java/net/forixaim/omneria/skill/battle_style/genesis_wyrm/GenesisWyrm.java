@@ -1,12 +1,12 @@
 package net.forixaim.omneria.skill.battle_style.genesis_wyrm;
 
-import com.mojang.logging.LogUtils;
+import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
 import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
-import net.forixaim.battle_arts_api.client.KeyBinds;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
 import net.forixaim.omneria.client.particles.types.TrackingParticleType;
 import net.forixaim.omneria.registry.ParticleRegistry;
+import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.skill.CommonEvents;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.skill.OmneriaSkills;
@@ -14,9 +14,13 @@ import net.forixaim.omneria.skill.battle_style.OmneriaBattleStyle;
 import net.forixaim.omneria.util.NetworkUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.RelativeMovement;
@@ -30,7 +34,6 @@ import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.ValueModifier;
-import yesman.epicfight.client.ClientEngine;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
 import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.EpicFightSkills;
@@ -47,24 +50,21 @@ import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
 import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class GenesisWyrm extends OmneriaBattleStyle
 {
     private static final UUID EVENT_UUID = UUID.fromString("68440271-f5d3-49bf-ba07-d7f9bdf55951");
-    public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] FOCUS_COMBO = new AnimationManager.AnimationAccessor[]{
-            GenesisWyrmAnimations.FOCUS_AUTO1,
-            GenesisWyrmAnimations.FOCUS_AUTO2
+
+    public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] DODGES = new AnimationManager.AnimationAccessor[]{
+            GenesisWyrmAnimations.DRACONIC_DODGE1,
+            GenesisWyrmAnimations.DRACONIC_DODGE2,
+            GenesisWyrmAnimations.DRACONIC_DODGE3
     };
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] HAND_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.HEAVY_AUTO1,
             GenesisWyrmAnimations.HEAVY_AUTO2
-    };
-    public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] LEG_COMBO = new AnimationManager.AnimationAccessor[]{
-            GenesisWyrmAnimations.LEG_AUTO1,
-            GenesisWyrmAnimations.LEG_AUTO2
     };
 
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] BLAST_COMBO = new AnimationManager.AnimationAccessor[]{
@@ -224,6 +224,42 @@ public class GenesisWyrm extends OmneriaBattleStyle
                 }
                 container.getDataManager().setDataSync(DatakeyRegistry.COUNTER_WINDOW.get(), 12);
             }
+            List<ResourceKey<DamageType>> IGNORED_DAMAGES = Lists.newArrayList(
+                    DamageTypes.ON_FIRE,
+                    DamageTypes.FALL,
+                    DamageTypes.STALAGMITE,
+                    DamageTypes.IN_FIRE,
+                    DamageTypes.HOT_FLOOR,
+                    DamageTypes.LAVA
+            );
+            boolean flag = true;
+            for (ResourceKey<DamageType> resourceKey : IGNORED_DAMAGES)
+            {
+                if (event.getDamageSource().is(resourceKey))
+                {
+                    flag = false;
+                    break;
+                }
+            }
+            if (!event.getPlayerPatch().getOriginal().isSprinting() && !event.getPlayerPatch().getEntityState().attacking() && flag)
+            {
+
+                List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> dodges = Lists.newArrayList(DODGES);
+                if (container.getDataManager().getDataValue(DatakeyRegistry.DODGE_ANIM.get()) >= 0 && dodges.contains(AnimationManager.byId(container.getDataManager().getDataValue(DatakeyRegistry.DODGE_ANIM.get()))))
+                {
+                    AnimationManager.AnimationAccessor<? extends  StaticAnimation> dodge = AnimationManager.byId(container.getDataManager().getDataValue(DatakeyRegistry.DODGE_ANIM.get()));
+                    dodges.remove(dodge);
+                }
+                RandomSource rng = event.getPlayerPatch().getOriginal().getRandom();
+                int index =  rng.nextInt(dodges.size());
+                container.getDataManager().setDataSync(DatakeyRegistry.DODGE_ANIM.get(), dodges.get(index).id());
+                event.getPlayerPatch().onDodgeSuccess(event.getDamageSource(), event.getDamageSource().getSourcePosition());
+                event.getPlayerPatch().playSound(SoundRegistry.WYRMDODGE.get(), 1, 1);
+                event.getPlayerPatch().playAnimationSynchronized(dodges.get(index), 0);
+                event.setResult(AttackResult.ResultType.MISSED);
+                event.setCanceled(true);
+            }
+
         });
 
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.BASIC_ATTACK_EVENT, EVENT_UUID, event -> {
@@ -234,6 +270,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
             }
         });
     }
+
+
 
     @Override
     public void onRemoved(SkillContainer container)
@@ -312,13 +350,9 @@ public class GenesisWyrm extends OmneriaBattleStyle
             container.getDataManager().setDataSync(DatakeyRegistry.REFLECT_WINDOW.get(), 8);
         }
         else if (!args.readBoolean() && !container.getDataManager().getDataValue(DatakeyRegistry.RIGHT_CLICKED.get())){
-            if (container.getExecutor().getOriginal().isShiftKeyDown())
+            if (container.getDataManager().getDataValue(DatakeyRegistry.SHIFT.get()))
             {
-                comboCounter = container.getDataManager().getDataValue(DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM_LEGS.get());
-                comboCounter %= LEG_COMBO.length;
-                attackAnimation = LEG_COMBO[comboCounter];
-                comboCounter++;
-                setComboCounterWithEvent(ComboCounterHandleEvent.Causal.ANOTHER_ACTION_ANIMATION, container.getServerExecutor(), container, attackAnimation, comboCounter, DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM_LEGS);
+                attackAnimation = GenesisWyrmAnimations.DARK_UPPER;
             } else
             {
                 comboCounter = container.getDataManager().getDataValue(DatakeyRegistry.OMNERIA_COMBO_GENESIS_WYRM.get());
@@ -353,22 +387,10 @@ public class GenesisWyrm extends OmneriaBattleStyle
         super.updateContainer(container);
         if (container.getExecutor().isLogicalClient())
         {
-            if (Minecraft.getInstance().options.keyUse.isDown())
-            {
-                container.getDataManager().setDataSync(DatakeyRegistry.RIGHT_CLICKED.get(),  true);
-            }
-            else
-            {
-                container.getDataManager().setDataSync(DatakeyRegistry.RIGHT_CLICKED.get(),  false);
-            }
-            if (EpicFightKeyMappings.GUARD.isDown())
-            {
-                container.getDataManager().setDataSync(DatakeyRegistry.MOUSE3.get(),  true);
-            }
-            else
-            {
-                container.getDataManager().setDataSync(DatakeyRegistry.MOUSE3.get(),  false);
-            }
+            container.getDataManager().setDataSync(DatakeyRegistry.RIGHT_CLICKED.get(), Minecraft.getInstance().options.keyUse.isDown());
+            container.getDataManager().setDataSync(DatakeyRegistry.MOUSE3.get(),  EpicFightKeyMappings.GUARD.isDown());
+            container.getDataManager().setDataSync(DatakeyRegistry.SHIFT.get(), Minecraft.getInstance().options.keyShift.isDown());
+
         }
         else
         {
