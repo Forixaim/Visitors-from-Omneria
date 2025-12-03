@@ -1,5 +1,7 @@
 package net.forixaim.omneria.animations.types;
 
+import com.google.common.collect.Lists;
+import net.forixaim.omneria.registry.SoundRegistry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -11,13 +13,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
-import yesman.epicfight.api.animation.AnimationManager;
-import yesman.epicfight.api.animation.Joint;
-import yesman.epicfight.api.animation.Keyframe;
-import yesman.epicfight.api.animation.TransformSheet;
+import yesman.epicfight.api.animation.*;
 import yesman.epicfight.api.animation.property.AnimationProperty;
 import yesman.epicfight.api.animation.property.MoveCoordFunctions;
 import yesman.epicfight.api.animation.types.AttackAnimation;
+import yesman.epicfight.api.animation.types.DynamicAnimation;
 import yesman.epicfight.api.animation.types.EntityState;
 import yesman.epicfight.api.asset.AssetAccessor;
 import yesman.epicfight.api.collider.Collider;
@@ -30,10 +30,14 @@ import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.HurtableEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.StunType;
 import yesman.epicfight.world.effect.EpicFightMobEffects;
+import yesman.epicfight.world.entity.eventlistener.AttackPhaseEndEvent;
+import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -243,6 +247,80 @@ public class OmneriaAttackAnimation extends AttackAnimation
         return this.getEpicFightDamageSource(entitypatch.getDamageSource(this.getAccessor(), phase.hand), entitypatch, target, phase);
     }
 
+    public List<Phase> getPhasesByTime(float elapsedTime) {
+        if (this.getProperty(OmneriaAttackAnimationProperties.MULTI_PHASE_ATTACK).isPresent() && this.getProperty(OmneriaAttackAnimationProperties.MULTI_PHASE_ATTACK).get())
+        {
+            List<Phase> res = Lists.newArrayList();
+            for (Phase phase : phases) {
+                if (phase.start <= elapsedTime && phase.end >= elapsedTime)
+                {
+                    res.add(phase);
+                }
+            }
+            return res;
+        }
+        return Lists.newArrayList(super.getPhaseByTime(elapsedTime));
+    }
+
+    public Phase getPhaseFromPriority(List<Phase> phases)
+    {
+        if (phases.isEmpty())
+        {
+            return null;
+        }
+        if (phases.size() == 1)
+        {
+            return phases.get(0);
+        }
+        int phaseIndex = -1;
+        for (Phase phase : phases) {
+            if (phaseIndex == -1)
+            {
+                phaseIndex = phases.indexOf(phase);
+            }
+            else
+            {
+                if (phases.get(phaseIndex).getProperty(BattleArtsAttackPhaseProperties.PRIORITY).isPresent())
+                {
+                    if (phase.getProperty(BattleArtsAttackPhaseProperties.PRIORITY).isPresent())
+                    {
+                        phaseIndex = phase.getProperty(BattleArtsAttackPhaseProperties.PRIORITY).get() >= phases.get(phaseIndex).getProperty(BattleArtsAttackPhaseProperties.PRIORITY).get() ? phases.indexOf(phase) : phaseIndex;
+                    }
+                }
+                else if (phase.getProperty(BattleArtsAttackPhaseProperties.PRIORITY).isPresent())
+                {
+                    phaseIndex = phases.indexOf(phase);
+                }
+            }
+        }
+        return phases.get(phaseIndex);
+    }
+
+    @Override
+    protected void attackTick(LivingEntityPatch<?> entitypatch, AssetAccessor<? extends DynamicAnimation> animation) {
+        AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
+        float prevElapsedTime = player.getPrevElapsedTime();
+        float elapsedTime = player.getElapsedTime();
+        EntityState prevState = animation.get().getState(entitypatch, prevElapsedTime);
+        EntityState state = animation.get().getState(entitypatch, elapsedTime);
+        List<Phase> phases = this.getPhasesByTime(animation.get().isLinkAnimation() ? 0.0F : elapsedTime);
+        Phase phase = this.getPhaseFromPriority(phases);
+        if (prevState.attacking() || state.attacking() || prevState.getLevel() <= 2 && state.getLevel() > 2) {
+            if (!prevState.attacking() || phase != this.getPhaseByTime(prevElapsedTime) && (state.attacking() || prevState.getLevel() <= 2 && state.getLevel() > 2)) {
+                entitypatch.onStrike(this, phase.hand);
+                entitypatch.playSound(this.getSwingSound(entitypatch, phase), 0.0F, 0.0F);
+                entitypatch.removeHurtEntities();
+            }
+
+            this.hurtCollidingEntities(entitypatch, prevElapsedTime, elapsedTime, prevState, state, phase);
+            if ((!state.attacking() || elapsedTime >= this.getTotalTime()) && entitypatch instanceof ServerPlayerPatch) {
+                ServerPlayerPatch playerpatch = (ServerPlayerPatch)entitypatch;
+                playerpatch.getEventListener().triggerEvents(PlayerEventListener.EventType.ATTACK_PHASE_END_EVENT, new AttackPhaseEndEvent(playerpatch, this.getAccessor(), phase, this.getPhaseOrderByTime(elapsedTime)));
+            }
+        }
+
+    }
+
     protected void hurtCollidingEntities(LivingEntityPatch<?> entitypatch, float prevElapsedTime, float elapsedTime, EntityState prevState, EntityState state, Phase phase) {
         LivingEntity attacker = entitypatch.getOriginal();
         float prevPoseTime = prevState.attacking() ? prevElapsedTime : phase.preDelay;
@@ -297,6 +375,13 @@ public class OmneriaAttackAnimation extends AttackAnimation
 
 
                                     if (power.get() > 0.0) {
+                                        phase.getProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE).ifPresent(angle -> {
+                                            if (angle <= -40d) {
+                                                hitHurtableEntityPatch.playSound(SoundRegistry.SPIKE.get(), 1, 1);
+                                                if (!target.onGround())
+                                                    target.fallDistance += (float) (10 * power.get());
+                                            }
+                                        });
                                         target.hasImpulse = true;
                                         Vec3 attackerDeltaMovement = attacker.getDeltaMovement();
                                         Vec3 launchVector = (new Vec3(finalVector.x(), finalVector.y(), finalVector.z())).normalize().scale(power.get());

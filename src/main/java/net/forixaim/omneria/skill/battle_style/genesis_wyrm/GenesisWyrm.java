@@ -24,6 +24,9 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -56,6 +59,8 @@ import java.util.*;
 public class GenesisWyrm extends OmneriaBattleStyle
 {
     private static final UUID EVENT_UUID = UUID.fromString("68440271-f5d3-49bf-ba07-d7f9bdf55951");
+    private static final UUID SPRINT_SPEED_BUFF = UUID.fromString("daea41d5-63e0-4d82-8a60-a96179764679");
+
 
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] DODGES = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.DRACONIC_DODGE1,
@@ -66,6 +71,15 @@ public class GenesisWyrm extends OmneriaBattleStyle
             GenesisWyrmAnimations.HEAVY_AUTO1,
             GenesisWyrmAnimations.HEAVY_AUTO2
     };
+
+    @Override
+    public AnimationManager.AnimationAccessor<? extends StaticAnimation> getJump(SkillContainer container) {
+        if (container.getExecutor().getOriginal().isSprinting())
+        {
+            return GenesisWyrmAnimations.JUMP_RUN;
+        }
+        return GenesisWyrmAnimations.JUMP;
+    }
 
     public static final AnimationManager.AnimationAccessor<? extends StaticAnimation>[] BLAST_COMBO = new AnimationManager.AnimationAccessor[]{
             GenesisWyrmAnimations.BLAST_AUTO1,
@@ -385,6 +399,24 @@ public class GenesisWyrm extends OmneriaBattleStyle
     public void updateContainer(SkillContainer container)
     {
         super.updateContainer(container);
+        AttributeInstance speed = container.getExecutor().getOriginal().getAttribute(Attributes.MOVEMENT_SPEED);
+
+        if (container.getExecutor().getOriginal().isSprinting()) {
+
+            if (speed != null && speed.getModifier(SPRINT_SPEED_BUFF) == null) {
+                speed.addTransientModifier(
+                        new AttributeModifier(
+                                SPRINT_SPEED_BUFF,
+                                "custom sprint boost",
+                                0.50,
+                                AttributeModifier.Operation.MULTIPLY_TOTAL
+                        ));
+            }
+        } else {
+            // remove modifier when not sprinting
+            if (speed != null)
+                speed.removeModifier(SPRINT_SPEED_BUFF);
+        }
         if (container.getExecutor().isLogicalClient())
         {
             container.getDataManager().setDataSync(DatakeyRegistry.RIGHT_CLICKED.get(), Minecraft.getInstance().options.keyUse.isDown());

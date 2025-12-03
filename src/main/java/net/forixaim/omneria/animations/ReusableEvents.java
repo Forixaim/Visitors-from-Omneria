@@ -1,12 +1,17 @@
 package net.forixaim.omneria.animations;
 
 import com.mojang.logging.LogUtils;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
+import net.forixaim.battle_arts_api.battle_arts_skills.battle_style.BattleStyle;
 import net.forixaim.omneria.registry.EntityRegistry;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
 import net.forixaim.omneria.world.entity.projectiles.DragonShotProjectile;
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.property.AnimationEvent;
@@ -18,9 +23,16 @@ import yesman.epicfight.api.utils.math.Vec3f;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 
 public class ReusableEvents
 {
+    public static void executeDelayedJump(ServerPlayerPatch player) {
+        if (!player.getOriginal().onGround()) return;
+
+        player.getOriginal().jumpFromGround();
+    }
+
     public static void FIRE_DRAGON_SHOT(LivingEntityPatch<?> livingEntityPatch, AssetAccessor<? extends StaticAnimation> assetAccessor, AnimationParameters<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object> animationParameters)
     {
         float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);

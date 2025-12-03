@@ -58,6 +58,10 @@ public class InitialForce extends WeaponInnateSkill
         {
             anim = GenesisWyrmAnimations.DRAGON_UPPERCUT;
         }
+        else if (fw == 1 && !container.getExecutor().getOriginal().onGround())
+        {
+            anim = GenesisWyrmAnimations.ORIGIN_KICK;
+        }
         else
         {
             if (container.getExecutor().getOriginal().isSprinting()) {
@@ -65,7 +69,10 @@ public class InitialForce extends WeaponInnateSkill
             } else if (skillDataManager.hasData(DatakeyRegistry.RIGHT_CLICKED.get()) && skillDataManager.getDataValue(DatakeyRegistry.RIGHT_CLICKED.get())) {
                 anim = GenesisWyrmAnimations.DRAGON_THROW_TRY;
             } else {
-                anim = GenesisWyrmAnimations.MOONLIGHT_FINISH;
+                if (!container.getExecutor().getOriginal().onGround())
+                    anim = GenesisWyrmAnimations.COSMIC_DUNK;
+                else
+                    anim = GenesisWyrmAnimations.MOONLIGHT_FINISH;
             }
         }
 

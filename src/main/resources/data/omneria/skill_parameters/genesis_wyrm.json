@@ -1,5 +1,6 @@
 {
 	"xp_requirement": 400,
+  "jump_boost_power": 2,
     "max_meter": 10,
 	"attribute_modifiers": [
 		{
