@@ -30,16 +30,7 @@ public class OmneriaBattleStyle extends BattleStyle implements IIgnoresCEStunImm
         super.onInitiate(container);
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MOVEMENT_INPUT_EVENT, EUUID, event ->
         {
-            if (event.getPlayerPatch().getOriginal().isSpectator() || (!event.getPlayerPatch().getOriginal().onGround() && event.getPlayerPatch().getOriginal().getAbilities().mayfly))
-            {
-                event.getMovementInput().jumping = false;
-                if (getJump(container) != null && Minecraft.getInstance().options.keyJump.consumeClick()) {
-                    if (container.getExecutor().getOriginal().onGround() && container.getExecutor().getEntityState().getState(OmneriaEntityStates.CAN_JUMP) != null && container.getExecutor().getEntityState().getState(OmneriaEntityStates.CAN_JUMP))
-                    {
-                        container.getExecutor().playAnimationSynchronized(getJump(container), 0);
-                    }
-                }
-            }
+
         });
     }
 

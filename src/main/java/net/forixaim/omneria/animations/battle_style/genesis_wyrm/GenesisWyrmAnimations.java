@@ -3,10 +3,7 @@ package net.forixaim.omneria.animations.battle_style.genesis_wyrm;
 import com.mojang.logging.LogUtils;
 import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.animations.ReusableEvents;
-import net.forixaim.omneria.animations.types.BattleArtsAttackPhaseProperties;
-import net.forixaim.omneria.animations.types.OmneriaAttackAnimation;
-import net.forixaim.omneria.animations.types.OmneriaEntityStates;
-import net.forixaim.omneria.animations.types.OmneriaGrabAnimation;
+import net.forixaim.omneria.animations.types.*;
 import net.forixaim.omneria.client.particles.types.TrackingParticleType;
 import net.forixaim.omneria.colliders.GenesisWyrmColliders;
 import net.forixaim.omneria.combat.OmneriaDamageTypes;
@@ -95,8 +92,8 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> FULL_POWER_DRAGON_CANNON;
 
 
-    public static AnimationManager.AnimationAccessor<StaticAnimation> JUMP;
-    public static AnimationManager.AnimationAccessor<StaticAnimation> JUMP_RUN;
+    public static AnimationManager.AnimationAccessor<JumpAnimation> JUMP;
+    public static AnimationManager.AnimationAccessor<JumpAnimation> JUMP_RUN;
 
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> COSMIC_CHASER;
@@ -154,34 +151,12 @@ public class GenesisWyrmAnimations
         ));
 
 
-        JUMP = builder.nextAccessor("battle_style/legendary/genesis_wyrm/jump", access -> new StaticAnimation(
-                0.1f, false, access, Armatures.BIPED)
-                .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, false)
-                .newTimePair(0.0f, 0.2f)
-                .addState(OmneriaEntityStates.CAN_JUMP, false)
-                .addEvents(AnimationEvent.InTimeEvent.create(0.15f, (livingEntityPatch, assetAccessor, animationParameters) ->
-                {
-                    if (!livingEntityPatch.getOriginal().onGround()) return;
-
-                    Vec3 movement = livingEntityPatch.getOriginal().getDeltaMovement();
-                    Vec3 jump = new Vec3(movement.x, 0.6, movement.z);
-                    livingEntityPatch.getOriginal().setDeltaMovement(jump);
-                }, AnimationEvent.Side.BOTH)));
+        JUMP = builder.nextAccessor("battle_style/legendary/genesis_wyrm/jump", access -> new JumpAnimation(
+                0.15f, 0.6f, access, Armatures.BIPED));
 
 
-        JUMP_RUN = builder.nextAccessor("battle_style/legendary/genesis_wyrm/run_jump", access -> new StaticAnimation(
-                0.1f, false, access, Armatures.BIPED)
-                .addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, false)
-                .newTimePair(0.0f, 0.15f)
-                .addState(OmneriaEntityStates.CAN_JUMP, false)
-                .addEvents(AnimationEvent.InTimeEvent.create(0.1f, (livingEntityPatch, assetAccessor, animationParameters) ->
-                {
-                    if (!livingEntityPatch.getOriginal().onGround()) return;
-
-                    Vec3 movement = livingEntityPatch.getOriginal().getDeltaMovement();
-                    Vec3 jump = new Vec3(movement.x, 0.6, movement.z);
-                    livingEntityPatch.getOriginal().setDeltaMovement(jump);
-                }, AnimationEvent.Side.BOTH)));
+        JUMP_RUN = builder.nextAccessor("battle_style/legendary/genesis_wyrm/run_jump", access -> new JumpAnimation(
+                0.15f, 0.6f, access, Armatures.BIPED));
 
 
 

@@ -408,7 +408,7 @@ public class GenesisWyrm extends OmneriaBattleStyle
                         new AttributeModifier(
                                 SPRINT_SPEED_BUFF,
                                 "custom sprint boost",
-                                0.50,
+                                1.0,
                                 AttributeModifier.Operation.MULTIPLY_TOTAL
                         ));
             }

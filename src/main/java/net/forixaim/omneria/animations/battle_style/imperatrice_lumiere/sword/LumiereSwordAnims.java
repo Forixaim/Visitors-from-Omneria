@@ -559,39 +559,15 @@ public class LumiereSwordAnims
 
 
 		IMPERATRICE_SWORD_JUMP_NEUTRAL = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/jump_neutral", access ->
-				new JumpAnimation(0.083f, false, access, Armatures.BIPED)
-						.addEvents(AnimationEvent.InTimeEvent.create(0.15f, (livingEntityPatch, assetAccessor, animationParameters) -> {
-							if (livingEntityPatch instanceof LocalPlayerPatch localPlayerPatch && localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.JUMPING.get()))
-							{
-								localPlayerPatch.getOriginal().jumpFromGround();
-								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false);
-							}
-						}, AnimationEvent.Side.CLIENT))
-						.addState(EntityState.MOVEMENT_LOCKED, false));
+				new JumpAnimation(0.083f, 0.15f, 0.6f, access, Armatures.BIPED));
 
 		IMPERATRICE_SWORD_JUMP_FORWARD = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/jump_forward_sprint", access ->
-				new JumpAnimation(0.083f, false, access, Armatures.BIPED)
-						.addEvents(AnimationEvent.InTimeEvent.create(0.15f, (livingEntityPatch, assetAccessor, animationParameters) -> {
-							if (livingEntityPatch instanceof LocalPlayerPatch localPlayerPatch && localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.JUMPING.get()))
-							{
-								localPlayerPatch.getOriginal().jumpFromGround();
-								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false);
-							}
-						}, AnimationEvent.Side.CLIENT))
-						.addState(EntityState.MOVEMENT_LOCKED, false));
+				new JumpAnimation(0.083f, 0.15f, 0.6f, access, Armatures.BIPED));
 
 
 
 		IMPERATRICE_SWORD_JUMP_BACK = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/jump_back", access ->
-				new JumpAnimation(0.083f, false, access, Armatures.BIPED)
-						.addEvents(AnimationEvent.InTimeEvent.create(0.15f, (livingEntityPatch, assetAccessor, animationParameters) -> {
-							if (livingEntityPatch instanceof LocalPlayerPatch localPlayerPatch && localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(DatakeyRegistry.JUMPING.get()))
-							{
-								localPlayerPatch.getOriginal().jumpFromGround();
-								localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.JUMPING.get(), false);
-							}
-						}, AnimationEvent.Side.CLIENT))
-						.addState(EntityState.MOVEMENT_LOCKED, false));
+				new JumpAnimation(0.083f, 0.15f, 0.6f, access, Armatures.BIPED));
 
 		IMPERATRICE_SWORD_JUMP = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/jump", access ->
 				new SelectiveAnimation(livingEntityPatch -> 0, access, IMPERATRICE_SWORD_JUMP_NEUTRAL));

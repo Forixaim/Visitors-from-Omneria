@@ -45,20 +45,24 @@ public class LivingEntityEvents
 		}
 	}
 
-    @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-//        if (event.phase != TickEvent.Phase.END) return;
-//
-//        Minecraft mc = Minecraft.getInstance();
-//        LocalPlayer player = mc.player;
-//        if (player == null) return;
-//
-//        if (EpicFightCapabilities.getEntityPatch(player, PlayerPatch.class) instanceof LocalPlayerPatch localPlayerPatch && localPlayerPatch.isEpicFightMode() && localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getSkill() instanceof OmneriaBattleStyle obs && obs.getJump(localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE)) != null && mc.options.keyJump.consumeClick()) {
-//            AnimationManager.AnimationAccessor<? extends StaticAnimation> jump = obs.getJump(localPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE));
-//            if (jump != null && player.onGround())
-//                localPlayerPatch.playAnimationSynchronized(jump, 0);
-//        }
-    }
+	@SubscribeEvent
+	public static void onJump(LivingEvent.LivingJumpEvent event)
+	{
+		LivingEntity entity = event.getEntity();
+		if (EpicFightCapabilities.getEntityPatch(entity, LivingEntityPatch.class) instanceof PlayerPatch<?> livingEntityPatch && livingEntityPatch.isEpicFightMode())
+		{
+			if (livingEntityPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getSkill() instanceof OmneriaBattleStyle obs)
+			{
+				AnimationManager.AnimationAccessor<? extends StaticAnimation> jump = obs.getJump(livingEntityPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE));
+				if (jump != null && entity.onGround())
+				{
+					entity.setDeltaMovement(entity.getDeltaMovement().subtract(0, entity.getDeltaMovement().y, 0));
+					livingEntityPatch.playAnimationSynchronized(jump, 0);
+				}
+			}
+		}
+	}
+
 
     @SubscribeEvent
     public static void onDeath(LivingDeathEvent event)
