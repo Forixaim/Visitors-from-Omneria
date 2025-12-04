@@ -99,10 +99,13 @@ dependencies {
     compileOnly fg.deobf("curse.maven:official-epic-fight-x-parcool-1259252:6870242")
     compileOnly fg.deobf("curse.maven:iceberg-520110:5138899")
     compileOnly fg.deobf("curse.maven:prism-lib-638111:4650325")
-    implementation fg.deobf("curse.maven:combat-evolution-1377795:7239349")
+    implementation fg.deobf("curse.maven:combat-evolution-1377795:7290716")
+    implementation fg.deobf("curse.maven:lendercataclysm-551586:6906993")
+    implementation fg.deobf("curse.maven:curios-309927:6418456")
+    implementation fg.deobf("curse.maven:lionfish-api-1001614:5922047")
     implementation fg.deobf("libs:nf:lol")
     implementation fg.deobf("libs:wom:2.0")
-
+    implementation fg.deobf("libs:invader:inv")
 
     compileOnly fg.deobf("curse.maven:legendary-tooltips-532127:4662781")
     compileOnly fg.deobf("curse.maven:placebo-283644:6274231")
