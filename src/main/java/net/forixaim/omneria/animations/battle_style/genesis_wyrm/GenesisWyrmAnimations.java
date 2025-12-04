@@ -94,6 +94,8 @@ public class GenesisWyrmAnimations
 
     public static AnimationManager.AnimationAccessor<JumpAnimation> JUMP;
     public static AnimationManager.AnimationAccessor<JumpAnimation> JUMP_RUN;
+    public static AnimationManager.AnimationAccessor<JumpAnimation> JUMP_BACK;
+
 
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> COSMIC_CHASER;
@@ -152,11 +154,14 @@ public class GenesisWyrmAnimations
 
 
         JUMP = builder.nextAccessor("battle_style/legendary/genesis_wyrm/jump", access -> new JumpAnimation(
-                0.15f, 0.6f, access, Armatures.BIPED));
+                0.05f, 0.65f, 90, access, Armatures.BIPED));
+
+        JUMP_BACK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/backjump", access -> new JumpAnimation(
+                0.05f, 1.1f, 90, access, Armatures.BIPED));
 
 
         JUMP_RUN = builder.nextAccessor("battle_style/legendary/genesis_wyrm/run_jump", access -> new JumpAnimation(
-                0.15f, 0.6f, access, Armatures.BIPED));
+                0.05f, 0.7f, 70, access, Armatures.BIPED));
 
 
 

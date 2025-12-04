@@ -2,6 +2,7 @@ package net.forixaim.omneria.events;
 
 import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.VisitorsOfOmneria;
+import net.forixaim.omneria.animations.types.OmneriaEntityStates;
 import net.forixaim.omneria.events.advanced_bosses.DamageDealtEvent;
 import net.forixaim.omneria.skill.battle_style.OmneriaBattleStyle;
 import net.forixaim.omneria.skill.battle_style.properties.FlyingEnabled;
@@ -57,7 +58,8 @@ public class LivingEntityEvents
 				if (jump != null && entity.onGround())
 				{
 					entity.setDeltaMovement(entity.getDeltaMovement().subtract(0, entity.getDeltaMovement().y, 0));
-					livingEntityPatch.playAnimationSynchronized(jump, 0);
+                    if (livingEntityPatch.getEntityState().getState(OmneriaEntityStates.CAN_JUMP) != null && livingEntityPatch.getEntityState().getState(OmneriaEntityStates.CAN_JUMP))
+					    livingEntityPatch.playAnimationSynchronized(jump, 0);
 				}
 			}
 		}

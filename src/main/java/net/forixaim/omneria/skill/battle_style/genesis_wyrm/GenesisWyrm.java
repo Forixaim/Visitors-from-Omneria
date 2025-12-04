@@ -27,6 +27,7 @@ import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -72,11 +73,35 @@ public class GenesisWyrm extends OmneriaBattleStyle
             GenesisWyrmAnimations.HEAVY_AUTO2
     };
 
+    boolean isMovingBackward(Player player) {
+        Vec3 vel = player.getDeltaMovement();
+        Vec3 forward = player.getLookAngle(); // includes pitch but that's fine
+
+        // We only care about horizontal movement
+        Vec3 velH = new Vec3(vel.x, 0, vel.z);
+        Vec3 forwardH = new Vec3(forward.x, 0, forward.z);
+
+        if (velH.lengthSqr() < 0.0001)
+            return false; // not moving at all
+
+        velH = velH.normalize();
+        forwardH = forwardH.normalize();
+
+        double dot = velH.dot(forwardH);
+
+        return dot < 0; // negative = moving opposite direction
+    }
+
     @Override
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getJump(SkillContainer container) {
+        boolean flag = isMovingBackward(container.getExecutor().getOriginal());
         if (container.getExecutor().getOriginal().isSprinting())
         {
             return GenesisWyrmAnimations.JUMP_RUN;
+        }
+        else if (flag)
+        {
+            return GenesisWyrmAnimations.JUMP_BACK;
         }
         return GenesisWyrmAnimations.JUMP;
     }
