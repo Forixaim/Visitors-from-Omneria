@@ -8,7 +8,9 @@ import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.skill.OmneriaSkills;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.ArgumentGatherers;
 import net.forixaim.omneria.world.entity.projectiles.DragonCannonBeam;
+import net.forixaim.omneria.world.entity.projectiles.FullPowerDragonCannonBeam;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -89,10 +91,6 @@ public class DarkArts extends CombatArt {
     @Override
     public void updateContainer(SkillContainer container) {
         super.updateContainer(container);
-        if (container.getDataManager().hasData(DatakeyRegistry.BEAM.get()) && container.getExecutor().getOriginal().level().getEntity(container.getDataManager().getDataValue(DatakeyRegistry.BEAM.get())) instanceof DragonCannonBeam beam)
-        {
-            if (beam.isRemoved())
-                container.getDataManager().setDataSync(DatakeyRegistry.BEAM.get(), -1);
-        }
+
     }
 }

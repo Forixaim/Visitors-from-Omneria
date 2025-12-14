@@ -1,5 +1,6 @@
 package net.forixaim.omneria.world.entity.projectiles;
 
+import com.brandon3055.draconicevolution.entity.GuardianCrystalEntity;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.mehvahdjukaar.dummmmmmy.Dummmmmmy;
 import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
@@ -148,10 +149,17 @@ public class DarkBangProjectile extends Projectile {
         dmgSrc = damageSource;
     }
 
-    private void explosionDamage(LivingEntity livingEntity)
+    private void explosionDamage(Entity livingEntity)
     {
         DamageSource source = level().damageSources().explosion(this.getOwner(), this);
         livingEntity.hurt(source, 6);
+        if (ModList.get().isLoaded("draconicevolution"))
+        {
+            if (livingEntity instanceof GuardianCrystalEntity entity)
+            {
+                entity.discard();
+            }
+        }
         if (EpicFightCapabilities.getEntityPatch(livingEntity, EntityPatch.class) instanceof LivingEntityPatch<?> livingEntityPatch)
         {
             livingEntityPatch.applyStun(StunType.KNOCKDOWN, 20);
@@ -163,7 +171,7 @@ public class DarkBangProjectile extends Projectile {
         if (pReason.equals(RemovalReason.DISCARDED))
         {
             AABB explosionHitbox = AABB.ofSize(this.position(), 12.0, 12.0, 12.0);
-            List<LivingEntity> entities = this.level().getEntitiesOfClass(LivingEntity.class, explosionHitbox, livingEntity -> livingEntity != this.getOwner());
+            List<Entity> entities = this.level().getEntitiesOfClass(Entity.class, explosionHitbox, livingEntity -> livingEntity != this.getOwner());
             if (!entities.isEmpty())
             {
                 entities.forEach(this::explosionDamage);

@@ -26,6 +26,16 @@ public class DatakeyRegistry
 			)
 	);
 
+    public static final RegistryObject<SkillDataKey<Boolean>> ULT_HELD = DATA_KEYS.register("ult_held", () ->
+            SkillDataKey.createSkillDataKey(
+                    PacketBufferCodec.BOOLEAN,
+                    false,
+                    true,
+                    GenesisWyrm.class
+            )
+    );
+
+
     public static final RegistryObject<SkillDataKey<Integer>> DODGE_ANIM = DATA_KEYS.register("dodge_anim", () ->
             SkillDataKey.createSkillDataKey(
                     PacketBufferCodec.INTEGER,

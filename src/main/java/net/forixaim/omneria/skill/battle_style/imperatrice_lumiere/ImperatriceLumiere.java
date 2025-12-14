@@ -177,19 +177,19 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 	{
 		for (ItemStack item : event.getTarget().getArmorSlots())
 		{
-			if (ModList.get().isLoaded(Mekanism.MODID) && item.getItem() instanceof ItemMekaSuitArmor)
+			if (ModList.get().isLoaded("mekanism") && item.getItem() instanceof ItemMekaSuitArmor)
 			{
 				//Trigger Anti-Invincibility Cheese
 				item.copyAndClear();
 				cheeseFound = true;
 			}
-			if (ModList.get().isLoaded(DraconicEvolution.MODID) && item.getItem() instanceof ModularChestpiece)
+			if (ModList.get().isLoaded("draconicevolution") && item.getItem() instanceof ModularChestpiece)
 			{
 				//Trigger Anti-Invincibility Cheese
 				item.copyAndClear();
 				cheeseFound = true;
 			}
-			if (ModList.get().isLoaded(ProjectEAPI.PROJECTE_MODID) && (item.getItem() instanceof DMArmor || item.getItem() instanceof RMArmor || item.getItem() instanceof GemArmorBase))
+			if (ModList.get().isLoaded("projecte") && (item.getItem() instanceof DMArmor || item.getItem() instanceof RMArmor || item.getItem() instanceof GemArmorBase))
 			{
 				//Trigger Anti-Invincibility Cheese
 				item.copyAndClear();

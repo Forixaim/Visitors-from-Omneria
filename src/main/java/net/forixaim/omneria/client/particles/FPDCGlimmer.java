@@ -70,11 +70,7 @@ public class FPDCGlimmer extends TextureSheetParticle
                     boolean pred = !((e instanceof DragonCannonBeam be && !be.isRemoved()) || age < 35);
                     if (pred)
                     {
-                        this.alpha -= 0.1f;
-                        if (this.alpha <= 0f)
-                        {
-                            this.remove();
-                        }
+                        remove();
                     }
                     else if (e instanceof FullPowerDragonCannonBeam)
                     {

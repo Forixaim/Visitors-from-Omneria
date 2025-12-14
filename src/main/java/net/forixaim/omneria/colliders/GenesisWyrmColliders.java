@@ -4,6 +4,7 @@ import net.forixaim.omneria.VisitorsOfOmneria;
 import net.minecraft.resources.ResourceLocation;
 import yesman.epicfight.api.collider.Collider;
 import yesman.epicfight.api.collider.MultiOBBCollider;
+import yesman.epicfight.api.collider.OBBCollider;
 
 import static yesman.epicfight.gameasset.ColliderPreset.registerCollider;
 
@@ -13,6 +14,9 @@ public class GenesisWyrmColliders
     {
         return ResourceLocation.fromNamespaceAndPath(VisitorsOfOmneria.MOD_ID, name);
     }
+
+    public static final Collider GW_PULL = registerCollider(reg("gw_pull"), new OBBCollider(1, 1, 12, 0, 1, -12));
+
     public static final Collider GW_CLAW = registerCollider(reg("gw_claw"), new MultiOBBCollider(5,
             0.3D, 0.6D, 0.3D, 0.0D, 0.3D, -0.0D
     ));

@@ -62,6 +62,18 @@ public class InitialForce extends WeaponInnateSkill
         {
             anim = GenesisWyrmAnimations.ORIGIN_KICK;
         }
+        else if (fw == -1)
+        {
+            if (container.getExecutor().getOriginal().onGround())
+            {
+                anim = GenesisWyrmAnimations.ORIGIN_PULL;
+            }
+            else
+            {
+                //Placeholder
+                anim = GenesisWyrmAnimations.ORIGIN_PULL;
+            }
+        }
         else
         {
             if (container.getExecutor().getOriginal().isSprinting()) {

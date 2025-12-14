@@ -44,7 +44,7 @@ public class CosmicChaser extends Skill {
     @Override
     public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
         super.executeOnServer(container, args);
-        SkillDataManager cosmicFocusDataManager = container.getServerExecutor().getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager();
+        SkillDataManager cosmicFocusDataManager = container.getServerExecutor().getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager();
         if (cosmicFocusDataManager != null && cosmicFocusDataManager.hasData(DatakeyRegistry.FOCUSED_TARGET.get())) {
             int opponent = cosmicFocusDataManager.getDataValue(DatakeyRegistry.FOCUSED_TARGET.get());
             if (opponent < 0)

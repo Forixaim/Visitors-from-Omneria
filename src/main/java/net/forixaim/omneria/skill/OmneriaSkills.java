@@ -5,7 +5,6 @@ import net.forixaim.battle_arts_api.battle_arts_skills.active.burst_arts.BurstAr
 import net.forixaim.battle_arts_api.battle_arts_skills.active.combat_arts.CombatArt;
 import net.forixaim.battle_arts_api.battle_arts_skills.active.ultimate_arts.UltimateArt;
 import net.forixaim.battle_arts_api.battle_arts_skills.battle_style.BattleStyle;
-import net.forixaim.battle_arts_api.battle_arts_skills.mana_arts.ManaArt;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
 import net.forixaim.omneria.registry.CreativeTabRegistry;
@@ -19,7 +18,6 @@ import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillCategories;
 import yesman.epicfight.skill.dodge.DodgeSkill;
-import yesman.epicfight.skill.dodge.StepSkill;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.skill.weaponinnate.WeaponInnateSkill;
 
@@ -57,7 +55,7 @@ public class OmneriaSkills
         INITIAL_FORCE = registryWorker.build("initial_force", InitialForce::new, WeaponInnateSkill.createWeaponInnateBuilder().setResource(Skill.Resource.NONE));
         TWILIGHT = registryWorker.build("twilight", Twilight::new, BurstArt.createBurstArt().setResource(Skill.Resource.NONE));
         DARK_ARTS = registryWorker.build("dark_arts", DarkArts::new, DarkArts.createCombatArt().setResource(Skill.Resource.NONE));
-        COSMIC_FOCUS = registryWorker.build("cosmic_focus", CosmicFocus::new, Skill.createBuilder().setResource(Skill.Resource.NONE).setCategory(BattleArtsSkillCategories.MANA_ART));
+        COSMIC_FOCUS = registryWorker.build("cosmic_focus", CosmicFocus::new, Skill.createBuilder().setResource(Skill.Resource.NONE).setCategory(BattleArtsSkillCategories.SPECIAL_ART));
         COSMIC_CHASER = registryWorker.build("cosmic_chaser", CosmicChaser::new, Skill.createMoverBuilder().setResource(Skill.Resource.NONE));
         ULTIMA_FINALE = registryWorker.build("ultima_finale", UltimaFinale::new, UltimateArt.createUltimateArt().setResource(Skill.Resource.NONE));
     }

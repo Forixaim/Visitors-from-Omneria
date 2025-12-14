@@ -56,6 +56,10 @@ import java.util.Set;
 public class GenesisWyrmAnimations
 {
     public static AnimationManager.AnimationAccessor<StaticAnimation> IDLE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> AIR_IDLE;
+    public static AnimationManager.AnimationAccessor<StaticAnimation> AIR_FALL;
+
+
     public static AnimationManager.AnimationAccessor<StaticAnimation> IDLE_INJURED;
     public static AnimationManager.AnimationAccessor<StaticAnimation> IDLE_EXHAUSTED;
 
@@ -72,6 +76,12 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<StaticAnimation> CROUCH;
 
     public static AnimationManager.AnimationAccessor<GuardAnimation> GUARD_HIT;
+    public static AnimationManager.AnimationAccessor<GuardAnimation> GUARD_PARRY1;
+    public static AnimationManager.AnimationAccessor<GuardAnimation> GUARD_PARRY2;
+
+
+    public static AnimationManager.AnimationAccessor<LongHitAnimation> GUARD_BREAK;
+
     public static AnimationManager.AnimationAccessor<GuardAnimation> REFLECTION;
 
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> AUTO1;
@@ -84,8 +94,8 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_RUSH_ATTEMPT;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_RUSH_ATTACK;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> MOONLIGHT_FINISH;
-    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> ORIGIN_KICK;
-    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> COSMIC_DUNK;
+    public static AnimationManager.AnimationAccessor<OmneriaAerialAttackAnimation> ORIGIN_KICK;
+    public static AnimationManager.AnimationAccessor<OmneriaAerialAttackAnimation> COSMIC_DUNK;
 
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> TWILIGHT_ACTIVATION;
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRAGON_CANNON;
@@ -93,6 +103,8 @@ public class GenesisWyrmAnimations
 
 
     public static AnimationManager.AnimationAccessor<JumpAnimation> JUMP;
+    public static AnimationManager.AnimationAccessor<JumpAnimation> CROUCH_JUMP;
+
     public static AnimationManager.AnimationAccessor<JumpAnimation> JUMP_RUN;
     public static AnimationManager.AnimationAccessor<JumpAnimation> JUMP_BACK;
 
@@ -112,9 +124,12 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> HEAVY_AUTO3;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DARK_UPPER;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_UPPERCUT;
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> ORIGIN_PULL;
+
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRACONIC_DODGE1;
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRACONIC_DODGE2;
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRACONIC_DODGE3;
+    public static AnimationManager.AnimationAccessor<InvincibleAnimation> ORIGIN_BLESSING;
 
 
 
@@ -136,23 +151,25 @@ public class GenesisWyrmAnimations
     public static void build(AnimationManager.AnimationBuilder builder)
     {
         IDLE = builder.nextAccessor("battle_style/legendary/genesis_wyrm/idle", access -> new StaticAnimation(0.1f, true, access, Armatures.BIPED));
+        AIR_IDLE = builder.nextAccessor("battle_style/legendary/genesis_wyrm/air_idle", access -> new StaticAnimation(0.1f, true, access, Armatures.BIPED));
+        AIR_FALL = builder.nextAccessor("battle_style/legendary/genesis_wyrm/air_fall", access -> new StaticAnimation(0.1f, true, access, Armatures.BIPED));
+
         IDLE_INJURED = builder.nextAccessor("battle_style/legendary/genesis_wyrm/idle_injured", access -> new StaticAnimation(0.1f, true, access, Armatures.BIPED));
         IDLE_EXHAUSTED = builder.nextAccessor("battle_style/legendary/genesis_wyrm/idle_exhausted", access -> new StaticAnimation(0.1f, true, access, Armatures.BIPED));
 
         IDLE_SET = builder.nextAccessor("battle_style/legendary/genesis_wyrm/idle_set", access -> new SelectiveAnimation(
                 patch -> {
-                    float percentage = patch.getOriginal().getHealth() / patch.getOriginal().getMaxHealth();
-                    if (percentage < 0.5f)
+                    if (!patch.getOriginal().onGround())
                     {
-                        if (percentage < 0.25f)
-                            return 2;
                         return 1;
                     }
-                    return 0;
-                }, access, IDLE, IDLE_INJURED, IDLE_EXHAUSTED
+                    else
+                        return 0;
+                }, access, IDLE, AIR_IDLE
         ));
 
-
+        CROUCH_JUMP = builder.nextAccessor("battle_style/legendary/genesis_wyrm/crouch_jump", access -> new JumpAnimation(
+                0.05f, 2.6f, 90, access, Armatures.BIPED));
         JUMP = builder.nextAccessor("battle_style/legendary/genesis_wyrm/jump", access -> new JumpAnimation(
                 0.05f, 0.65f, 90, access, Armatures.BIPED));
 
@@ -196,9 +213,9 @@ public class GenesisWyrmAnimations
                 .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 4)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
-        ORIGIN_KICK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/origin_kick", access -> new OmneriaAttackAnimation(
+        ORIGIN_KICK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/origin_kick", access -> new OmneriaAerialAttackAnimation(
                 0.1f, 0.0f, 0.1f, 0.25f, 1f, GenesisWyrmColliders.GW_CLAW, Armatures.BIPED.get().legL, access, Armatures.BIPED
-        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_PUNCH_IMPACT_M.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 15d)
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 5d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_PUNCH_IMPACT_M.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 15d)
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
                 .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
                 .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 7)
@@ -206,7 +223,7 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.ActionAnimationProperty.NO_GRAVITY_TIME, TimePairList.create(0.0f, 0.3f))
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
-        COSMIC_DUNK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/cosmic_dunk", access -> new OmneriaAttackAnimation(
+        COSMIC_DUNK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/cosmic_dunk", access -> new OmneriaAerialAttackAnimation(
                 0.1f, 0.0f, 0.15f, 0.3f, 1f, ColliderPreset.FIST, Armatures.BIPED.get().handL, access, Armatures.BIPED
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, -70d)
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
@@ -220,6 +237,16 @@ public class GenesisWyrmAnimations
         DRAGON_UPPERCUT = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dragon_uppercut", access -> new OmneriaAttackAnimation(
                 0.1f, 0.0f, 0.2f, 0.35f, 1.5f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
+                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
+                .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12)
+
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
+
+        ORIGIN_PULL = builder.nextAccessor("battle_style/legendary/genesis_wyrm/origin_pull", access -> new OmneriaAttackAnimation(
+                0.1f, 0.0f, 0.2f, 0.35f, 1.5f, GenesisWyrmColliders.GW_PULL, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 4d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 180d)
+                .addProperty(AnimationProperty.AttackPhaseProperty.DAMAGE_MODIFIER, ValueModifier.setter(0))
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
                 .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
                 .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12)
@@ -342,7 +369,7 @@ public class GenesisWyrmAnimations
                             livingEntityPatch.playSound(SoundRegistry.CANNON_CHARGE.get(),  1, 0, 0);
 
                             ((ServerLevel)livingEntityPatch.getOriginal().level()).sendParticles(new TrackingParticleType(livingEntityPatch.getOriginal().getId(), ParticleRegistry.FULL_POWER_DRAGON_CANNON_CHARGE.get()), livingEntityPatch.getOriginal().getX(), livingEntityPatch.getOriginal().getY(), livingEntityPatch.getOriginal().getZ(), 1, 0, 0, 0, 0);
-                        }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(1.55f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                        }, AnimationEvent.Side.SERVER), AnimationEvent.InTimeEvent.create(0.85f, (livingEntityPatch, assetAccessor, animationParameters) ->
                         {
                             float ang = (float) ((livingEntityPatch.getYRot()+90)/180 * Math.PI);
 
@@ -358,28 +385,29 @@ public class GenesisWyrmAnimations
 
 
                             FullPowerDragonCannonBeam projectile = EntityRegistry.FULL_POWER_DRAGON_CANNON.get().create(livingEntityPatch.getOriginal().level());
-
                             if (projectile != null) {
 
                                 projectile.setPos(shootPos);
-                                projectile.shoot(Mth.cos(ang), shootVec.y(), Mth.sin(ang), 4f, 0);
+                                projectile.shoot(Mth.cos(ang), shootVec.y(), Mth.sin(ang), 32f, 0);
                                 if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
                                     OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.toolR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
                                     LogUtils.getLogger().debug(jointMatrix.toTranslationVector().toString());
                                     jointMatrix.translate(new Vec3f(0.0F, -2, 0F));
-                                    ((ServerLevel)projectile.level()).sendParticles(ParticleRegistry.DARK_BANG_EXPLOSION.get(), jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z, 1 ,0, 0, 0, 0);
+                                    if (!livingEntityPatch.isLogicalClient())
+                                        ((ServerLevel)projectile.level()).sendParticles(ParticleRegistry.DARK_BANG_EXPLOSION.get(), jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z, 1 ,0, 0, 0, 0);
                                     projectile.setOrigin(jointMatrix.toTranslationVector().toDoubleVector());
                                     projectile.setPosRaw(jointMatrix.toTranslationVector().x, jointMatrix.toTranslationVector().y, jointMatrix.toTranslationVector().z);
                                 }
                                 projectile.setOwner(livingEntityPatch.getOriginal());
-                                livingEntityPatch.playSound(SoundRegistry.HEAVY_BLAST.get(), -5, -5);
                                 livingEntityPatch.getOriginal().level().addFreshEntity(projectile);
                                 if (livingEntityPatch instanceof ServerPlayerPatch serverPlayerPatch)
                                 {
+                                    livingEntityPatch.playSound(SoundRegistry.HEAVY_BLAST.get(), -5, -5);
+
                                     serverPlayerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(DatakeyRegistry.BEAM.get(), projectile.getId());
                                 }
                             }
-                        }, AnimationEvent.Side.SERVER)));
+                        }, AnimationEvent.Side.BOTH)));
 
         COSMIC_CHASER = builder.nextAccessor("battle_style/legendary/genesis_wyrm/timeless_chase", access ->
                 new OmneriaAttackAnimation(0.05f, access, Armatures.BIPED,
@@ -408,9 +436,9 @@ public class GenesisWyrmAnimations
                                 List<Entity> entities = self.level().getEntities(self, scanBox);
                                 if (livingEntityPatch instanceof PlayerPatch<?> playerPatch)
                                 {
-                                    if (playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()))
+                                    if (playerPatch.getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()))
                                     {
-                                        Entity opponent = playerPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()));
+                                        Entity opponent = playerPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()));
                                         if (opponent != null)
                                         {
                                             targetPoint = opponent.position();
@@ -472,6 +500,11 @@ public class GenesisWyrmAnimations
 
 
         GUARD_HIT = builder.nextAccessor("battle_style/legendary/genesis_wyrm/guard_hit", access -> new GuardAnimation(0.1f, access, Armatures.BIPED));
+        GUARD_PARRY1 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/parry1", access -> new GuardAnimation(0.1f, access, Armatures.BIPED));
+        GUARD_PARRY2 = builder.nextAccessor("battle_style/legendary/genesis_wyrm/parry2", access -> new GuardAnimation(0.1f, access, Armatures.BIPED));
+
+        GUARD_BREAK = builder.nextAccessor("battle_style/legendary/genesis_wyrm/guard_break", access -> new LongHitAnimation(0.1f, access, Armatures.BIPED));
+
         REFLECTION = builder.nextAccessor("battle_style/legendary/genesis_wyrm/reflect", access -> new GuardAnimation(0.1f, access, Armatures.BIPED)
                 .addProperty(AnimationProperty.StaticAnimationProperty.FIXED_HEAD_ROTATION, true));
 

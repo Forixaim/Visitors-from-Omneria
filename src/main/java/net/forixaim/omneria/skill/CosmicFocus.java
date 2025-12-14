@@ -1,6 +1,6 @@
 package net.forixaim.omneria.skill;
 
-import net.forixaim.battle_arts_api.battle_arts_skills.mana_arts.ManaArt;
+import net.forixaim.battle_arts_api.battle_arts_skills.special_arts.SpecialArt;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -10,7 +10,7 @@ import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 
-public class CosmicFocus extends ManaArt
+public class CosmicFocus extends SpecialArt
 {
     private float range;
 

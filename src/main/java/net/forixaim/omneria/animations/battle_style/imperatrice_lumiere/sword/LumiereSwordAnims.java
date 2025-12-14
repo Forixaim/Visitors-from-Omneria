@@ -109,7 +109,7 @@ public class LumiereSwordAnims
 	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_FLAREDASH_CHARLEMAGNE;
 
 
-	public static AnimationManager.AnimationAccessor<OmneriaAerialAttackAnimation> IMPERATRICE_SWORD_SUNRISE;
+	public static AnimationManager.AnimationAccessor<OmneriaJumpAttackAnimation> IMPERATRICE_SWORD_SUNRISE;
 	public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> IMPERATRICE_SWORD_BLAZING_SUNRISE;
 
 
@@ -225,9 +225,9 @@ public class LumiereSwordAnims
 										}, AnimationEvent.Side.CLIENT
 								), AnimationEvent.InTimeEvent.create(0.15f, (livingEntityPatch, assetAccessor, animationParameters) ->
 								{
-                                    if (livingEntityPatch instanceof PlayerPatch<?> playerPatch && playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()) && playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) > 0)
+                                    if (livingEntityPatch instanceof PlayerPatch<?> playerPatch && playerPatch.getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()) && playerPatch.getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) > 0)
                                     {
-                                        Entity opponent = livingEntityPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.MANA_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()));
+                                        Entity opponent = livingEntityPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()));
                                         if (opponent instanceof LivingEntity livingEntity)
                                         {
                                             Vec3 opponentPos = opponent.position();
@@ -380,7 +380,7 @@ public class LumiereSwordAnims
 
 
 		IMPERATRICE_SWORD_SUNRISE = event.nextAccessor("battle_style/legendary/imperatrice_lumiere/sword/airslash", access ->
-				new OmneriaAerialAttackAnimation(0.4f, 0.0f, 0.4f, 0.6f, 1.5f, false, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
+				new OmneriaJumpAttackAnimation(0.4f, 0.0f, 0.4f, 0.6f, 1.5f, false, null, Armatures.BIPED.get().toolR, access, Armatures.BIPED)
 						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 90.0)
 						.addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.3)
 						.addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_HIT_FINISHER.get()).addProperty(AnimationProperty.ActionAnimationProperty.STOP_MOVEMENT, false)

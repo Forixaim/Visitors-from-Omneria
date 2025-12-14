@@ -44,7 +44,7 @@ public class FPDCSphere extends CustomModelParticle<ClassicMesh>
         this.gCol = 0.0f;
         this.rCol = 0.941f;
         entity = pLevel.getEntity(entityId);
-        this.lifetime = 90;
+        this.lifetime = 75;
 
         this.scale = 0;
 
@@ -64,9 +64,9 @@ public class FPDCSphere extends CustomModelParticle<ClassicMesh>
     @Override
     public void tick() {
         super.tick();
-        if (scale < 0.4 && age < 35)
+        if (scale < 0.4 && age < 8)
         {
-            scale += 0.2f;
+            scale += 0.3f;
         }
         if (EpicFightCapabilities.getEntityPatch(entity, EntityPatch.class) instanceof LivingEntityPatch<?> livingEntityPatch)
         {
@@ -76,7 +76,7 @@ public class FPDCSphere extends CustomModelParticle<ClassicMesh>
                 if (dm.hasData(DatakeyRegistry.BEAM.get()))
                 {
                     Entity e = level.getEntity(dm.getDataValue(DatakeyRegistry.BEAM.get()));
-                    boolean pred = !((e instanceof FullPowerDragonCannonBeam be && !be.isRemoved()) || age < 35);
+                    boolean pred = !((e instanceof FullPowerDragonCannonBeam be && !be.isRemoved()) || age < 12);
                     if (pred)
                     {
                         scale = Mth.cos((progression/10f) * Mth.PI * 0.5f) * 1.8F;
@@ -89,6 +89,7 @@ public class FPDCSphere extends CustomModelParticle<ClassicMesh>
                     else if (e instanceof FullPowerDragonCannonBeam)
                     {
                         scale = 1.8f;
+                        lifetime++;
                         if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha) {
                             OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.toolR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
                             jointMatrix.translate(new Vec3f(0.0F, -2, 0F));
@@ -99,13 +100,19 @@ public class FPDCSphere extends CustomModelParticle<ClassicMesh>
                     }
                     else
                     {
-                        if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha && this.age < 35) {
+                        if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha && this.age < 14) {
                             OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.toolR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
                             jointMatrix.translate(new Vec3f(0.0F, -0.3f, 0F));
                             Vec3 translationVector = jointMatrix.toTranslationVector().toDoubleVector();
                             this.setPos(translationVector.x(), translationVector.y(), translationVector.z());
                         }
-
+                        else if (livingEntityPatch.getArmature() instanceof HumanoidArmature ha)
+                        {
+                            OpenMatrix4f jointMatrix = livingEntityPatch.getArmature().getBoundTransformFor(livingEntityPatch.getAnimator().getPose(0.0F), ha.toolR).mulFront(OpenMatrix4f.createTranslation((float) livingEntityPatch.getOriginal().getX(), (float) livingEntityPatch.getOriginal().getY(), (float) livingEntityPatch.getOriginal().getZ()).mulBack(OpenMatrix4f.createRotatorDeg(180.0F, Vec3f.Y_AXIS).mulBack(livingEntityPatch.getModelMatrix(0.0F))));
+                            jointMatrix.translate(new Vec3f(0.0F, -2, 0F));
+                            Vec3 translationVector = jointMatrix.toTranslationVector().toDoubleVector();
+                            this.setPos(translationVector.x(), translationVector.y(), translationVector.z());
+                        }
                     }
                 }
             }

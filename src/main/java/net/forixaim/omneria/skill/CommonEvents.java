@@ -7,6 +7,7 @@ import net.forixaim.battle_arts_api.battle_arts_skills.battle_style.BattleStyle;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import yesman.epicfight.world.entity.eventlistener.DealDamageEvent;
+import yesman.epicfight.world.entity.eventlistener.TakeDamageEvent;
 
 public class CommonEvents
 {
@@ -22,6 +23,21 @@ public class CommonEvents
             final float finalMeterFill = Math.min(meterFill, maxMeter);
 
             LogUtils.getLogger().debug("meterFill: {}", finalMeterFill);
+
+            event.getPlayerPatch().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(CoreAPIDataKeys.METER_FILL.get(), finalMeterFill);
+        }
+    }
+
+    public static void BUILD_METER(TakeDamageEvent.Attack event) {
+        if (event.getPlayerPatch().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().hasData(CoreAPIDataKeys.METER_FILL.get()) && event.getPlayerPatch().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getSkill() instanceof BattleStyle battleStyle)
+        {
+            float meterFill = event.getDamage();
+            float maxMeter = battleStyle.getMaxMeter() * 100;
+            float currentMeter = event.getPlayerPatch().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().getDataValue(CoreAPIDataKeys.METER_FILL.get());
+
+            meterFill += currentMeter;
+
+            final float finalMeterFill = Math.min(meterFill, maxMeter);
 
             event.getPlayerPatch().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager().setDataSync(CoreAPIDataKeys.METER_FILL.get(), finalMeterFill);
         }

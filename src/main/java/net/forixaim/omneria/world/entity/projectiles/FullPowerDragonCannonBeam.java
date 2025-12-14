@@ -1,8 +1,13 @@
 package net.forixaim.omneria.world.entity.projectiles;
 
+import com.brandon3055.draconicevolution.entity.GuardianCrystalEntity;
+import com.brandon3055.draconicevolution.entity.guardian.DraconicGuardianEntity;
+import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
+import net.forixaim.battle_arts_api.battle_arts_skills.CoreAPIDataKeys;
 import net.forixaim.omneria.client.particles.types.BeamParticleType;
 import net.forixaim.omneria.registry.ParticleRegistry;
 import net.forixaim.omneria.registry.SoundRegistry;
+import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.util.ParticleUtil;
 import net.mehvahdjukaar.dummmmmmy.Dummmmmmy;
 import net.mehvahdjukaar.dummmmmmy.common.TargetDummyEntity;
@@ -21,10 +26,10 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import yesman.epicfight.api.animation.Joint;
 import yesman.epicfight.api.animation.JointTransform;
@@ -35,10 +40,12 @@ import yesman.epicfight.api.utils.AttackResult;
 import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
+import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
 import yesman.epicfight.world.damagesource.EpicFightDamageTypeTags;
 import yesman.epicfight.world.damagesource.StunType;
@@ -48,16 +55,19 @@ import java.util.Objects;
 
 public class FullPowerDragonCannonBeam extends Projectile {
     protected int lifetime;
+    private int power = 0;
     protected Vec3 deceleration = null;
     protected double decelerationConstant = 0.2;
     private Vec3 originBeam = null;
+    private Entity focusedEntity = null;
     public float speed = 0;
     protected EpicFightDamageSource dmgSrc = null;
 
 
     public FullPowerDragonCannonBeam(EntityType<? extends Projectile> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        this.lifetime = 20;
+        this.lifetime = 8;
+
     }
 
     @Override
@@ -79,6 +89,38 @@ public class FullPowerDragonCannonBeam extends Projectile {
 
     public void setOrigin(Vec3 origin) {
         this.originBeam = new Vec3(origin.x, origin.y, origin.z);
+    }
+
+    private void focusTick()
+    {
+        if (EpicFightCapabilities.getEntityPatch(this.getOwner(), EntityPatch.class) instanceof ServerPlayerPatch playerPatch)
+        {
+            SkillContainer battleStyle = playerPatch.getSkill(BattleArtsSkillSlots.BATTLE_STYLE);
+            if (battleStyle.getDataManager().hasData(DatakeyRegistry.ULT_HELD.get()) && battleStyle.getDataManager().hasData(CoreAPIDataKeys.METER_FILL.get()))
+            {
+                if (battleStyle.getDataManager().getDataValue(DatakeyRegistry.ULT_HELD.get()) && battleStyle.getDataManager().getDataValue(CoreAPIDataKeys.METER_FILL.get()) > 0) {
+                    lifetime++;
+                    battleStyle.getDataManager().setDataSyncF(CoreAPIDataKeys.METER_FILL.get(), data -> data - 1);
+                    power++;
+                }
+            }
+            if (focusedEntity != null)
+            {
+
+                if (playerPatch.attack(new EpicFightDamageSource(this.level().damageSources().mobAttack(playerPatch.getOriginal())).attachDamageModifier(ValueModifier.setter(44)).setStunType(StunType.HOLD).setBaseImpact(4f).addRuntimeTag(DamageTypeTags.BYPASSES_INVULNERABILITY).addRuntimeTag(DamageTypeTags.BYPASSES_ARMOR).addRuntimeTag(EpicFightDamageTypeTags.UNBLOCKALBE).addRuntimeTag(DamageTypeTags.BYPASSES_RESISTANCE).addRuntimeTag(DamageTypeTags.BYPASSES_EFFECTS).addRuntimeTag(EpicFightDamageTypeTags.BYPASS_DODGE), focusedEntity, InteractionHand.MAIN_HAND).resultType != AttackResult.ResultType.SUCCESS)
+                {
+                    focusedEntity.hurt(this.level().damageSources().genericKill(), 44);
+                }
+                focusedEntity.invulnerableTime = 0;
+                focusedEntity.setDeltaMovement(Vec3.ZERO);
+                focusedEntity.setPos(this.position());
+                if (focusedEntity instanceof LivingEntity trueEntity && trueEntity.isDeadOrDying())
+                {
+                    this.discard();
+                }
+            }
+        }
+
     }
 
     @Override
@@ -116,7 +158,12 @@ public class FullPowerDragonCannonBeam extends Projectile {
             d2 = this.getY() + 0;
             d3 = this.getZ() + 0;
         }
-        this.setPos(d7, d2, d3);
+        if (this.focusedEntity != null)
+        {
+            this.setPos(focusedEntity.position());
+            this.focusTick();
+        }
+        else this.setPos(d7, d2, d3);
         if (tickCount % 4 == 0 && !this.level().isClientSide)
         {
             ParticleUtil.sendAlwaysVisibleParticles((ServerLevel) this.level(), ParticleRegistry.DARK_BANG_EXPLOSION.get(), position().x, position().y, position().z, 1, 0, 0, 0, 0);
@@ -134,13 +181,18 @@ public class FullPowerDragonCannonBeam extends Projectile {
                                 {
                                     livingTarget.hurt(this.level().damageSources().genericKill(), 44);
                                 }
-
+                                if ((entity.getType().is(Tags.EntityTypes.BOSSES) || (ModList.get().isLoaded("draconicevolution") && entity instanceof DraconicGuardianEntity)) && this.focusedEntity == null)
+                                {
+                                    this.focusedEntity = entity;
+                                }
+                                livingTarget.setDeltaMovement(Vec3.ZERO);
+                                livingTarget.setPos(this.position());
                                 livingTarget.invulnerableTime = 0;
                             }
                         });
                     }
                 }
-                ((ServerLevel)this.level()).sendParticles(new BeamParticleType(6f, ParticleRegistry.DRAGON_CANNON_LASER.get(), 240, 0, 255, 255, position().x, position().y, position().z, (double) speed), originBeam.x, originBeam.y, originBeam.z, 1, 0, 0, 0, 0);
+                ParticleUtil.sendAlwaysVisibleParticles((ServerLevel)this.level(), new BeamParticleType(6f, ParticleRegistry.DRAGON_CANNON_LASER.get(), 240, 0, 255, 255, position().x, position().y, position().z, (double) speed), originBeam.x, originBeam.y, originBeam.z, 1, 0, 0, 0, 0);
             }
         }
 
@@ -152,31 +204,37 @@ public class FullPowerDragonCannonBeam extends Projectile {
     }
 
     public List<Entity> updateAndSelectCollideEntity(LivingEntityPatch<?> entitypatch, OBBCollider collider, Joint joint) {
-        Matrix4f transformMatrix;
+        return transformOBB(entitypatch, collider, joint).getCollideEntities(entitypatch.getOriginal());
+    }
+
+    public OBBCollider transformOBB(LivingEntityPatch<?> entitypatch, OBBCollider collider, Joint joint) {
+        OpenMatrix4f transformMatrix;
         Armature armature = entitypatch.getArmature();
         Vec3 origin = this.originBeam; // fixed start
+        if (origin == null)
+            origin = this.getOwner().position();
         Vec3 head = this.position();
         Vec3 midpoint = origin.add(head).scale(0.5);
-
         if (armature.rootJoint.equals(joint)) {
             Pose rootPose = new Pose();
             rootPose.putJointData("Root", JointTransform.empty());
-            transformMatrix = OpenMatrix4f.exportToMojangMatrix(rootPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new OpenMatrix4f()).removeTranslation());
+            transformMatrix = rootPose.orElseEmpty("Root").getAnimationBoundMatrix(armature.rootJoint, new OpenMatrix4f()).removeTranslation();
         } else {
-            transformMatrix = OpenMatrix4f.exportToMojangMatrix(armature.getBoundTransformFor(entitypatch.getAnimator().getPose(0f), joint));
+            transformMatrix = armature.getBoundTransformFor(entitypatch.getAnimator().getPose(0f), joint);
         }
 
-        Matrix4f toWorldCoord = new Matrix4f().setTranslation(-(float)midpoint.x, (float)midpoint.y, -(float)midpoint.z);
-        transformMatrix.mulLocal(toWorldCoord.mul(OpenMatrix4f.exportToMojangMatrix(entitypatch.getModelMatrix(0.0F))));
-        collider.transform(OpenMatrix4f.importFromMojangMatrix(transformMatrix));
-
-        return collider.getCollideEntities(entitypatch.getOriginal());
+        OpenMatrix4f toWorldCoord = OpenMatrix4f.createTranslation(-(float)midpoint.x, (float)midpoint.y, -(float)midpoint.z);
+        transformMatrix.mulFront(toWorldCoord.mulBack(entitypatch.getModelMatrix(0.0F)));
+        collider.transform(transformMatrix);
+        return collider;
     }
 
     public OBBCollider getBeamOBB() {
         Vec3 origin = this.originBeam; // fixed start
         Vec3 head = this.position(); // projectile position
         Vec3 dir; // vector along beam
+        if (origin == null)
+            origin = this.getOwner().position();
 
         if (this.level().isClientSide() && this.getOwner() != null)
         {
@@ -212,11 +270,22 @@ public class FullPowerDragonCannonBeam extends Projectile {
                     }
                     else
                     {
-                        entity.hurt(this.level().damageSources().mobAttack(livingEntity),  50);
-
+                        entity.hurt(this.level().damageSources().mobAttack(livingEntity),  255);
+                        if (ModList.get().isLoaded("draconicevolution"))
+                        {
+                            if (entity instanceof GuardianCrystalEntity)
+                            {
+                                entity.discard();
+                            }
+                        }
                     }
                 }
             });
+        }
+        else
+        {
+            AABB areaDamage = AABB.ofSize(this.position(), 50, 50, 50);
+
         }
     }
 

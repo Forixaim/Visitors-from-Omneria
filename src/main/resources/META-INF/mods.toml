@@ -65,7 +65,7 @@ side = "BOTH"
 [[dependencies."${mod_id}"]]
 modId="epicfight"
 mandatory=true
-versionRange="[20.13.,20.14)"
+versionRange="[20.14.,20.15)"
 ordering="AFTER"
 side="BOTH"
 

@@ -1,8 +1,11 @@
 package net.forixaim.omneria.skill.battle_style.genesis_wyrm;
 
+import com.brandon3055.draconicevolution.DraconicEvolution;
+import com.brandon3055.draconicevolution.init.DEDamage;
 import com.google.common.collect.Lists;
 import io.netty.buffer.Unpooled;
 import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
+import net.forixaim.battle_arts_api.client.KeyBinds;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
 import net.forixaim.omneria.client.particles.types.TrackingParticleType;
 import net.forixaim.omneria.registry.ParticleRegistry;
@@ -12,6 +15,8 @@ import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.skill.OmneriaSkills;
 import net.forixaim.omneria.skill.battle_style.OmneriaBattleStyle;
 import net.forixaim.omneria.util.NetworkUtils;
+import net.forixaim.omneria.world.entity.projectiles.DragonCannonBeam;
+import net.forixaim.omneria.world.entity.projectiles.FullPowerDragonCannonBeam;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -32,6 +37,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.RegistryObject;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotions;
@@ -95,6 +101,10 @@ public class GenesisWyrm extends OmneriaBattleStyle
     @Override
     public AnimationManager.AnimationAccessor<? extends StaticAnimation> getJump(SkillContainer container) {
         boolean flag = isMovingBackward(container.getExecutor().getOriginal());
+        if (container.getExecutor().getOriginal().isShiftKeyDown())
+        {
+            return GenesisWyrmAnimations.CROUCH_JUMP;
+        }
         if (container.getExecutor().getOriginal().isSprinting())
         {
             return GenesisWyrmAnimations.JUMP_RUN;
@@ -124,13 +134,16 @@ public class GenesisWyrm extends OmneriaBattleStyle
         this.unarmedLivingMotions.put(LivingMotions.KNEEL, GenesisWyrmAnimations.CROUCH);
         this.unarmedLivingMotions.put(LivingMotions.WALK, GenesisWyrmAnimations.WALK);
         this.unarmedLivingMotions.put(LivingMotions.RUN, GenesisWyrmAnimations.RUN);
+        this.unarmedLivingMotions.put(LivingMotions.FALL, GenesisWyrmAnimations.AIR_FALL);
 
         this.unarmedInnateSkill = OmneriaSkills.INITIAL_FORCE;
-        this.guardMaps.put((GuardSkill) EpicFightSkills.GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, GenesisWyrmAnimations.GUARD_HIT)));
-        this.guardMaps.put((GuardSkill) EpicFightSkills.IMPACT_GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, GenesisWyrmAnimations.GUARD_HIT)));
-        this.guardMaps.put((GuardSkill) EpicFightSkills.PARRYING, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, GenesisWyrmAnimations.GUARD_HIT)));
-
-        this.guardMaps.put((GuardSkill) OmneriaSkills.PRIMORDIAL_BARRIER, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, GenesisWyrmAnimations.GUARD_HIT)));
+        this.guardMaps.put((GuardSkill) EpicFightSkills.GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)),
+                Map.entry(GuardSkill.BlockType.GUARD_BREAK, Lists.newArrayList(GenesisWyrmAnimations.GUARD_BREAK))));
+        this.guardMaps.put((GuardSkill) EpicFightSkills.IMPACT_GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)),
+                Map.entry(GuardSkill.BlockType.GUARD_BREAK, Lists.newArrayList(GenesisWyrmAnimations.GUARD_BREAK))));
+        this.guardMaps.put((GuardSkill) EpicFightSkills.PARRYING, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)), Map.entry(GuardSkill.BlockType.ADVANCED_GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_PARRY1, GenesisWyrmAnimations.GUARD_PARRY2)),
+                Map.entry(GuardSkill.BlockType.GUARD_BREAK, Lists.newArrayList(GenesisWyrmAnimations.GUARD_BREAK))));
+        this.guardMaps.put((GuardSkill) OmneriaSkills.PRIMORDIAL_BARRIER, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT))));
 
     }
 
@@ -171,7 +184,7 @@ public class GenesisWyrm extends OmneriaBattleStyle
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.MODIFY_DAMAGE_EVENT, EVENT_UUID, event -> {
             if (container.getExecutor().getOriginal().getMainHandItem().isEmpty())
             {
-                event.attachValueModifier(ValueModifier.setter(7));
+                event.attachValueModifier(ValueModifier.multiplier(7));
                 if (container.getDataManager().getDataValue(DatakeyRegistry.TWILIGHT.get()))
                 {
                     event.attachValueModifier(ValueModifier.multiplier(1.4f));
@@ -209,23 +222,6 @@ public class GenesisWyrm extends OmneriaBattleStyle
             if (event.getMovementInput().shiftKeyDown) {
                 event.getMovementInput().forwardImpulse = 0;
                 event.getMovementInput().leftImpulse = 0;
-                event.getMovementInput().jumping = false;
-            }
-            else
-            {
-                float percentage = event.getPlayerPatch().getOriginal().getHealth() / event.getPlayerPatch().getOriginal().getMaxHealth();
-                if (percentage < 0.5)
-                {
-                    if (percentage < 0.25)
-                    {
-                        event.getMovementInput().forwardImpulse *= 0.5f;
-                        event.getMovementInput().leftImpulse *= 0.5f;
-                    }
-                    else {
-                        event.getMovementInput().forwardImpulse *= 0.75f;
-                        event.getMovementInput().leftImpulse *= 0.75f;
-                    }
-                }
             }
         });
 
@@ -271,6 +267,11 @@ public class GenesisWyrm extends OmneriaBattleStyle
                     DamageTypes.HOT_FLOOR,
                     DamageTypes.LAVA
             );
+            if (ModList.get().isLoaded("draconicevolution"))
+            {
+                IGNORED_DAMAGES.add(DEDamage.GUARDIAN_LASER);
+                IGNORED_DAMAGES.add(DEDamage.GUARDIAN_PROJECTILE);
+            }
             boolean flag = true;
             for (ResourceKey<DamageType> resourceKey : IGNORED_DAMAGES)
             {
@@ -280,9 +281,11 @@ public class GenesisWyrm extends OmneriaBattleStyle
                     break;
                 }
             }
+            if (container.getExecutor().getHoldingSkill() instanceof GuardSkill)
+                flag = false;
             if (!event.getPlayerPatch().getOriginal().isSprinting() && !event.getPlayerPatch().getEntityState().attacking() && flag)
             {
-
+                CommonEvents.BUILD_METER(event);
                 List<AnimationManager.AnimationAccessor<? extends StaticAnimation>> dodges = Lists.newArrayList(DODGES);
                 if (container.getDataManager().getDataValue(DatakeyRegistry.DODGE_ANIM.get()) >= 0 && dodges.contains(AnimationManager.byId(container.getDataManager().getDataValue(DatakeyRegistry.DODGE_ANIM.get()))))
                 {
@@ -298,8 +301,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
                 event.setResult(AttackResult.ResultType.MISSED);
                 event.setCanceled(true);
             }
-
         });
+
 
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.BASIC_ATTACK_EVENT, EVENT_UUID, event -> {
             ItemStack mainhandItemStack = container.getServerExecutor().getOriginal().getMainHandItem();
@@ -308,6 +311,8 @@ public class GenesisWyrm extends OmneriaBattleStyle
                 container.requestCasting(event.getPlayerPatch(), new FriendlyByteBuf(Unpooled.buffer().writeBoolean(false)));
             }
         });
+
+
     }
 
 
@@ -425,9 +430,9 @@ public class GenesisWyrm extends OmneriaBattleStyle
     {
         super.updateContainer(container);
         AttributeInstance speed = container.getExecutor().getOriginal().getAttribute(Attributes.MOVEMENT_SPEED);
-
+        if (!container.getExecutor().getOriginal().isCreative())
+            container.getExecutor().getOriginal().getAbilities().mayfly = container.getDataManager().getDataValue(DatakeyRegistry.TWILIGHT.get()) && !container.getExecutor().getOriginal().isCreative();
         if (container.getExecutor().getOriginal().isSprinting()) {
-
             if (speed != null && speed.getModifier(SPRINT_SPEED_BUFF) == null) {
                 speed.addTransientModifier(
                         new AttributeModifier(
@@ -438,7 +443,6 @@ public class GenesisWyrm extends OmneriaBattleStyle
                         ));
             }
         } else {
-            // remove modifier when not sprinting
             if (speed != null)
                 speed.removeModifier(SPRINT_SPEED_BUFF);
         }
@@ -447,7 +451,7 @@ public class GenesisWyrm extends OmneriaBattleStyle
             container.getDataManager().setDataSync(DatakeyRegistry.RIGHT_CLICKED.get(), Minecraft.getInstance().options.keyUse.isDown());
             container.getDataManager().setDataSync(DatakeyRegistry.MOUSE3.get(),  EpicFightKeyMappings.GUARD.isDown());
             container.getDataManager().setDataSync(DatakeyRegistry.SHIFT.get(), Minecraft.getInstance().options.keyShift.isDown());
-
+            container.getDataManager().setDataSync(DatakeyRegistry.ULT_HELD.get(), KeyBinds.USE_ULTIMATE_ART.isDown());
         }
         else
         {
@@ -473,6 +477,14 @@ public class GenesisWyrm extends OmneriaBattleStyle
                         container.getServerExecutor().getOriginal().getY() +
                                 container.getServerExecutor().getOriginal().getEyeHeight(),
                         container.getServerExecutor().getOriginal().getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+            }
+        }
+        if (container.getDataManager().hasData(DatakeyRegistry.BEAM.get())) {
+            Entity test = container.getExecutor().getOriginal().level().getEntity(container.getDataManager().getDataValue(DatakeyRegistry.BEAM.get()));
+            if (test instanceof DragonCannonBeam || test instanceof FullPowerDragonCannonBeam)
+            {
+                if (test.isRemoved())
+                    container.getDataManager().setDataSync(DatakeyRegistry.BEAM.get(), -1);
             }
         }
 

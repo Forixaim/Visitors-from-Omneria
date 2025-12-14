@@ -6,7 +6,9 @@
   "refmap": "omneria.optional.refmap.json",
   "mixins": [
     "MixinCEMobPatch",
-    "MixinRadiationManager"
+    "MixinDragonLaserBeamPhase",
+    "MixinRadiationManager",
+    "PhaseAccessor"
   ],
   "client": [
   ],
