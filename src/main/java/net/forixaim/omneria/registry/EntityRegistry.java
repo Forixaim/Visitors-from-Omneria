@@ -27,7 +27,8 @@ public class EntityRegistry
     public static final RegistryObject<EntityType<FullPowerDragonCannonBeam>> FULL_POWER_DRAGON_CANNON = ENTITIES.register("full_power_dragon_cannon",
             () -> EntityType.Builder.of(FullPowerDragonCannonBeam::new, MobCategory.MISC).sized(3f, 3f).clientTrackingRange(512).build("full_power_dragon_cannon"));
 
-
+    public static final RegistryObject<EntityType<DarkBangProjectile>> DRAGON_PULSE = ENTITIES.register("dragon_pulse",
+            () -> EntityType.Builder.of(DarkBangProjectile::new, MobCategory.MISC).sized(2f, 2f).clientTrackingRange(12).build("dragon_pulse"));
 	public static void Register(IEventBus bus)
 	{
 		ENTITIES.register(bus);

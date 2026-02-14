@@ -5,6 +5,7 @@ import net.forixaim.omneria.animations.types.OmneriaEntityStates;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
 import yesman.epicfight.skill.SkillContainer;
@@ -44,6 +45,17 @@ public class OmneriaBattleStyle extends BattleStyle implements IIgnoresCEStunImm
         return null;
     }
 
+    private Vec3 accelerate(Vec3 vel, Vec3 wishDir, float maxSpeed, float accel) {
+        float currentSpeed = (float)vel.dot(wishDir);
+        float addSpeed = maxSpeed - currentSpeed;
+        if (addSpeed <= 0) return vel;
+
+        float accelSpeed = accel * maxSpeed;
+        if (accelSpeed > addSpeed) accelSpeed = addSpeed;
+
+        return vel.add(wishDir.scale(accelSpeed));
+    }
+
     @Override
     public void updateContainer(SkillContainer container)
     {
@@ -54,5 +66,31 @@ public class OmneriaBattleStyle extends BattleStyle implements IIgnoresCEStunImm
             container.getDataManager().setDataSync(DatakeyRegistry.TRUE_COMBO_COUNT.get(),  0);
         }
         container.getExecutor().getOriginal().resetFallDistance();
+
+        if (!container.getExecutor().isLogicalClient())
+        {
+            Vec3 vel = container.getExecutor().getOriginal().getDeltaMovement();
+            Vec3 horizontal = new Vec3(vel.x, 0, vel.z);
+
+            boolean onGround = container.getExecutor().getOriginal().onGround();
+            boolean sprint = container.getExecutor().getOriginal().isSprinting();
+
+            float maxSpeed = sprint ? 0.45f : 0.30f;
+            float accel = onGround ? 0.20f : 0.04f;
+            float friction = onGround ? 0.10f : 0.01f;
+
+            Vec3 wishDir = new Vec3(container.getExecutor().getOriginal().xxa, 0, container.getExecutor().getOriginal().zza);
+            if (wishDir.lengthSqr() > 0) wishDir = wishDir.normalize();
+
+            if (wishDir.lengthSqr() > 0) {
+                horizontal = accelerate(horizontal, wishDir, maxSpeed, accel);
+            }
+
+            if (onGround) {
+                horizontal = horizontal.scale(1f - friction);
+            }
+
+            container.getExecutor().getOriginal().setDeltaMovement(horizontal.x, vel.y, horizontal.z);
+        }
     }
 }

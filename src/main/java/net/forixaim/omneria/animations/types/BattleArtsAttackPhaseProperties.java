@@ -17,4 +17,5 @@ public class BattleArtsAttackPhaseProperties
             new AnimationProperty.AttackPhaseProperty<>("priority", Codec.INT);
     public static final AnimationProperty.AttackPhaseProperty<Integer> ENDLAG_TICKS =
             new AnimationProperty.AttackPhaseProperty<>("endlag_ticks", Codec.INT);
+    public static final AnimationProperty.AttackAnimationProperty<Boolean> IS_AERIAL = new AnimationProperty.AttackAnimationProperty<>("aerial_attack", Codec.BOOL);
 }

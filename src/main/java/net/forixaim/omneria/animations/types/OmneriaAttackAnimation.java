@@ -52,7 +52,12 @@ public class OmneriaAttackAnimation extends AttackAnimation
     public OmneriaAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature)
     {
         super(transitionTime, antic, preDelay, contact, recovery, collider, colliderJoint, accessor, armature);
+        setupBaseAnimationProperties();
+    }
+
+    private void setupBaseAnimationProperties() {
         this.newTimePair(0.0F, Float.MAX_VALUE);
+        this.addProperty(BattleArtsAttackPhaseProperties.IS_AERIAL, false);
         this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
         this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
         this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
@@ -118,133 +123,25 @@ public class OmneriaAttackAnimation extends AttackAnimation
     public OmneriaAttackAnimation(float transitionTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature)
     {
         super(transitionTime, antic, preDelay, contact, recovery, hand, collider, colliderJoint, accessor, armature);
-        this.newTimePair(0.0F, Float.MAX_VALUE);
-        this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
-        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
-        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
-            LivingEntity attackTarget = entitypatch.getTarget();
-            if (!(Boolean)self.getProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(false) && attackTarget != null) {
-                TransformSheet transform = self.getTransfroms().get("Root").copyAll();
-                Keyframe[] keyframes = transform.getKeyframes();
-                int startFrame = 0;
-                int endFrame = transform.getKeyframes().length - 1;
-                Vec3f keyLast = keyframes[endFrame].transform().translation();
-                Vec3 pos = entitypatch.getOriginal().getEyePosition();
-                Vec3 targetpos = attackTarget.position().add(attackTarget.getDeltaMovement().scale(8.0));
-                float horizontalDistance = Math.max((float)targetpos.subtract(pos).horizontalDistance() * 1.3F - (attackTarget.getBbWidth() + entitypatch.getOriginal().getBbWidth()), 0.0F);
-                Vec3f worldPosition = new Vec3f(keyLast.x, 0.0F, -horizontalDistance);
-                float scale = Math.min(worldPosition.length() / keyLast.length(), 2.0F);
-
-                for(int i = startFrame; i <= endFrame; ++i) {
-                    Vec3f translation = keyframes[i].transform().translation();
-                    translation.z *= scale;
-                }
-
-                transformSheet.readFrom(transform);
-            } else {
-                transformSheet.readFrom(self.getTransfroms().get("Root"));
-            }
-
-        });
+        setupBaseAnimationProperties();
     }
 
     public OmneriaAttackAnimation(float transitionTime, AnimationManager.AnimationAccessor<? extends AttackAnimation> accessor, AssetAccessor<? extends Armature> armature, Phase... phases)
     {
         super(transitionTime, accessor, armature, phases);
-        this.newTimePair(0.0F, Float.MAX_VALUE);
-        this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
-        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
-        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
-            LivingEntity attackTarget = entitypatch.getTarget();
-            if (!(Boolean)self.getProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(false) && attackTarget != null) {
-                TransformSheet transform = self.getTransfroms().get("Root").copyAll();
-                Keyframe[] keyframes = transform.getKeyframes();
-                int startFrame = 0;
-                int endFrame = transform.getKeyframes().length - 1;
-                Vec3f keyLast = keyframes[endFrame].transform().translation();
-                Vec3 pos = entitypatch.getOriginal().getEyePosition();
-                Vec3 targetpos = attackTarget.position().add(attackTarget.getDeltaMovement().scale(8.0));
-                float horizontalDistance = Math.max((float)targetpos.subtract(pos).horizontalDistance() * 1.3F - (attackTarget.getBbWidth() + entitypatch.getOriginal().getBbWidth()), 0.0F);
-                Vec3f worldPosition = new Vec3f(keyLast.x, 0.0F, -horizontalDistance);
-                float scale = Math.min(worldPosition.length() / keyLast.length(), 2.0F);
-
-                for(int i = startFrame; i <= endFrame; ++i) {
-                    Vec3f translation = keyframes[i].transform().translation();
-                    translation.z *= scale;
-                }
-
-                transformSheet.readFrom(transform);
-            } else {
-                transformSheet.readFrom(self.getTransfroms().get("Root"));
-            }
-
-        });
+        setupBaseAnimationProperties();
     }
 
     public OmneriaAttackAnimation(float convertTime, float antic, float preDelay, float contact, float recovery, InteractionHand hand, @Nullable Collider collider, Joint colliderJoint, String path, AssetAccessor<? extends Armature> armature)
     {
         super(convertTime, antic, preDelay, contact, recovery, hand, collider, colliderJoint, path, armature);
-        this.newTimePair(0.0F, Float.MAX_VALUE);
-        this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
-        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
-        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
-            LivingEntity attackTarget = entitypatch.getTarget();
-            if (!(Boolean)self.getProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(false) && attackTarget != null) {
-                TransformSheet transform = self.getTransfroms().get("Root").copyAll();
-                Keyframe[] keyframes = transform.getKeyframes();
-                int startFrame = 0;
-                int endFrame = transform.getKeyframes().length - 1;
-                Vec3f keyLast = keyframes[endFrame].transform().translation();
-                Vec3 pos = entitypatch.getOriginal().getEyePosition();
-                Vec3 targetpos = attackTarget.position().add(attackTarget.getDeltaMovement().scale(8.0));
-                float horizontalDistance = Math.max((float)targetpos.subtract(pos).horizontalDistance() * 1.3F - (attackTarget.getBbWidth() + entitypatch.getOriginal().getBbWidth()), 0.0F);
-                Vec3f worldPosition = new Vec3f(keyLast.x, 0.0F, -horizontalDistance);
-                float scale = Math.min(worldPosition.length() / keyLast.length(), 2.0F);
-
-                for(int i = startFrame; i <= endFrame; ++i) {
-                    Vec3f translation = keyframes[i].transform().translation();
-                    translation.z *= scale;
-                }
-
-                transformSheet.readFrom(transform);
-            } else {
-                transformSheet.readFrom(self.getTransfroms().get("Root"));
-            }
-
-        });
+        setupBaseAnimationProperties();
     }
 
     public OmneriaAttackAnimation(float convertTime, String path, AssetAccessor<? extends Armature> armature, Phase... phases)
     {
         super(convertTime, path, armature, phases);
-        this.newTimePair(0.0F, Float.MAX_VALUE);
-        this.addProperty(AnimationProperty.AttackPhaseProperty.STUN_TYPE, StunType.FALL);
-        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_BEGIN, MoveCoordFunctions.TRACE_TARGET_DISTANCE);
-        this.addProperty(AnimationProperty.ActionAnimationProperty.COORD_SET_TICK, (self, entitypatch, transformSheet) -> {
-            LivingEntity attackTarget = entitypatch.getTarget();
-            if (!(Boolean)self.getProperty(AnimationProperty.AttackAnimationProperty.FIXED_MOVE_DISTANCE).orElse(false) && attackTarget != null) {
-                TransformSheet transform = self.getTransfroms().get("Root").copyAll();
-                Keyframe[] keyframes = transform.getKeyframes();
-                int startFrame = 0;
-                int endFrame = transform.getKeyframes().length - 1;
-                Vec3f keyLast = keyframes[endFrame].transform().translation();
-                Vec3 pos = entitypatch.getOriginal().getEyePosition();
-                Vec3 targetpos = attackTarget.position().add(attackTarget.getDeltaMovement().scale(8.0));
-                float horizontalDistance = Math.max((float)targetpos.subtract(pos).horizontalDistance() * 1.3F - (attackTarget.getBbWidth() + entitypatch.getOriginal().getBbWidth()), 0.0F);
-                Vec3f worldPosition = new Vec3f(keyLast.x, 0.0F, -horizontalDistance);
-                float scale = Math.min(worldPosition.length() / keyLast.length(), 2.0F);
-
-                for(int i = startFrame; i <= endFrame; ++i) {
-                    Vec3f translation = keyframes[i].transform().translation();
-                    translation.z *= scale;
-                }
-
-                transformSheet.readFrom(transform);
-            } else {
-                transformSheet.readFrom(self.getTransfroms().get("Root"));
-            }
-
-        });
+        setupBaseAnimationProperties();
     }
 
 
@@ -307,6 +204,13 @@ public class OmneriaAttackAnimation extends AttackAnimation
         AnimationPlayer player = entitypatch.getAnimator().getPlayerFor(this.getAccessor());
         float prevElapsedTime = player.getPrevElapsedTime();
         float elapsedTime = player.getElapsedTime();
+        if (this.getProperty(BattleArtsAttackPhaseProperties.IS_AERIAL).isPresent() && this.getProperty(BattleArtsAttackPhaseProperties.IS_AERIAL).get())
+        {
+            if (entitypatch.getOriginal().onGround())
+            {
+                entitypatch.stopPlaying(animation.get().getRealAnimation());
+            }
+        }
         EntityState prevState = animation.get().getState(entitypatch, prevElapsedTime);
         EntityState state = animation.get().getState(entitypatch, elapsedTime);
         List<Phase> phases = this.getPhasesByTime(animation.get().isLinkAnimation() ? 0.0F : elapsedTime);

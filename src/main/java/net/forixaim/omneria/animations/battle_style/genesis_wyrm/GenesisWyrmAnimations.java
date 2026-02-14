@@ -124,6 +124,8 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> HEAVY_AUTO3;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DARK_UPPER;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_UPPERCUT;
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_WHIRL;
+
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> ORIGIN_PULL;
 
     public static AnimationManager.AnimationAccessor<InvincibleAnimation> DRACONIC_DODGE1;
@@ -144,6 +146,9 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<BasicAttackAnimation> BLAST_AUTO2;
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DARK_BANG;
+
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_PULSE;
+
 
     public static final AnimationProperty.PoseModifier LOCK_POSE = (self, pose, entitypatch, time, partialTicks) -> {
         JointTransform chest = pose.orElseEmpty("Root");};
@@ -169,7 +174,7 @@ public class GenesisWyrmAnimations
         ));
 
         CROUCH_JUMP = builder.nextAccessor("battle_style/legendary/genesis_wyrm/crouch_jump", access -> new JumpAnimation(
-                0.05f, 2.6f, 90, access, Armatures.BIPED));
+                0.05f, 1.0f, 90, access, Armatures.BIPED));
         JUMP = builder.nextAccessor("battle_style/legendary/genesis_wyrm/jump", access -> new JumpAnimation(
                 0.05f, 0.65f, 90, access, Armatures.BIPED));
 
@@ -240,7 +245,34 @@ public class GenesisWyrmAnimations
                 .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
                 .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
                 .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
+        DRAGON_PULSE = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dpulse", access -> new OmneriaAttackAnimation(
+                0.1f, 0.0f, 0.3f, 0.35f, 1.5f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
+                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
+                .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE)
+                .addEvents(AnimationEvent.InTimeEvent.create(0.35f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                {
+
+                })));
+
+        DRAGON_WHIRL = builder.nextAccessor("battle_style/legendary/genesis_wyrm/neutral_air", access ->
+                new OmneriaAttackAnimation(0.1f, access, Armatures.BIPED, new AttackAnimation.Phase(0.0f, 0.0f, 0.2f, 0.3f, 0.35f, 0.35f, Armatures.BIPED.get().legL, GenesisWyrmColliders.GW_CLAW).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_KICK_IMPACT_M.get())
+                        .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                        .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
+                        .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12),
+                        new AttackAnimation.Phase(0.35f, 0.0f, 0.4f, 0.5f, 0.75f, 1f, Armatures.BIPED.get().legL, GenesisWyrmColliders.GW_CLAW).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d)
+                                .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_KICK_IMPACT_M.get())
+                                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
+                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                                .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
+                                .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12)
+                ).addProperty(BattleArtsAttackPhaseProperties.IS_AERIAL, true)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
         ORIGIN_PULL = builder.nextAccessor("battle_style/legendary/genesis_wyrm/origin_pull", access -> new OmneriaAttackAnimation(
