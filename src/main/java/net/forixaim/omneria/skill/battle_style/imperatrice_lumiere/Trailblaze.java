@@ -1,7 +1,10 @@
 package net.forixaim.omneria.skill.battle_style.imperatrice_lumiere;
 
 import net.forixaim.omneria.animations.battle_style.imperatrice_lumiere.sword.LumiereSwordAnims;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.network.EpicFightNetworkManager;
 import yesman.epicfight.network.server.SPSkillExecutionFeedback;
@@ -22,15 +25,14 @@ public class Trailblaze extends DodgeSkill
     }
 
     @Override
-    public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine)
-    {
-        return ArgumentGatherers.UniversalDirectionalInput(container, null);
+    public void gatherArguments(SkillContainer container, ControlEngine controlEngine, CompoundTag arguments) {
+        ArgumentGatherers.UniversalDirectionalInput(arguments);
     }
 
     @Override
-    public void onInitiate(SkillContainer container)
+    public void onInitiate(SkillContainer container, EntityEventListener listener)
     {
-        super.onInitiate(container);
+        super.onInitiate(container, listener);
         container.getExecutor().getEventListener().addEventListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID, event ->
         {
             if (event.getSkillContainer().getSkill() == this && !event.getPlayerPatch().getEntityState().attacking() && this.canExecute(container))
@@ -43,13 +45,12 @@ public class Trailblaze extends DodgeSkill
     public void onRemoved(SkillContainer container)
     {
         super.onRemoved(container);
-        container.getExecutor().getEventListener().removeListener(PlayerEventListener.EventType.SKILL_CAST_EVENT, EVENT_UUID);
     }
 
     @Override
-    public Object getExecutionPacket(SkillContainer skillContainer, FriendlyByteBuf args)
+    public CustomPacketPayload getExecutionPacket(SkillContainer container, CompoundTag args)
     {
-        return ArgumentGatherers.DirectionalExecutionPacket(skillContainer, args);
+        return ArgumentGatherers.DirectionalExecutionPacket(container, args);
     }
 
     @Override
@@ -59,53 +60,8 @@ public class Trailblaze extends DodgeSkill
     }
 
     @Override
-    public void executeOnServer(SkillContainer container, FriendlyByteBuf args)
+    public void executeOnServer(SkillContainer container, CompoundTag args)
     {
-        SPSkillExecutionFeedback feedbackPacket = SPSkillExecutionFeedback.executed(container.getSlotId());
-        ServerPlayerPatch executor = container.getServerExecutor();
-        if (executor.isHoldingAny()) {
-            if (executor.getHoldingSkill() instanceof ChargeableSkill) {
-                feedbackPacket.getBuffer().writeInt(executor.getAccumulatedChargeAmount());
-            }
-
-            if (executor.getHoldingSkill() == this) {
-                executor.getHoldingSkill().onStopHolding(container, feedbackPacket);
-            }
-
-            executor.resetHolding();
-        } else {
-            container.activate();
-        }
-
-        EpicFightNetworkManager.sendToPlayer(feedbackPacket, executor.getOriginal());
-
-        int fw = args.readInt();
-        int sw = args.readInt();
-        int ud = args.readInt();
-
-        if (fw == 1)
-        {
-            container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_TRAILBLAZE_FORWARD, 0);
-        }
-        else if (fw == -1)
-        {
-            container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_TRAILBLAZE_BACKWARD, 0);
-        }
-        else if (sw == -1)
-        {
-            container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_TRAILBLAZE_RIGHT, 0);
-        }
-        else if (sw == 1)
-        {
-            container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_TRAILBLAZE_LEFT, 0);
-        }
-        else if (ud == 1)
-        {
-            container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_TRAILBLAZE_UP, 0);
-        }
-        else
-        {
-            container.getExecutor().playAnimationSynchronized(LumiereSwordAnims.IMPERATRICE_SWORD_TRAILBLAZE_VANISH, 0);
-        }
+        
     }
 }

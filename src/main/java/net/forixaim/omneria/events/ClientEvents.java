@@ -34,6 +34,8 @@ public class ClientEvents
 
         event.registerSpriteSet(ParticleRegistry.FULL_POWER_DRAGON_CANNON_CHARGE.get(), FPDCSphere.Provider::new);
         event.registerSpecial(ParticleRegistry.DRACONIC_EXPLOSION.get(), new FPDCExplosion.Provider());
+        event.registerSpecial(ParticleRegistry.BILLBOARD_TRAIL.get(), new BillboardAnimationTrailParticle.Provider());
+
 
 
         event.registerSpecial(ParticleRegistry.SQUARE_LASER.get(), new SquareLaserParticle.Provider());

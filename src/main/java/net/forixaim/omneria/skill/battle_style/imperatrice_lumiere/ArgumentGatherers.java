@@ -1,58 +1,47 @@
 package net.forixaim.omneria.skill.battle_style.imperatrice_lumiere;
 
-import io.netty.buffer.Unpooled;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.Input;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import yesman.epicfight.client.events.engine.ControlEngine;
+import net.minecraft.client.Options;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import yesman.epicfight.api.client.input.InputManager;
+import yesman.epicfight.api.client.input.action.InputAction;
 import yesman.epicfight.network.client.CPSkillRequest;
 import yesman.epicfight.skill.SkillContainer;
+import com.mojang.datafixers.util.Pair;
+
+import java.util.Map;
+import java.util.Objects;
 
 public class ArgumentGatherers
 {
-	public static FriendlyByteBuf UniversalDirectionalInput(SkillContainer container, ControlEngine engine)
+	public static void UniversalDirectionalInput(CompoundTag tag)
 	{
-		Input input = container.getClientExecutor().getOriginal().input;
-		float pulse = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(container.getExecutor().getOriginal()), 0.0F, 1.0F);
-		input.tick(false, pulse);
+        Options opt = Minecraft.getInstance().options;
 
-		int forward = ControlEngine.isKeyDown(Minecraft.getInstance().options.keyUp) ? 1 : 0;
-		int backward = ControlEngine.isKeyDown(Minecraft.getInstance().options.keyDown) ? -1 : 0;
-		int left = ControlEngine.isKeyDown(Minecraft.getInstance().options.keyLeft) ? 1 : 0;
-		int right = ControlEngine.isKeyDown(Minecraft.getInstance().options.keyRight) ? -1 : 0;
-		int down = ControlEngine.isKeyDown(Minecraft.getInstance().options.keyShift) ? -1 : 0;
-		int up = ControlEngine.isKeyDown(Minecraft.getInstance().options.keyJump) ? 1 : 0;
+        // Define the keys, their mappings, and their "active" values
+        Map<String, Pair<KeyMapping, Integer>> inputMap = Map.of(
+                "forward",  Pair.of(opt.keyUp, 1),
+                "backward", Pair.of(opt.keyDown, -1),
+                "left",     Pair.of(opt.keyLeft, 1),
+                "right",    Pair.of(opt.keyRight, -1),
+                "down",     Pair.of(opt.keyShift, -1),
+                "up",       Pair.of(opt.keyJump, 1)
+        );
 
-		FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-		buf.writeInt(forward);
-		buf.writeInt(backward);
-		buf.writeInt(left);
-		buf.writeInt(right);
-		buf.writeInt(down);
-		buf.writeInt(up);
+        inputMap.forEach((name, data) -> {
+            boolean active = InputManager.isActionActive(Objects.requireNonNull(InputAction.fromKeyMapping(data.getFirst())));
+            tag.putInt(name, active ? data.getSecond() : 0);
+        });
+    }
 
-		return buf;
-	}
-
-	public static Object DirectionalExecutionPacket(SkillContainer container, FriendlyByteBuf args)
+	public static CustomPacketPayload DirectionalExecutionPacket(SkillContainer container, CompoundTag args)
 	{
-		int forward = args.readInt();
-		int backward = args.readInt();
-		int left = args.readInt();
-		int right = args.readInt();
-		int down = args.readInt();
-		int up = args.readInt();
-		int vertic = forward + backward;
-		int horizon = left + right;
-		int upDown = up + down;
-
-		CPSkillRequest packet = new CPSkillRequest(container.getSlot());
-		packet.getBuffer().writeInt(Integer.compare(vertic, 0));
-		packet.getBuffer().writeInt(Integer.compare(horizon, 0));
-		packet.getBuffer().writeInt(Integer.compare(upDown, 0));
-
-		return packet;
+        CompoundTag result = new CompoundTag();
+        result.putInt("front_back", args.getInt("forward") + args.getInt("backward"));
+        result.putInt("left_right", args.getInt("left") + args.getInt("horizon"));
+        result.putInt("up_down", args.getInt("up") + args.getInt("down"));
+        return new CPSkillRequest(container.getSlot(), result);
 	}
 }

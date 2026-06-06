@@ -24,24 +24,21 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.LivingMotions;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.event.types.player.ModifyComboCounter;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.client.input.EpicFightKeyMappings;
-import yesman.epicfight.gameasset.EpicFightSkills;
 import yesman.epicfight.model.armature.HumanoidArmature;
-import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.skill.SkillDataKey;
-import yesman.epicfight.skill.SkillSlots;
+import yesman.epicfight.registry.entries.EpicFightSkills;
+import yesman.epicfight.skill.*;
 import yesman.epicfight.skill.guard.GuardSkill;
 import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.EntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.LivingEntityPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
-import yesman.epicfight.world.entity.eventlistener.ComboCounterHandleEvent;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.*;
 
@@ -75,12 +72,7 @@ public class GenesisWyrm extends OmneriaBattleStyle
             GenesisWyrmAnimations.BLAST_AUTO2
     };
 
-    @Override
-    public boolean unarmedMoveset() {
-        return true;
-    }
-
-    public GenesisWyrm(Builder<?> builder)
+    public GenesisWyrm(SkillBuilder<?> builder)
     {
         super(builder);
         this.unarmedLivingMotions.put(LivingMotions.IDLE, GenesisWyrmAnimations.IDLE_SET);
@@ -91,11 +83,11 @@ public class GenesisWyrm extends OmneriaBattleStyle
         this.unarmedLivingMotions.put(LivingMotions.FALL, GenesisWyrmAnimations.AIR_FALL);
 
         this.unarmedInnateSkill = OmneriaSkills.INITIAL_FORCE;
-        this.guardMaps.put((GuardSkill) EpicFightSkills.GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)),
+        this.guardMaps.put(EpicFightSkills.GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)),
                 Map.entry(GuardSkill.BlockType.GUARD_BREAK, Lists.newArrayList(GenesisWyrmAnimations.GUARD_BREAK))));
-        this.guardMaps.put((GuardSkill) EpicFightSkills.IMPACT_GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)),
+        this.guardMaps.put(EpicFightSkills.IMPACT_GUARD, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)),
                 Map.entry(GuardSkill.BlockType.GUARD_BREAK, Lists.newArrayList(GenesisWyrmAnimations.GUARD_BREAK))));
-        this.guardMaps.put((GuardSkill) EpicFightSkills.PARRYING, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)), Map.entry(GuardSkill.BlockType.ADVANCED_GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_PARRY1, GenesisWyrmAnimations.GUARD_PARRY2)),
+        this.guardMaps.put(EpicFightSkills.PARRYING, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT)), Map.entry(GuardSkill.BlockType.ADVANCED_GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_PARRY1, GenesisWyrmAnimations.GUARD_PARRY2)),
                 Map.entry(GuardSkill.BlockType.GUARD_BREAK, Lists.newArrayList(GenesisWyrmAnimations.GUARD_BREAK))));
         this.guardMaps.put((GuardSkill) OmneriaSkills.PRIMORDIAL_BARRIER, Map.ofEntries(Map.entry(GuardSkill.BlockType.GUARD, Lists.newArrayList(GenesisWyrmAnimations.GUARD_HIT))));
 
@@ -103,10 +95,10 @@ public class GenesisWyrm extends OmneriaBattleStyle
 
 
 
-    public static void setComboCounterWithEvent(ComboCounterHandleEvent.Causal reason, ServerPlayerPatch playerpatch, SkillContainer container, AnimationManager.AnimationAccessor<? extends StaticAnimation> causalAnimation, int value,
-                                                RegistryObject<SkillDataKey<Integer>> dataKey) {
+    public static void setComboCounterWithEvent(ModifyComboCounter.Causal reason, ServerPlayerPatch playerpatch, SkillContainer container, AnimationManager.AnimationAccessor<? extends StaticAnimation> causalAnimation, int value,
+                                                DeferredHolder<SkillDataKey<?>, SkillDataKey<Integer>> dataKey) {
         int prevValue = container.getDataManager().getDataValue(dataKey.get());
-        ComboCounterHandleEvent comboResetEvent = new ComboCounterHandleEvent(reason, playerpatch, causalAnimation, prevValue, value);
+        ModifyComboCounter comboResetEvent = new ComboCounterHandleEvent(reason, playerpatch, causalAnimation, prevValue, value);
         container.getExecutor().getEventListener().triggerEvents(PlayerEventListener.EventType.COMBO_COUNTER_HANDLE_EVENT, comboResetEvent);
         container.getDataManager().setData(dataKey.get(), comboResetEvent.getNextValue());
     }

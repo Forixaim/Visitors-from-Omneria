@@ -6,7 +6,6 @@ import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.ArgumentGatherers;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.ModList;
-import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
 import yesman.epicfight.world.capabilities.item.CapabilityItem;
@@ -25,9 +24,9 @@ public class FireArts extends CombatArt
     }
 
     @Override
-    public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine)
+    public FriendlyByteBuf gatherArguments()
     {
-        return ArgumentGatherers.UniversalDirectionalInput(container, controlEngine);
+        return ArgumentGatherers.UniversalDirectionalInput();
     }
 
     @Override

@@ -1,0 +1,16 @@
+{
+  "delivery_method": {
+    "modifiers": [
+      {"modifier1": 0.2},
+      {"modifier2": 0.6},
+      {"modifier3": 1.0}
+    ]
+  },
+  "effect_type": {
+    "modifiers": [
+      {"modifier1": 0.2},
+      {"modifier2": 0.6},
+      {"modifier3": 1.0}
+    ]
+  }
+}

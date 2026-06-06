@@ -4,9 +4,12 @@ import net.forixaim.battle_arts_api.battle_arts_skills.BattleArtsSkillSlots;
 import net.forixaim.omneria.animations.battle_style.genesis_wyrm.GenesisWyrmAnimations;
 import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.ArgumentGatherers;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.types.StaticAnimation;
+import yesman.epicfight.api.event.types.player.ModifyComboCounter;
 import yesman.epicfight.client.events.engine.ControlEngine;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
@@ -25,17 +28,17 @@ public class InitialForce extends WeaponInnateSkill
             GenesisWyrmAnimations.AUTO5
     };
 
-    public InitialForce(SkillBuilder<? extends WeaponInnateSkill> builder) {
+    public InitialForce(Builder builder) {
         super(builder);
     }
 
     @Override
-    public FriendlyByteBuf gatherArguments(SkillContainer container, ControlEngine controlEngine) {
-        return ArgumentGatherers.UniversalDirectionalInput(container, controlEngine);
+    public void gatherArguments(SkillContainer container, ControlEngine controlEngine, CompoundTag arguments) {
+        ArgumentGatherers.UniversalDirectionalInput(arguments);
     }
 
     @Override
-    public Object getExecutionPacket(SkillContainer container, FriendlyByteBuf args) {
+    public CustomPacketPayload getExecutionPacket(SkillContainer container, CompoundTag args) {
         return ArgumentGatherers.DirectionalExecutionPacket(container, args);
     }
 
@@ -45,14 +48,11 @@ public class InitialForce extends WeaponInnateSkill
     }
 
     @Override
-    public void executeOnServer(SkillContainer container, FriendlyByteBuf args) {
+    public void executeOnServer(SkillContainer container, CompoundTag args) {
         super.executeOnServer(container, args);
-        int combo = container.getDataManager().getDataValue(DatakeyRegistry.INITIAL_FORCE_COMBO.get());
+        int combo = container.getDataManager().getDataValue(DatakeyRegistry.INITIAL_FORCE_COMBO);
         SkillDataManager skillDataManager = container.getExecutor().getSkill(BattleArtsSkillSlots.BATTLE_STYLE).getDataManager();
         AnimationManager.AnimationAccessor<? extends StaticAnimation> anim;
-        int fw = args.readInt();
-        int sw = args.readInt();
-        int ud = args.readInt();
 
         if (ud == -1)
         {
@@ -101,7 +101,7 @@ public class InitialForce extends WeaponInnateSkill
         super.updateContainer(container);
         if (container.getExecutor().getTickSinceLastAction() > 16 && container.getDataManager().getDataValue(DatakeyRegistry.INITIAL_FORCE_COMBO.get()) > 0)
         {
-            GenesisWyrm.setComboCounterWithEvent(ComboCounterHandleEvent.Causal.TIME_EXPIRED, container.getServerExecutor(), container, null, 0, DatakeyRegistry.INITIAL_FORCE_COMBO);
+            GenesisWyrm.setComboCounterWithEvent(ModifyComboCounter.Causal.TIME_EXPIRED, container.getServerExecutor(), container, null, 0, DatakeyRegistry.INITIAL_FORCE_COMBO);
         }
     }
 }

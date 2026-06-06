@@ -7,9 +7,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
-import yesman.epicfight.world.item.EpicFightCreativeTabs;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import yesman.epicfight.registry.entries.EpicFightCreativeTabs;
 
 
 public class CreativeTabRegistry
@@ -17,7 +17,7 @@ public class CreativeTabRegistry
 	public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, VisitorsOfOmneria.MOD_ID);
 
 
-	public static final RegistryObject<CreativeModeTab> VISITORS_OF_OMNERIA = CREATIVE_MODE_TABS.register("visitors_of_omneria", () -> CreativeModeTab.builder()
+	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> VISITORS_OF_OMNERIA = CREATIVE_MODE_TABS.register("visitors_of_omneria", () -> CreativeModeTab.builder()
 			.title(Component.translatable("itemGroup.omneria.visitors_of_omneria").withStyle(ChatFormatting.DARK_PURPLE))
 			.icon(() -> new ItemStack(ItemRegistry.ORIGIN_JOYEUSE.get()))
 			.withTabsBefore(EpicFightCreativeTabs.ITEMS.getId()).hideTitle()

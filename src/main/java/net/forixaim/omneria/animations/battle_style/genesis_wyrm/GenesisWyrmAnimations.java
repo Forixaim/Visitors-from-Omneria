@@ -14,6 +14,7 @@ import net.forixaim.omneria.skill.DatakeyRegistry;
 import net.forixaim.omneria.world.entity.projectiles.DarkBangProjectile;
 import net.forixaim.omneria.world.entity.projectiles.DragonCannonBeam;
 import net.forixaim.omneria.world.entity.projectiles.FullPowerDragonCannonBeam;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -22,10 +23,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import yesman.epicfight.api.animation.AnimationManager;
 import yesman.epicfight.api.animation.JointTransform;
@@ -38,12 +44,14 @@ import yesman.epicfight.api.utils.math.OpenMatrix4f;
 import yesman.epicfight.api.utils.math.QuaternionUtils;
 import yesman.epicfight.api.utils.math.ValueModifier;
 import yesman.epicfight.api.utils.math.Vec3f;
+import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
 import yesman.epicfight.gameasset.Animations;
 import yesman.epicfight.gameasset.Armatures;
 import yesman.epicfight.gameasset.ColliderPreset;
 import yesman.epicfight.gameasset.EpicFightSounds;
 import yesman.epicfight.model.armature.HumanoidArmature;
 import yesman.epicfight.particle.EpicFightParticles;
+import yesman.epicfight.skill.SkillDataManager;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch;
 import yesman.epicfight.world.capabilities.entitypatch.player.ServerPlayerPatch;
 import yesman.epicfight.world.damagesource.EpicFightDamageSource;
@@ -124,6 +132,8 @@ public class GenesisWyrmAnimations
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> HEAVY_AUTO3;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DARK_UPPER;
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_UPPERCUT;
+    public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGONSLAYER_LEAP;
+
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> DRAGON_WHIRL;
 
     public static AnimationManager.AnimationAccessor<OmneriaAttackAnimation> ORIGIN_PULL;
@@ -247,6 +257,62 @@ public class GenesisWyrmAnimations
                 .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12)
                 .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, Animations.ReusableSources.CONSTANT_ONE));
 
+        DRAGONSLAYER_LEAP = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dragonslayer_leap", access -> new OmneriaAttackAnimation(
+                0.1f, 0.0f, 0.85f, 1f, 1.5f, ColliderPreset.BATTOJUTSU_DASH, Armatures.BIPED.get().rootJoint, access, Armatures.BIPED
+        ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
+                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
+                .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12)
+                .addProperty(AnimationProperty.AttackAnimationProperty.CANCELABLE_MOVE, false)
+                .addProperty(AnimationProperty.StaticAnimationProperty.PLAY_SPEED_MODIFIER, (dynamicAnimation, livingEntityPatch, speed,prevElapsedTime, elapsedTime) ->
+                {
+                    if (elapsedTime >= 0.85f)
+                    {
+                        float dpx = (float) livingEntityPatch.getOriginal().getX();
+                        float dpy = (float) livingEntityPatch.getOriginal().getY();
+                        float dpz = (float) livingEntityPatch.getOriginal().getZ();
+
+                        for(BlockState block = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos.MutableBlockPos(dpx, dpy, dpz)); (block.getBlock() instanceof BushBlock || block.isAir()) && !block.is(Blocks.VOID_AIR); block = livingEntityPatch.getOriginal().level().getBlockState(new BlockPos.MutableBlockPos(dpx, dpy, dpz))) {
+                            --dpy;
+                        }
+
+                        float distanceToGround = (float)Math.max(Math.abs(livingEntityPatch.getOriginal().getY() - (double)dpy) - (double)1.0F, 0.0F);
+                        LivingEntity livingentity = livingEntityPatch.getOriginal();
+                        Vec3f direction = new Vec3f(0F, -3F, 0.0F);
+                        OpenMatrix4f rotation = new OpenMatrix4f().rotate(-(float)Math.toRadians(livingEntityPatch.getOriginal().yBodyRotO + 90.0F), new Vec3f(0.0F, 1.0F, 0.0F));
+                        OpenMatrix4f.transform3v(rotation, direction, direction);
+                        if (distanceToGround > 0.5F)
+                            livingentity.move(MoverType.SELF, direction.toDoubleVector());
+                    }
+                    return 1;
+                })
+                .addEvents(AnimationEvent.InTimeEvent.create(0.1f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                {
+                    Entity entity = livingEntityPatch.getOriginal();
+
+                    entity.level().addParticle(EpicFightParticles.WHITE_AFTERIMAGE.get(), entity.getX(), entity.getY(), entity.getZ(), Double.longBitsToDouble(entity.getId()), 0.0F, 0.0F);
+
+                    livingEntityPatch.playSound(SoundRegistry.IMPERATRICE_SPOT_DODGE.get(), 0, 0);
+                    livingEntityPatch.getOriginal().setInvisible(true);
+
+                }, AnimationEvent.Side.CLIENT), AnimationEvent.InTimeEvent.create(0.55f, (livingEntityPatch, assetAccessor, animationParameters) ->
+                {
+                    livingEntityPatch.getOriginal().setInvisible(false);
+                    if (livingEntityPatch instanceof PlayerPatch<?> playerPatch && playerPatch.getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager().hasData(DatakeyRegistry.FOCUSED_TARGET.get()) && playerPatch.getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()) > 0)
+                    {
+                        Entity opponent = livingEntityPatch.getOriginal().level().getEntity(playerPatch.getSkill(BattleArtsSkillSlots.SPECIAL_ART).getDataManager().getDataValue(DatakeyRegistry.FOCUSED_TARGET.get()));
+                        if (opponent instanceof LivingEntity livingEntity)
+                        {
+                            Vec3 opponentPos = opponent.position();
+                            if (!livingEntityPatch.isLogicalClient())
+                            {
+                                livingEntityPatch.getOriginal().teleportTo((ServerLevel) opponent.level(), opponentPos.x, livingEntityPatch.getOriginal().getY(), opponentPos.z, RelativeMovement.ALL, livingEntity.yHeadRot, livingEntityPatch.getOriginal().getViewXRot(1.0f));
+                                livingEntityPatch.playSound(SoundRegistry.IMPERATRICE_SPOT_DODGE.get(), 0, 0);
+                            }
+                        }
+                    }
+                }, AnimationEvent.Side.BOTH), AnimationEvent.InTimeEvent.create(1f, Animations.ReusableSources.FRACTURE_GROUND_SIMPLE, AnimationEvent.Side.CLIENT).params(new Vec3f(0.0F, -0.24F, -2.0F), Armatures.BIPED.get().rootJoint, 2.4, 1F)));
+
         DRAGON_PULSE = builder.nextAccessor("battle_style/legendary/genesis_wyrm/dpulse", access -> new OmneriaAttackAnimation(
                 0.1f, 0.0f, 0.3f, 0.35f, 1.5f, ColliderPreset.FIST, Armatures.BIPED.get().handR, access, Armatures.BIPED
         ).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d).addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.HEAVY_BLOW.get()).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
@@ -257,19 +323,19 @@ public class GenesisWyrmAnimations
                 .addEvents(AnimationEvent.InTimeEvent.create(0.35f, (livingEntityPatch, assetAccessor, animationParameters) ->
                 {
 
-                })));
+                }, AnimationEvent.Side.SERVER)));
 
         DRAGON_WHIRL = builder.nextAccessor("battle_style/legendary/genesis_wyrm/neutral_air", access ->
-                new OmneriaAttackAnimation(0.1f, access, Armatures.BIPED, new AttackAnimation.Phase(0.0f, 0.0f, 0.2f, 0.3f, 0.35f, 0.35f, Armatures.BIPED.get().legL, GenesisWyrmColliders.GW_CLAW).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d)
+                new OmneriaAttackAnimation(0.05f, access, Armatures.BIPED, new AttackAnimation.Phase(0.0f, 0.0f, 0.05f, 0.15f, 0.35f, 0.35f, Armatures.BIPED.get().legL, GenesisWyrmColliders.GW_CLAW).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d)
                         .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_KICK_IMPACT_M.get())
-                        .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
-                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                        .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 30d)
+                        .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(3))
                         .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
                         .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12),
-                        new AttackAnimation.Phase(0.35f, 0.0f, 0.4f, 0.5f, 0.75f, 1f, Armatures.BIPED.get().legL, GenesisWyrmColliders.GW_CLAW).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d)
+                        new AttackAnimation.Phase(0.35f, 0.0f, 0.2f, 0.35f, 0.75f, 1f, Armatures.BIPED.get().legL, GenesisWyrmColliders.GW_CLAW).addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_POWER, 1.2d)
                                 .addProperty(AnimationProperty.AttackPhaseProperty.HIT_SOUND, SoundRegistry.IMPERATRICE_KICK_IMPACT_M.get())
-                                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 60d)
-                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(5))
+                                .addProperty(BattleArtsAttackPhaseProperties.KNOCKBACK_ANGLE, 30d)
+                                .addProperty(AnimationProperty.AttackPhaseProperty.IMPACT_MODIFIER, ValueModifier.setter(3))
                                 .addProperty(BattleArtsAttackPhaseProperties.HITSTUN_TICKS, 12)
                                 .addProperty(BattleArtsAttackPhaseProperties.ENDLAG_TICKS, 12)
                 ).addProperty(BattleArtsAttackPhaseProperties.IS_AERIAL, true)

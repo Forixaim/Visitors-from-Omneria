@@ -32,13 +32,11 @@ public class ImperatriceWP extends Skill
 
     private void swapSkills(SkillContainer container)
     {
-        NetworkUtils.changeSkill(container.getServerExecutor(), SkillSlots.BASIC_ATTACK, OmneriaSkills.FLARE_BLITZ);
         NetworkUtils.changeSkill(container.getServerExecutor(), BattleArtsSkillSlots.COMBAT_ART, OmneriaSkills.FIRE_ARTS);
     }
 
     private void resetSkills(SkillContainer container)
     {
-        NetworkUtils.changeSkill(container.getServerExecutor(), SkillSlots.BASIC_ATTACK, EpicFightSkills.BASIC_ATTACK);
         NetworkUtils.changeSkill(container.getServerExecutor(), BattleArtsSkillSlots.COMBAT_ART, null);
     }
 }

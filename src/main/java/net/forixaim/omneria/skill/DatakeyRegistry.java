@@ -3,7 +3,6 @@ package net.forixaim.omneria.skill;
 import net.forixaim.omneria.VisitorsOfOmneria;
 import net.forixaim.omneria.skill.battle_style.genesis_wyrm.GenesisWyrm;
 import net.forixaim.omneria.skill.battle_style.genesis_wyrm.InitialForce;
-import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.FlareBlitz;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.ImperatriceLumiere;
 import net.forixaim.omneria.skill.battle_style.imperatrice_lumiere.active.FireArts;
 import net.minecraft.resources.ResourceLocation;

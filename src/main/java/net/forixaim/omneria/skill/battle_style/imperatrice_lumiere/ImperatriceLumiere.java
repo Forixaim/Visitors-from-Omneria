@@ -169,7 +169,6 @@ public class ImperatriceLumiere extends OmneriaBattleStyle
 	@Override
 	public void executeOnServer(SkillContainer container, FriendlyByteBuf args)
 	{
-		NetworkUtils.changeSkill(container.getServerExecutor(), SkillSlots.BASIC_ATTACK, OmneriaSkills.FLARE_BLITZ);
 		NetworkUtils.changeSkill(container.getServerExecutor(), BattleArtsSkillSlots.COMBAT_ART, OmneriaSkills.FIRE_ARTS);
 	}
 

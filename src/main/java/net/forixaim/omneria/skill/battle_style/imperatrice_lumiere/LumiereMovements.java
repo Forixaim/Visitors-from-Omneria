@@ -1,22 +1,22 @@
 package net.forixaim.omneria.skill.battle_style.imperatrice_lumiere;
 
+import yesman.epicfight.api.event.EntityEventListener;
 import yesman.epicfight.skill.Skill;
 import yesman.epicfight.skill.SkillBuilder;
 import yesman.epicfight.skill.SkillContainer;
-import yesman.epicfight.world.entity.eventlistener.PlayerEventListener;
 
 import java.util.UUID;
 
 public class LumiereMovements extends Skill
 {
     private static final UUID EVENT_ID = UUID.fromString("a3b00953-4379-4d93-b8a1-7d9a705e06f7");
-    public LumiereMovements(SkillBuilder<? extends Skill> builder)
+    public LumiereMovements(SkillBuilder builder)
     {
         super(builder);
     }
 
     @Override
-    public void onInitiate(SkillContainer container)
+    public void onInitiate(SkillContainer container, EntityEventListener eventListener)
     {
         super.onInitiate(container);
 
